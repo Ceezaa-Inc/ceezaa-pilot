@@ -1,0 +1,75 @@
+{
+  "user_id": "mock-user-123",
+  "generated_at": "2024-12-07T10:30:00Z",
+
+  "user_analysis": {
+    "categories": {
+      "coffee": { "count": 43, "merchants": ["bb-123", "philz-456", "sbux-789"], "amount_total": 215.50 },
+      "dining": { "count": 67, "merchants": ["ramen-1", "sushi-2", "pizza-3"], "amount_total": 890.00 },
+      "entertainment": { "count": 22, "merchants": ["amc-1", "spotify-1"], "amount_total": 340.00 },
+      "shopping": { "count": 15, "merchants": ["target-1", "amazon-1"], "amount_total": 450.00 }
+    },
+    "time_buckets": {
+      "morning": 127,
+      "afternoon": 296,
+      "evening": 254,
+      "night": 170
+    },
+    "day_types": {
+      "weekday": 524,
+      "weekend": 323
+    },
+    "merchant_visits": {
+      "bb-123": 18,
+      "philz-456": 12,
+      "ramen-1": 8,
+      "sbux-789": 7,
+      "sushi-2": 6
+    },
+    "top_merchants": [
+      { "id": "bb-123", "name": "Blue Bottle Coffee", "visits": 18, "category": "coffee" },
+      { "id": "philz-456", "name": "Philz Coffee", "visits": 12, "category": "coffee" },
+      { "id": "ramen-1", "name": "Ramen Tatsunoya", "visits": 8, "category": "dining" }
+    ],
+    "streaks": {
+      "coffee": { "current": 5, "longest": 12, "last_date": "2024-12-07" },
+      "dining": { "current": 3, "longest": 7, "last_date": "2024-12-06" }
+    },
+    "exploration": {
+      "coffee": { "unique": 12, "total": 43 },
+      "dining": { "unique": 23, "total": 67 }
+    },
+    "total_transactions": 847,
+    "first_transaction_at": "2024-01-01T09:00:00Z",
+    "last_transaction_at": "2024-12-07T08:30:00Z",
+    "last_updated_at": "2024-12-07T10:00:00Z"
+  },
+
+  "taste_profile": {
+    "archetype": "Urban Explorer",
+    "archetype_emoji": "🏙️",
+    "trait_badges": [
+      {
+        "name": "Coffee Connoisseur",
+        "emoji": "☕",
+        "description": "Blue Bottle knows your order by heart. 18 visits says it all."
+      },
+      {
+        "name": "Culinary Cartographer",
+        "emoji": "🗺️",
+        "description": "23 different restaurants in a year. Your palate is a passport."
+      },
+      {
+        "name": "Night Crawler",
+        "emoji": "🌙",
+        "description": "20% of your meals happen after dark. The city never sleeps."
+      }
+    ],
+    "headline_insight": "You've mapped 23 restaurants this year while running on Blue Bottle. Explorer with excellent taste.",
+    "rarity_percentile": 12,
+    "share_caption": "Apparently I'm an Urban Explorer. What's your taste identity?",
+    "model_version": "gpt-4o-mini-2024-07-18",
+    "generated_at": "2024-12-07T10:30:00Z",
+    "previous_archetype": null
+  }
+}

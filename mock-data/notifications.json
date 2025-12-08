@@ -1,0 +1,68 @@
+{
+  "description": "Mock push notifications for different trigger types",
+  "notifications": [
+    {
+      "id": "notif-001",
+      "type": "daily_insight",
+      "title": "🔥 5-day coffee streak!",
+      "body": "You're on fire! Blue Bottle is clearly your happy place.",
+      "data": {
+        "type": "daily_insight",
+        "insight_id": "insight-001",
+        "deep_link": "/home"
+      },
+      "scheduled_for": "2024-12-07T09:00:00Z"
+    },
+    {
+      "id": "notif-002",
+      "type": "streak_milestone",
+      "title": "☕ 7-day coffee streak!",
+      "body": "A whole week! You're officially a Coffee Connoisseur.",
+      "data": {
+        "type": "streak",
+        "category": "coffee",
+        "days": 7,
+        "deep_link": "/home"
+      },
+      "scheduled_for": "2024-12-09T09:00:00Z"
+    },
+    {
+      "id": "notif-003",
+      "type": "streak_at_risk",
+      "title": "☕ Don't break your streak!",
+      "body": "Visit a cafe today to keep your 5-day coffee streak alive.",
+      "data": {
+        "type": "streak_risk",
+        "category": "coffee",
+        "current_days": 5,
+        "deep_link": "/home"
+      },
+      "scheduled_for": "2024-12-08T18:00:00Z"
+    },
+    {
+      "id": "notif-004",
+      "type": "weekly_refresh",
+      "title": "✨ Your taste profile updated!",
+      "body": "See what changed this week. Tap to view your Truth Card.",
+      "data": {
+        "type": "profile_update",
+        "has_archetype_change": false,
+        "deep_link": "/truth-card"
+      },
+      "scheduled_for": "2024-12-08T10:00:00Z"
+    },
+    {
+      "id": "notif-005",
+      "type": "archetype_change",
+      "title": "🎭 Plot twist!",
+      "body": "Your archetype evolved from Urban Explorer to Culture Vulture. Tap to see why.",
+      "data": {
+        "type": "archetype_change",
+        "old_archetype": "Urban Explorer",
+        "new_archetype": "Culture Vulture",
+        "deep_link": "/truth-card"
+      },
+      "scheduled_for": "2024-12-15T10:00:00Z"
+    }
+  ]
+}

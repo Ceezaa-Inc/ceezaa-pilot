@@ -1,0 +1,67 @@
+{
+  "description": "Simulated SSE events for processing screen - powered by TIL real-time updates",
+  "events": [
+    {
+      "phase": 1,
+      "name": "reading",
+      "progress": 25,
+      "message": "Reading your story...",
+      "data": {
+        "transaction_count": 847,
+        "period_start": "2024-01-01",
+        "period_end": "2024-12-07"
+      },
+      "delay_ms": 0
+    },
+    {
+      "phase": 2,
+      "name": "spotting_patterns",
+      "progress": 50,
+      "message": "Spotting patterns...",
+      "data": {
+        "categories_found": [
+          { "name": "Coffee", "emoji": "☕", "count": 43 },
+          { "name": "Dining", "emoji": "🍜", "count": 67 },
+          { "name": "Fun", "emoji": "🎵", "count": 22 }
+        ],
+        "top_merchant_preview": "Blue Bottle Coffee"
+      },
+      "delay_ms": 5000
+    },
+    {
+      "phase": 3,
+      "name": "crafting_identity",
+      "progress": 75,
+      "message": "Crafting your identity...",
+      "data": {
+        "teaser": "Looks like someone loves their morning coffee...",
+        "streaks_detected": {
+          "coffee": 5,
+          "dining": 3
+        }
+      },
+      "delay_ms": 15000
+    },
+    {
+      "phase": 4,
+      "name": "almost_there",
+      "progress": 95,
+      "message": "Almost there...",
+      "data": {
+        "ai_generating": true
+      },
+      "delay_ms": 25000
+    },
+    {
+      "phase": 5,
+      "name": "complete",
+      "progress": 100,
+      "message": "Your taste profile is ready!",
+      "data": {
+        "redirect_to": "taste-reveal",
+        "archetype_preview": "Urban Explorer"
+      },
+      "delay_ms": 30000
+    }
+  ]
+}
