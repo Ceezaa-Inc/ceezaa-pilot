@@ -1,38 +1,91 @@
-# Ceezaa MVP - App Layout & UX Skeleton
+# Ceezaa MVP - App Layout & UX Specification
 
-> **Timeline:** 4 weeks
-> **Core Promise:** "Wrapped for your life" - Transform spending into taste identity
-> **Viral Hook:** Truth Card (shareable taste identity)
-> **Magic:** AI transforms your transactions into personalized identity narrative
+> **Timeline:** 10 weeks
+> **Core Promise:** Discover experiences that match your taste, plan together with friends
+> **Target:** Young urban professionals (21-35) in SF
+> **Magic:** Transaction data + quiz answers = personalized taste intelligence
 
 ---
 
 ## Design Principles
 
-1. **Instant Gratification** - Link card → See AI magic within 60 seconds
-2. **Minimal Friction** - Every tap should feel worth it
-3. **Shareability First** - Truth Card designed to be screenshot-worthy
-4. **Delightful Details** - Micro-animations that spark joy
-5. **Data as Story** - AI turns numbers into narrative, not spreadsheets
+1. **Taste-First Discovery** - Every recommendation powered by user's actual behavior + stated preferences
+2. **Effortless Group Planning** - Turn "where should we go?" into a 2-minute decision
+3. **Minimal Friction** - Every tap should feel worth it, every screen has one clear purpose
+4. **Delightful Details** - Micro-animations that spark joy without slowing down
+5. **Privacy Respectful** - Transaction data powers taste, never shown to others
 6. **The "Aha Moment"** - Users should feel "this app just gets me"
 
 ---
 
-## User Journey (MVP)
+## App Structure
+
+### Navigation (4 Tabs)
 
 ```
-Welcome → Auth → Link Card → Notifications → Processing Magic → Taste Reveal → Truth Card → Home
-   │                                                                              │
-   └────────────────────────── Share Loop ←───────────────────────────────────────┘
-                                                                                  │
-                                                                    Daily Push Notifications
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│                        [Current Screen]                          │
+│                                                                  │
+│                                                                  │
+│                                                                  │
+├──────────────┬──────────────┬──────────────┬──────────────┤
+│    Pulse     │   Discover   │    Vault     │   Profile    │
+│     (Home)   │   (Explore)  │   (History)  │  (Settings)  │
+└──────────────┴──────────────┴──────────────┴──────────────┘
+```
+
+| Tab | Purpose | Icon |
+|-----|---------|------|
+| Pulse | Home - Taste Ring, insights, saved plans | Home/Pulse |
+| Discover | Find experiences, group sessions | Compass/Search |
+| Vault | Your taste history, visited places | Book/Archive |
+| Profile | Account, settings, preferences | Person |
+
+---
+
+## User Journey
+
+### First-Time User Flow
+
+```
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│ Welcome │───▶│  Auth   │───▶│  Quiz   │───▶│ Initial │───▶│  Card   │───▶│Enhanced │
+│ Splash  │    │Sign Up  │    │(5-7 Qs) │    │  Taste  │    │  Link   │    │ Reveal  │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘
+                                                  │              │              │
+                                             Shows quiz-    Required      Combines
+                                             based profile  (no skip)     quiz + txns
+                                                  │              │              │
+                                                  └──────────────┴──────────────┘
+                                                                 │
+                                                                 ▼
+                                                          ┌─────────────┐
+                                                          │  Main App   │
+                                                          │ (4 Tabs)    │
+                                                          └─────────────┘
+```
+
+**Key Insight:** Show users their quiz-based taste profile BEFORE asking for card access. This builds trust and demonstrates value. Card linking is required to proceed.
+
+### Returning User Flow
+
+```
+┌─────────┐    ┌─────────┐
+│ Splash  │───▶│  Pulse  │
+│(auto)   │    │  (Home) │
+└─────────┘    └─────────┘
 ```
 
 ---
 
-## Screen-by-Screen Layout
+## Screen-by-Screen Layouts
 
-### 1. SPLASH / WELCOME
+### ONBOARDING FLOW
+
+---
+
+#### 1. WELCOME / SPLASH
 **Purpose:** Brand moment + hook
 
 ```
@@ -41,13 +94,14 @@ Welcome → Auth → Link Card → Notifications → Processing Magic → Taste 
 │                                     │
 │           [Ceezaa Logo]             │
 │                                     │
-│     "Your spending tells a story.   │
-│        Let's read it together."     │
+│     "Discover what you'll love.     │
+│          Plan it together."         │
 │                                     │
 │                                     │
 │         [ Get Started ]             │
 │                                     │
 │       Already have account?         │
+│            Sign In                  │
 │                                     │
 └─────────────────────────────────────┘
 ```
@@ -55,485 +109,922 @@ Welcome → Auth → Link Card → Notifications → Processing Magic → Taste 
 **Notes:**
 - Subtle animated gradient background
 - Logo has gentle pulse animation
-- Single CTA, no clutter
+- Single primary CTA
+- Duration: < 3 seconds for returning users (auto-login)
 
 ---
 
-### 2. SIGN UP / LOGIN
+#### 2. SIGN UP
 **Purpose:** Lowest friction auth
 
 ```
 ┌─────────────────────────────────────┐
 │  ←                                  │
 │                                     │
-│     What's your phone number?       │
+│     Create your account             │
 │                                     │
 │     ┌─────────────────────────┐     │
 │     │  +1  │ (555) 123-4567   │     │
 │     └─────────────────────────┘     │
 │                                     │
-│         [ Send Code ]               │
+│         [ Continue ]                │
 │                                     │
 │                                     │
 │   ─────── or continue with ───────  │
 │                                     │
 │      [Apple]    [Google]            │
 │                                     │
-└─────────────────────────────────────┘
-```
-
-**Flow:**
-1. Phone number → OTP (6 digits)
-2. OR social auth (Apple/Google)
-3. First-time: Capture name on next screen
-
-**Notes:**
-- Phone-first for Gen Z (they don't use email)
-- Social auth as backup
-- No password to remember
-
----
-
-### 3. ONBOARDING VALUE PROP (2-3 swipeable cards)
-**Purpose:** Build anticipation before Plaid
-
-```
-┌─────────────────────────────────────┐
-│                                  ⦿⦾⦾│
 │                                     │
-│        [Illustration: Cards         │
-│         transforming into           │
-│         personality icons]          │
-│                                     │
-│     "Your coffee runs, concert      │
-│      tickets, and late-night        │
-│      ramen tell your story"         │
-│                                     │
-│                                     │
-│           [ Next ]                  │
-│           [ Skip ]                  │
+│   By continuing, you agree to our   │
+│   Terms of Service & Privacy Policy │
 │                                     │
 └─────────────────────────────────────┘
 ```
 
-**Cards:**
-1. "Your spending = Your taste DNA"
-2. "We analyze patterns, not amounts" (privacy reassurance)
-3. "Get your Truth Card in 60 seconds"
-
----
-
-### 4. CONNECT BANK
-**Purpose:** Plaid linking with clear value exchange
-
+**OTP Verification:**
 ```
 ┌─────────────────────────────────────┐
 │  ←                                  │
 │                                     │
-│     🔒 Bank-grade security          │
+│     Enter verification code         │
 │                                     │
-│     Connect your spending to        │
-│     unlock your Taste Identity      │
+│     Sent to +1 (555) 123-4567       │
+│                                     │
+│     ┌───┬───┬───┬───┬───┬───┐      │
+│     │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │      │
+│     └───┴───┴───┴───┴───┴───┘      │
+│                                     │
+│         [ Verify ]                  │
+│                                     │
+│      Didn't get it? Resend          │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Notes:**
+- Phone-first for Gen Z (they don't use email)
+- Social auth as convenient backup
+- No password to remember
+- Auto-verify if SMS auto-fill available
+
+---
+
+#### 3. TASTE PROFILE QUIZ
+**Purpose:** Establish initial taste preferences (5-7 questions)
+
+```
+┌─────────────────────────────────────┐
+│  ←                         1 of 5   │
+│                                     │
+│     What sounds like your           │
+│     ideal Saturday night?           │
 │                                     │
 │     ┌─────────────────────────┐     │
-│     │  🏦  Chase              │     │
-│     │  🏦  Bank of America    │     │
-│     │  🏦  Wells Fargo        │     │
-│     │  💳  Apple Card         │     │
-│     │      See all banks →    │     │
+│     │  🍷 Cozy dinner at a    │     │
+│     │     hidden gem spot     │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │  🎉 Bar hopping with    │     │
+│     │     the crew            │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │  🎬 Movie + late night  │     │
+│     │     bites               │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │  🏠 Netflix & homemade  │     │
+│     │     dinner              │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     ████████████░░░░░░░░ 40%        │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Quiz Questions (Examples):**
+
+1. **Ideal Saturday night?** (Vibe preference)
+   - Cozy dinner at hidden gem
+   - Bar hopping with crew
+   - Movie + late night bites
+   - Netflix & homemade dinner
+
+2. **Morning coffee routine?** (Coffee habits)
+   - Third-wave pour-over
+   - Quick espresso on the go
+   - Large cold brew, any brand
+   - I don't drink coffee
+
+3. **Trying a new restaurant, you pick...** (Exploration style)
+   - The trendy spot everyone's talking about
+   - A hole-in-the-wall with great reviews
+   - Somewhere my friend recommended
+   - A reliable favorite
+
+4. **Your food philosophy?** (Dietary)
+   - Eat everything, no restrictions
+   - Mostly healthy, occasional splurge
+   - Vegetarian/Vegan
+   - Specific dietary needs
+
+5. **When dining out, you prefer...** (Group vs solo)
+   - Big group, the more the merrier
+   - Double date or small group
+   - Just me and one other person
+   - Solo dining is underrated
+
+**Notes:**
+- One question per screen, swipeable
+- Progress bar shows completion
+- Answers stored as "declared taste" in TIL
+- Skip option but discouraged (affects recommendations)
+
+---
+
+#### 4. INITIAL TASTE CARD
+**Purpose:** Show quiz-based taste profile to build trust before card linking
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│         Your Taste Profile          │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │                         │     │
+│     │      [TASTE CARD]       │     │
+│     │                         │     │
+│     │   Based on your quiz:   │     │
+│     │                         │     │
+│     │   "Coffee explorer who  │     │
+│     │    loves hidden gems"   │     │
+│     │                         │     │
+│     │   Vibes: Chill, Social  │     │
+│     │   Style: Adventurous    │     │
+│     │   Cuisine: Japanese,    │     │
+│     │           Mexican       │     │
+│     │                         │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     This is just the beginning.     │
+│     Now let's make it real.         │
+│                                     │
+│       [ Continue ]                  │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Notes:**
+- Celebrate moment - they've completed the quiz
+- Show them their "declared taste" from quiz answers
+- Build anticipation for the next step
+- "This is just the beginning" primes them for card linking
+- No back button - forward momentum only
+
+---
+
+#### 5. CARD LINKING
+**Purpose:** Enable transaction-based personalization (required)
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│     Now let's see where you         │
+│     actually go                     │
+│                                     │
+│     Your quiz told us what you      │
+│     like. Your card shows us        │
+│     the real you.                   │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │                         │     │
+│     │  Quiz says: Coffee lover│     │
+│     │         +               │     │
+│     │  Card reveals: Your     │     │
+│     │  actual favorite spots  │     │
+│     │                         │     │
 │     └─────────────────────────┘     │
 │                                     │
 │     ✓ Read-only access              │
 │     ✓ We never see your password    │
-│     ✓ 256-bit encryption            │
+│     ✓ Bank-grade encryption         │
+│                                     │
+│       [ Link a Card ]               │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**After Plaid Link (Processing):**
+```
+┌─────────────────────────────────────┐
+│                                     │
+│     ✓ Card linked!                  │
+│                                     │
+│     Analyzing your taste...         │
+│                                     │
+│     ┌─────────────────────────┐     │
+│     │  ☕ 23 coffee spots      │     │
+│     │  🍜 47 restaurants       │     │
+│     │  🌙 12 late-night runs   │     │
+│     └─────────────────────────┘     │
+│                                     │
+│     ████████████████░░░░ 80%        │
 │                                     │
 └─────────────────────────────────────┘
 ```
 
 **Notes:**
-- Pre-surface popular banks (faster selection)
+- Positioned AFTER they've seen value (Initial Taste Card)
+- Clear value proposition: quiz + card = complete picture
+- No skip option - card linking is required
 - Security badges prominent
 - Plaid Link opens as modal/sheet
-- After Plaid success → Notification permission screen
+- Processing shows real-time transaction count
 
 ---
 
-### 4.5 NOTIFICATION PERMISSION
-**Purpose:** Enable daily engagement through push notifications
+#### 6. ENHANCED REVEAL
+**Purpose:** Dramatic reveal combining quiz + transaction data
 
 ```
 ┌─────────────────────────────────────┐
 │                                     │
-│        [Bell Animation]             │
+│     ✨ Your taste profile just      │
+│        got real ✨                  │
 │                                     │
-│     Stay in the loop                │
+│     ┌─────────────────────────┐     │
+│     │                         │     │
+│     │      [Taste Ring        │     │
+│     │       Animation]        │     │
+│     │                         │     │
+│     │   ☕ 34%  🍜 28%         │     │
+│     │   🌙 22%  🎵 16%         │     │
+│     │                         │     │
+│     └─────────────────────────┘     │
 │                                     │
-│     Get notified about:             │
+│     Quiz said: Coffee explorer      │
+│     Card confirmed: 18 visits to    │
+│     Blue Bottle in 3 months!        │
 │                                     │
-│     ☕ Streak milestones            │
-│     "5-day coffee streak!"          │
+│     "You're a coffee-first          │
+│      explorer who loves finding     │
+│      hidden gems for dinner"        │
 │                                     │
-│     ✨ Daily taste insights         │
-│     "New discovery: You tried       │
-│      3 new restaurants!"            │
-│                                     │
-│     🎭 Profile updates              │
-│     "Your archetype evolved!"       │
-│                                     │
-│                                     │
-│     [ Enable Notifications ]        │
-│                                     │
-│         Maybe later                 │
+│       [ Start Exploring ]           │
 │                                     │
 └─────────────────────────────────────┘
 ```
 
 **Notes:**
-- Shown only once after Plaid success
-- "Maybe later" skips but can enable in Settings
-- On enable → iOS/Android native permission dialog
-- After this → Processing screen
+- Confetti/celebration animation
+- Taste Ring preview (full version on Pulse)
+- Personalized insight based on quiz + transactions
+- Transitions to main app (Pulse tab)
 
 ---
 
-### 5. PROCESSING / ANALYZING (AI-POWERED)
-**Purpose:** Delight during wait while AI crafts identity (20-30 sec)
-
-The processing screen uses Server-Sent Events (SSE) to show real-time progress.
-Each phase has distinct animation and message.
-
-**PHASE 1: Reading (0-5s)**
-```
-┌─────────────────────────────────────┐
-│                                     │
-│     [Particles floating in]         │
-│                                     │
-│     "Reading your story..."         │
-│                                     │
-│     Found 847 transactions          │
-│     ████░░░░░░░░░░░░ 25%            │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**PHASE 2: Spotting Patterns (5-15s)**
-```
-┌─────────────────────────────────────┐
-│                                     │
-│     [Particles clustering into      │
-│      category bubbles]              │
-│                                     │
-│     "Spotting patterns..."          │
-│                                     │
-│     ☕ Coffee   🍜 Dining            │
-│     🎵 Fun                          │
-│                                     │
-│     ████████░░░░░░░░ 50%            │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**PHASE 3: Crafting Identity (15-25s)**
-```
-┌─────────────────────────────────────┐
-│                                     │
-│     [Identity silhouette forming]   │
-│                                     │
-│     "Crafting your identity..."     │
-│                                     │
-│     "Looks like someone loves       │
-│      their morning coffee..."       │
-│                                     │
-│     ████████████░░░░ 75%            │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**PHASE 4: Almost There (25-30s)**
-```
-┌─────────────────────────────────────┐
-│                                     │
-│     [Identity crystallizing]        │
-│                                     │
-│     "Almost there..."               │
-│                                     │
-│     ████████████████ 100%           │
-│                                     │
-│     [Transition to reveal]          │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**Technical Notes:**
-- Backend sends SSE updates: `{phase, message, progress, data}`
-- Phase 1-2: Rule-based processing (fast)
-- Phase 3: AI generating personality content (GPT-4o-mini)
-- Phase 4: Assembling final profile
-- If AI is cached, phases 3-4 are faster
-- Lottie animations for each phase transition
+### PULSE (Home Tab)
 
 ---
 
-### 6. TASTE REVEAL (Multi-step reveal)
-**Purpose:** THE moment - dramatic reveal of AI-crafted identity
-
-**Step 6a: Category Reveal (swipeable cards)**
+#### 7. PULSE HOME
+**Purpose:** Dashboard - Taste Ring, insights, quick actions
 
 ```
 ┌─────────────────────────────────────┐
-│                                     │
-│           YOUR TOP TASTE            │
-│                                     │
-│     ┌─────────────────────────┐     │
-│     │                         │     │
-│     │    ☕ COFFEE CULTURE    │     │
-│     │                         │     │
-│     │    43 visits to 12      │  ← Rule-based stats
-│     │    different cafes      │     │
-│     │                         │     │
-│     │    Top spot: Blue       │     │
-│     │    Bottle Coffee        │     │
-│     │                         │     │
-│     └─────────────────────────┘     │
-│                                     │
-│         Swipe to see more →         │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**Step 6b: Headline Insight (AI-Generated)**
-
-```
-┌─────────────────────────────────────┐
-│                                     │
-│     ┌─────────────────────────┐     │
-│     │                         │     │
-│     │   "You've explored 23   │  ← AI-GENERATED
-│     │   unique restaurants    │     │
-│     │   this year. Your       │     │
-│     │   palate is basically   │     │
-│     │   a passport."          │     │
-│     │                         │     │
-│     └─────────────────────────┘     │
-│                                     │
-│         Swipe to see more →         │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**Step 6c: Archetype Reveal (THE Big Moment)**
-
-```
-┌─────────────────────────────────────┐
-│                                     │
-│         You are a...                │
-│                                     │
-│    ╔═══════════════════════════╗    │
-│    ║                           ║    │
-│    ║   🏙️ URBAN EXPLORER       ║  ← AI-GENERATED
-│    ║                           ║    │
-│    ║   ☕ Coffee Connoisseur   ║  ← AI-GENERATED
-│    ║   "You basically run      ║    │
-│    ║    on espresso"           ║    │
-│    ║                           ║    │
-│    ║   🌙 Late Night Foodie    ║  ← AI-GENERATED
-│    ║   "The city never sleeps, ║    │
-│    ║    and neither do you"    ║    │
-│    ║                           ║    │
-│    ║   🎭 Experience Seeker    ║  ← AI-GENERATED
-│    ║   "You collect moments,   ║    │
-│    ║    not things"            ║    │
-│    ║                           ║    │
-│    ╚═══════════════════════════╝    │
-│                                     │
-│     Only 12% of users share         │  ← AI-calculated rarity
-│     this taste profile              │
-│                                     │
-│      [ See Your Truth Card ]        │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**Swipeable cards flow:**
-1. Top category + stats (rule-based)
-2. Second category + stats
-3. Third category + stats
-4. Headline insight (AI-generated)
-5. Archetype + trait badges reveal (AI-generated)
-6. Final: "See Your Truth Card?"
-
-**Notes:**
-- Big dramatic reveal with confetti animation
-- AI-generated archetype feels personal and witty
-- Each badge has a one-liner description from AI
-- Rarity percentile from AI adds social proof
-
----
-
-### 7. TRUTH CARD
-**Purpose:** Shareable artifact - THE viral loop
-
-```
-┌─────────────────────────────────────┐
-│  ←                         [Share]  │
-│                                     │
-│     ┌─────────────────────────┐     │
-│     │ ░░░░░░░░░░░░░░░░░░░░░░ │     │  Holographic gradient
-│     │                         │     │
-│     │      TRUTH CARD         │     │
-│     │      @username          │     │
-│     │                         │     │
-│     │   🏙️ URBAN EXPLORER     │     │  ← AI-GENERATED archetype
-│     │                         │     │
-│     │   ☕ 43% Coffee         │     │  ← Rule-based breakdown
-│     │   🍜 28% Dining         │     │
-│     │   🎵 18% Entertainment  │     │
-│     │   🛍️ 11% Shopping       │     │
-│     │                         │     │
-│     │   ☕ Coffee Connoisseur │     │  ← AI-GENERATED badges
-│     │   🌙 Late Night Foodie  │     │
-│     │   🎭 Experience Seeker  │     │
-│     │                         │     │
-│     │   "Your palate is       │     │  ← AI-GENERATED headline
-│     │    basically a passport"│     │
-│     │                         │     │
-│     │   Top Spot: Blue Bottle │     │  ← Rule-based
-│     │                         │     │
-│     │        [Ceezaa]         │     │
-│     └─────────────────────────┘     │
-│                                     │
-│    [ Share to Stories ]             │
-│    [ Save to Camera Roll ]          │
-│    [ Continue to Home ]             │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-**Truth Card Elements:**
-- Username/handle
-- **AI-generated archetype** (e.g., "Urban Explorer")
-- **Rule-based taste breakdown** (percentages)
-- **AI-generated trait badges** (up to 3)
-- **AI-generated headline insight** (one-liner)
-- Top merchant (rule-based)
-- Ceezaa branding (small, tasteful)
-
-**Share Caption (AI-generated):**
-When sharing, pre-fill with AI-generated caption:
-> "Apparently I'm an Urban Explorer. What's your taste identity? 🏙️"
-
-**Share Options:**
-- Instagram Stories (pre-formatted 9:16)
-- TikTok
-- Save as image
-- Copy link to profile
-
-**Design Notes:**
-- Card should look PREMIUM
-- Dark mode aesthetic (stands out on feeds)
-- Subtle gradient/holographic shimmer effect
-- Aspect ratio optimized for Stories (9:16)
-- Generated as static image via Pillow on backend
-
----
-
-### 8. HOME (Dashboard)
-**Purpose:** Daily engagement + quick access to Truth Card
-
-```
-┌─────────────────────────────────────┐
-│  [Profile]              [Settings]  │
-│                                     │
-│  Good evening, Sam                  │
+│  Good evening, Sam          [Bell]  │
 │                                     │
 │  ┌─────────────────────────────┐    │
-│  │  YOUR TRUTH CARD      [↗]  │    │
-│  │  ✨ Urban Explorer          │    │
-│  │  Tap to view & share        │    │
-│  └─────────────────────────────┘    │
-│                                     │
-│  ACTIVE STREAKS                     │
-│  ┌─────────────────────────────┐    │
-│  │  ☕ 5 days   🍜 3 days       │    │  ← From TIL streaks
-│  │  coffee      dining          │    │
+│  │                             │    │
+│  │       [TASTE RING]          │    │
+│  │    Animated Donut Chart     │    │
+│  │                             │    │
+│  │    ☕ Coffee    34%         │    │
+│  │    🍜 Dining    28%         │    │
+│  │    🌙 Nightlife 22%         │    │
+│  │    🎵 Fun       16%         │    │
+│  │                             │    │
+│  │    Tap to see details →     │    │
 │  └─────────────────────────────┘    │
 │                                     │
 │  TODAY'S INSIGHT                    │
 │  ┌─────────────────────────────┐    │
-│  │  🔥 You're on a 5-day       │    │  ← AI-generated
-│  │  coffee streak! Blue Bottle │    │    (via push notification too)
-│  │  is your happy place.       │    │
+│  │  🔥 5-day coffee streak!    │    │
+│  │  Blue Bottle is clearly     │    │
+│  │  your happy place.          │    │
 │  └─────────────────────────────┘    │
 │                                     │
-│  YOUR TASTE DNA                     │
+│  YOUR PLAYLISTS                     │
+│  ┌─────────┐ ┌─────────┐            │
+│  │Weekend  │ │Date     │  + New     │
+│  │Brunch   │ │Night    │            │
+│  │Spots    │ │Picks    │            │
+│  └─────────┘ └─────────┘            │
+│                                     │
+│  SAVED PLANS                        │
 │  ┌─────────────────────────────┐    │
-│  │  [Visual pie chart of       │    │
-│  │   spending categories]      │    │
-│  │                             │    │
-│  │  ☕ Coffee     ████████ 43% │    │
-│  │  🍜 Dining     █████░░░ 28% │    │
-│  │  🎵 Fun        ███░░░░░ 18% │    │
-│  │  🛍️ Shopping   ██░░░░░░ 11% │    │
+│  │  📅 Dinner with Alex       │    │
+│  │     Saturday @ 7pm          │    │
+│  │     3 spots to vote on      │    │
 │  └─────────────────────────────┘    │
 │                                     │
-│  RECENT ACTIVITY                    │
+├──────────────┬──────────────┬───────┤
+│    Pulse     │   Discover   │ ...   │
+└──────────────┴──────────────┴───────┘
+```
+
+**Taste Ring Details (on tap):**
+```
+┌─────────────────────────────────────┐
+│  ←  Your Taste DNA                  │
+│                                     │
+│       [EXPANDED TASTE RING]         │
+│                                     │
+│  ☕ COFFEE CULTURE                  │
 │  ┌─────────────────────────────┐    │
-│  │  Yesterday                  │    │
-│  │  🍜 Visited Ramen Tatsunoya│    │
-│  │  ☕ Morning at Starbucks    │    │
+│  │  34% of your visits         │    │
+│  │  Top spot: Blue Bottle      │    │
+│  │  18 visits, 5 unique cafes  │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  🍜 DINING                          │
+│  ┌─────────────────────────────┐    │
+│  │  28% of your visits         │    │
+│  │  Favorite: Ramen Tatsunoya  │    │
+│  │  23 unique restaurants      │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  🌙 NIGHTLIFE                       │
+│  ┌─────────────────────────────┐    │
+│  │  22% of your visits         │    │
+│  │  You're a night owl         │    │
+│  │  15% after 10pm             │    │
 │  └─────────────────────────────┘    │
 │                                     │
 └─────────────────────────────────────┘
 ```
 
-**Home Sections:**
-1. **Truth Card Preview** - Quick access to share (shows AI archetype)
-2. **Active Streaks** - Live streak counters from TIL (updates on refresh)
-3. **Today's Insight** - AI-generated fun fact (also sent as push notification)
-4. **Taste DNA** - Visual breakdown (from TIL categories)
-5. **Recent Activity** - Last few transactions (taste-ified)
-
 **Notes:**
-- Pull-to-refresh syncs new transactions + updates streaks
-- Tapping Truth Card → Full card view
-- Streak badges animate when milestone reached (3, 5, 7, etc.)
-- Today's Insight matches the daily push notification
+- Taste Ring is THE visual identity - animated, interactive
+- Insights rotate daily (streak milestones, new discoveries)
+- Quick access to saved playlists
+- Saved plans show active group sessions
+- Pull-to-refresh syncs new transactions
+- Target: < 1s load time
 
 ---
 
-### 9. PROFILE / SETTINGS
-**Purpose:** Account management + data control
+### DISCOVER (Tab)
+
+---
+
+#### 8. DISCOVER - MOOD GRID
+**Purpose:** Entry point for finding experiences
 
 ```
 ┌─────────────────────────────────────┐
-│  ←  Profile                         │
+│  Discover                   [Filter]│
 │                                     │
-│        [Avatar]                     │
-│        @username                    │
-│        Sam's Taste Profile          │
+│  What's the vibe?                   │
+│                                     │
+│  ┌─────────┐ ┌─────────┐ ┌────────┐ │
+│  │  😌     │ │  🎉     │ │  💑    │ │
+│  │ Chill   │ │ Social  │ │ Date   │ │
+│  └─────────┘ └─────────┘ └────────┘ │
+│                                     │
+│  ┌─────────┐ ┌─────────┐ ┌────────┐ │
+│  │  🗺️     │ │  ☕     │ │  🌙    │ │
+│  │Adventure│ │ Coffee  │ │ Night  │ │
+│  └─────────┘ └─────────┘ └────────┘ │
 │                                     │
 │  ─────────────────────────────────  │
 │                                     │
-│  Connected Accounts                 │
+│  FOR YOU (Based on your taste)      │
 │  ┌─────────────────────────────┐    │
-│  │  🏦 Chase ****4521   [✓]   │    │
-│  │  + Add another card         │    │
+│  │  [Venue Photo]              │    │
+│  │                             │    │
+│  │  Sightglass Coffee          │    │
+│  │  ☕ Coffee · $$ · SoMa       │    │
+│  │  "Cozy vibes, great pour-   │    │
+│  │   over" · 92% match         │    │
 │  └─────────────────────────────┘    │
 │                                     │
-│  Privacy                            │
 │  ┌─────────────────────────────┐    │
-│  │  Profile visibility  [Public]│    │
-│  │  Hide specific merchants     │    │
-│  │  Download my data            │    │
-│  │  Delete account              │    │
+│  │  [Venue Photo]              │    │
+│  │  Burma Superstar            │    │
+│  │  🍜 Dining · $$ · Inner...  │    │
 │  └─────────────────────────────┘    │
 │                                     │
-│  App                                │
+├──────────────┬──────────────┬───────┤
+│    Pulse     │   Discover   │ ...   │
+└──────────────┴──────────────┴───────┘
+```
+
+**Notes:**
+- Mood grid is primary navigation for discovery
+- Tapping a mood filters the feed
+- "For You" shows taste-matched recommendations
+- Each venue card shows match percentage
+- Horizontal scroll for venue cards
+
+---
+
+#### 9. DISCOVER - FILTERED FEED
+**Purpose:** Browse venues after mood selection
+
+```
+┌─────────────────────────────────────┐
+│  ←  Chill Spots             [Sort]  │
+│                                     │
+│  FILTERS                            │
+│  ┌────┐ ┌────────┐ ┌──────┐         │
+│  │$-$$│ │Open Now│ │< 1mi │ + More  │
+│  └────┘ └────────┘ └──────┘         │
+│                                     │
+│  12 spots found                     │
+│                                     │
 │  ┌─────────────────────────────┐    │
-│  │  Notifications               │    │
-│  │  Help & Support              │    │
-│  │  About Ceezaa                │    │
-│  │  Log out                     │    │
+│  │  [Venue Photo]              │    │
+│  │                        [♡]  │    │
+│  │  Ritual Coffee Roasters     │    │
+│  │  ☕ · $$ · Mission           │    │
+│  │  ⭐ 4.5 · 0.3 mi            │    │
+│  │  Energy: Chill · Cozy       │    │
+│  │  "Perfect for solo work"    │    │
+│  │                             │    │
+│  │  95% match for you          │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  [Venue Photo]              │    │
+│  │                        [♡]  │    │
+│  │  Andytown Coffee            │    │
+│  │  ☕ · $ · Outer Sunset       │    │
+│  │  ⭐ 4.7 · 2.1 mi            │    │
+│  │  Energy: Chill · Hidden Gem │    │
+│  │  ...                        │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│                                     │
+│    [ Start Group Session ]          │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Filter Options:**
+- Price: $, $$, $$$, $$$$
+- Distance: < 1mi, < 3mi, < 5mi
+- Open: Now, Today, This Week
+- Tags: Date-friendly, Group-friendly, Cozy, Trendy
+- Cuisine (for dining): Italian, Japanese, Mexican, etc.
+
+---
+
+#### 10. VENUE DETAIL
+**Purpose:** Full venue information
+
+```
+┌─────────────────────────────────────┐
+│  ←                          [Share]│
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │                             │    │
+│  │      [Venue Hero Photo]     │    │
+│  │                             │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  Sightglass Coffee                  │
+│  ☕ Coffee · $$ · SoMa              │
+│  ⭐ 4.6 · 423 reviews               │
+│                                     │
+│  ┌────────┐ ┌────────┐ ┌────────┐   │
+│  │  😌    │ │  💑    │ │  🏢    │   │
+│  │ Chill  │ │ Date   │ │ Work   │   │
+│  └────────┘ └────────┘ └────────┘   │
+│                                     │
+│  📍 270 7th St, San Francisco       │
+│  🕐 7am - 6pm · Open now            │
+│  📞 (415) 861-1313                  │
+│                                     │
+│  WHY YOU'LL LOVE IT                 │
+│  ┌─────────────────────────────┐    │
+│  │  95% taste match            │    │
+│  │  • Your #2 coffee category  │    │
+│  │  • Matches "chill" vibe     │    │
+│  │  • Similar to Blue Bottle   │    │
+│  │    (your favorite)          │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  PHOTOS                             │
+│  [Photo] [Photo] [Photo] [Photo]    │
+│                                     │
+│  ┌──────────────────────────────┐   │
+│  │ [♡ Save]   [Add to Session] │   │
+│  └──────────────────────────────┘   │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 11. GROUP SESSION - CREATE
+**Purpose:** Start a group planning session
+
+```
+┌─────────────────────────────────────┐
+│  ←  Start a Session                 │
+│                                     │
+│  What's the occasion?               │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  Dinner with friends        │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  When?                              │
+│  ┌─────────────────────────────┐    │
+│  │  Saturday, Dec 14 @ 7pm     │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  Invite friends                     │
+│  ┌─────────────────────────────┐    │
+│  │  🔗 Share invite link       │    │
+│  │                             │    │
+│  │  Or invite from contacts:   │    │
+│  │                             │    │
+│  │  [ ] Alex Chen              │    │
+│  │  [ ] Sarah Kim              │    │
+│  │  [ ] Mike Johnson           │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  Number of spots to vote on         │
+│  ┌───┐ ┌───┐ ┌───┐                  │
+│  │ 3 │ │ 5 │ │ 7 │                  │
+│  └───┘ └───┘ └───┘                  │
+│                                     │
+│       [ Create Session ]            │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 12. GROUP SESSION - VOTING
+**Purpose:** Real-time group decision making
+
+```
+┌─────────────────────────────────────┐
+│  ←  Dinner with friends     [...]   │
+│                                     │
+│  Saturday @ 7pm · 3/4 voted         │
+│                                     │
+│  PARTICIPANTS                       │
+│  ┌─────────────────────────────┐    │
+│  │  [👤] You (Host) · Voted    │    │
+│  │  [👤] Alex · Voted          │    │
+│  │  [👤] Sarah · Voting...     │    │
+│  │  [👤] Mike · Pending        │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  VOTE ON SPOTS                      │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  Burma Superstar         ✓  │    │
+│  │  🍜 · $$ · Inner Richmond   │    │
+│  │  👍 2 votes                 │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  Nopa                    ✓  │    │
+│  │  🍜 · $$$ · Lower Haight    │    │
+│  │  👍 3 votes (Leading!)      │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  Foreign Cinema             │    │
+│  │  🍜 · $$$ · Mission         │    │
+│  │  👍 1 vote                  │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ⏱️ Voting closes in 2h 30m         │
+│                                     │
+│       [ Close & Pick Winner ]       │
+│       (Host only)                   │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Notes:**
+- Real-time updates via Supabase Realtime
+- Users can vote for multiple spots
+- Host can close voting and finalize
+- Winner is most votes (tie = host decides)
+- Non-voters get reminded via push notification
+
+---
+
+#### 13. GROUP SESSION - CONFIRMED
+**Purpose:** Final plan with all details
+
+```
+┌─────────────────────────────────────┐
+│  ←  Plan Confirmed!         [Share]│
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │                             │    │
+│  │      [Venue Photo]          │    │
+│  │                             │    │
+│  │      Nopa                   │    │
+│  │      🍜 · $$$ · Lower Haight │    │
+│  │                             │    │
+│  │      Saturday, Dec 14       │    │
+│  │      7:00 PM                │    │
+│  │                             │    │
+│  │      560 Divisadero St      │    │
+│  │      San Francisco          │    │
+│  │                             │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  GOING (4)                          │
+│  [👤] [👤] [👤] [👤]                │
+│  You, Alex, Sarah, Mike             │
+│                                     │
+│  ┌──────────────────────────────┐   │
+│  │ [📍 Directions] [📞 Call]   │   │
+│  └──────────────────────────────┘   │
+│                                     │
+│  Add to calendar?                   │
+│  [Apple Cal]  [Google Cal]          │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+---
+
+### VAULT (Tab)
+
+---
+
+#### 14. VAULT - MAIN
+**Purpose:** Your taste history / visited places
+
+```
+┌─────────────────────────────────────┐
+│  Your Vault                 [Filter]│
+│                                     │
+│  FILTERS                            │
+│  ┌────┐ ┌────────┐ ┌──────────┐     │
+│  │All │ │This Mo │ │Coffee ▼  │     │
+│  └────┘ └────────┘ └──────────┘     │
+│                                     │
+│  47 places visited                  │
+│                                     │
+│  DECEMBER 2024                      │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  [Photo]                    │    │
+│  │                             │    │
+│  │  Blue Bottle Coffee    [❤️] │    │
+│  │  ☕ · Dec 10, 9:30am        │    │
+│  │  Mood: Morning ritual       │    │
+│  │  Your reaction: ❤️ Love it   │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  [Photo]                    │    │
+│  │                             │    │
+│  │  Nopa                   [😐]│    │
+│  │  🍜 · Dec 8, 7:45pm         │    │
+│  │  Mood: Dinner with Alex     │    │
+│  │  Your reaction: 😐 Meh       │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  [Photo]                    │    │
+│  │  Sightglass Coffee     [💎] │    │
+│  │  ☕ · Dec 5, 2:15pm         │    │
+│  │  Your reaction: 💎 Hidden Gem│   │
+│  └─────────────────────────────┘    │
+│                                     │
+│  [ + Add a Place Manually ]         │
+│                                     │
+├──────────────┬──────────────┬───────┤
+│    ...       │   Vault      │ ...   │
+└──────────────┴──────────────┴───────┘
+```
+
+**Filter Options:**
+- Time: All, This Week, This Month, Last 3 Months
+- Category: All, Coffee, Dining, Nightlife, etc.
+- Reaction: All, Loved, Will Return, Hidden Gems
+
+---
+
+#### 15. VAULT - PLACE DETAIL
+**Purpose:** Your history with a specific place
+
+```
+┌─────────────────────────────────────┐
+│  ←  Blue Bottle Coffee              │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │      [Venue Photo]          │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ☕ Coffee · $$ · SoMa              │
+│  📍 66 Mint St, San Francisco       │
+│                                     │
+│  YOUR STATS                         │
+│  ┌─────────────────────────────┐    │
+│  │  18 visits                  │    │
+│  │  First: Aug 3, 2024         │    │
+│  │  Last: Dec 10, 2024         │    │
+│  │  Avg: 2x per week           │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  YOUR REACTION                      │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐       │
+│  │ ❤️ │ │ 😐 │ │ 🔄 │ │ 💎 │       │
+│  │Love│ │Meh │ │Back│ │Gem │       │
+│  └────┘ └────┘ └────┘ └────┘       │
+│   ✓                                 │
+│                                     │
+│  VISIT HISTORY                      │
+│  ┌─────────────────────────────┐    │
+│  │  Dec 10 · 9:30am · $5.50    │    │
+│  │  Dec 8 · 8:15am · $5.50     │    │
+│  │  Dec 5 · 2:15pm · $6.00     │    │
+│  │  ... see all                │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  NOTES                              │
+│  ┌─────────────────────────────┐    │
+│  │  The Gibraltar is perfect.  │    │
+│  │  Avoid weekday mornings -   │    │
+│  │  too crowded.               │    │
+│  │                     [Edit]  │    │
+│  └─────────────────────────────┘    │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Reactions:**
+| Emoji | Meaning | Effect |
+|-------|---------|--------|
+| ❤️ | Love it | Boost in recommendations |
+| 😐 | Meh | Neutral |
+| 🔄 | Will return | Add to favorites |
+| 💎 | Hidden gem | Boost for similar vibes |
+| 😞 | Disappointed | Deprioritize |
+
+---
+
+### PROFILE (Tab)
+
+---
+
+#### 16. PROFILE - HOME
+**Purpose:** Account overview + quick settings access
+
+```
+┌─────────────────────────────────────┐
+│  Profile                    [Edit]  │
+│                                     │
+│        ┌─────────┐                  │
+│        │ [Avatar]│                  │
+│        │   👤    │                  │
+│        └─────────┘                  │
+│                                     │
+│        Sam Chen                     │
+│        @samchen                     │
+│        Member since Oct 2024        │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  TASTE SUMMARY              │    │
+│  │                             │    │
+│  │  "Coffee explorer who       │    │
+│  │   loves hidden gem dinners" │    │
+│  │                             │    │
+│  │  47 places · 12 favorites   │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ─────────────────────────────────  │
+│                                     │
+│  Account                        ▶   │
+│  Linked Cards                   ▶   │
+│  Saved Places                   ▶   │
+│  Notifications                  ▶   │
+│  Privacy                        ▶   │
+│  Help & Support                 ▶   │
+│                                     │
+│  ─────────────────────────────────  │
+│                                     │
+│  Log Out                            │
+│                                     │
+├──────────────┬──────────────┬───────┤
+│    ...       │   Profile    │       │
+└──────────────┴──────────────┴───────┘
+```
+
+---
+
+#### 17. PROFILE - LINKED CARDS
+**Purpose:** Manage Plaid connections
+
+```
+┌─────────────────────────────────────┐
+│  ←  Linked Cards                    │
+│                                     │
+│  ACTIVE                             │
+│  ┌─────────────────────────────┐    │
+│  │  🏦 Chase Sapphire          │    │
+│  │  ****4521                   │    │
+│  │  Last sync: 2 min ago       │    │
+│  │                     [Remove]│    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  ┌─────────────────────────────┐    │
+│  │  💳 Apple Card              │    │
+│  │  ****8832                   │    │
+│  │  Last sync: 5 min ago       │    │
+│  │                     [Remove]│    │
+│  └─────────────────────────────┘    │
+│                                     │
+│                                     │
+│       [ + Link Another Card ]       │
+│                                     │
+│                                     │
+│  ℹ️ We only read transactions to    │
+│  understand your taste. We never    │
+│  access balances or make payments.  │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 18. PROFILE - NOTIFICATIONS
+**Purpose:** Control push notification preferences
+
+```
+┌─────────────────────────────────────┐
+│  ←  Notifications                   │
+│                                     │
+│  INSIGHTS                           │
+│  ┌─────────────────────────────┐    │
+│  │  Daily taste insight   [ON] │    │
+│  │  Streak milestones     [ON] │    │
+│  │  New discoveries       [ON] │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  GROUP SESSIONS                     │
+│  ┌─────────────────────────────┐    │
+│  │  Session invites       [ON] │    │
+│  │  Voting reminders      [ON] │    │
+│  │  Plan confirmations    [ON] │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  MARKETING                          │
+│  ┌─────────────────────────────┐    │
+│  │  New features         [OFF] │    │
+│  │  Tips & tricks        [OFF] │    │
+│  └─────────────────────────────┘    │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 19. PROFILE - PRIVACY
+**Purpose:** Data control
+
+```
+┌─────────────────────────────────────┐
+│  ←  Privacy                         │
+│                                     │
+│  DATA                               │
+│  ┌─────────────────────────────┐    │
+│  │  Download my data           │    │
+│  │  Delete all transactions    │    │
+│  │  Delete account             │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  VISIBILITY                         │
+│  ┌─────────────────────────────┐    │
+│  │  Profile visibility         │    │
+│  │  [Friends Only ▼]           │    │
+│  │                             │    │
+│  │  Show taste ring            │    │
+│  │  to session members  [ON]   │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  HIDDEN MERCHANTS                   │
+│  ┌─────────────────────────────┐    │
+│  │  Some merchants are hidden  │    │
+│  │  from your taste profile:   │    │
+│  │                             │    │
+│  │  + Add merchant to hide     │    │
 │  └─────────────────────────────┘    │
 │                                     │
 └─────────────────────────────────────┘
@@ -544,30 +1035,24 @@ When sharing, pre-fill with AI-generated caption:
 ## MVP Scope Summary
 
 ### IN SCOPE (Must Have)
-- [ ] Splash + Welcome
-- [ ] Phone auth + OTP
-- [ ] Social auth (Apple/Google)
-- [ ] Plaid Link integration
-- [ ] Notification permission screen
-- [ ] Transaction fetching & processing (via TIL)
-- [ ] Taste categorization algorithm (TIL Layer 1-2)
-- [ ] Taste Reveal experience
-- [ ] Truth Card generation
-- [ ] Share to Instagram/Save image
-- [ ] Home dashboard with streak badges
-- [ ] Basic profile/settings
-- [ ] Daily insight (AI-generated, push notification)
-- [ ] Push notifications (streaks, daily insights, profile updates)
-- [ ] Weekly Truth Card refresh
+- [ ] Onboarding: Welcome, Auth (Phone + Social), Quiz, Card Link, Reveal
+- [ ] Pulse: Taste Ring, Daily Insights, Saved Plans, Playlists
+- [ ] Discover: Mood Grid, Filters, Venue Feed, Venue Detail
+- [ ] Group Sessions: Create, Invite, Vote, Confirm
+- [ ] Vault: Place Cards, Reactions, Manual Add, History
+- [ ] Profile: Account, Linked Cards, Notifications, Privacy
+- [ ] Push Notifications: Insights, Streaks, Session Updates
+- [ ] Real-time: Group voting sync via Supabase Realtime
 
 ### OUT OF SCOPE (V1.1+)
-- Lobbies (community)
-- Taste Search
-- Black Book (favorites)
-- Friend connections
-- Plaid webhooks (auto-sync)
-- Multiple taste card styles
-- Historical comparisons ("last month vs this month")
+- Friend connections / social graph
+- In-app messaging
+- Reservations / booking
+- Payment processing
+- Web dashboard
+- Multiple cities (beyond SF)
+- User-generated reviews
+- Merchant partnerships
 
 ---
 
@@ -581,6 +1066,7 @@ Accent 1:   #E94560 (Coral Pink)   - CTAs, highlights
 Accent 2:   #0F3460 (Ocean Blue)   - Secondary actions
 Text:       #FFFFFF (White)        - Primary text
 Subtle:     #A0A0A0 (Gray)         - Secondary text
+Success:    #4CAF50 (Green)        - Confirmations
 ```
 
 ### Typography
@@ -589,41 +1075,24 @@ Subtle:     #A0A0A0 (Gray)         - Secondary text
 - **Accent:** Mono font for numbers/stats
 
 ### Visual Style
-- Dark mode first (premium feel, easy on eyes)
+- Dark mode first (premium feel, stands out)
 - Subtle gradients (not flat, not gaudy)
 - Rounded corners (16px radius)
 - Generous whitespace
 - Micro-animations on interactions
 - Card-based UI throughout
 
----
-
-## Key Interactions & Animations
-
-1. **Splash → Welcome:** Logo pulse, gradient shift
-2. **Plaid Success:** Confetti burst or checkmark animation
-3. **Processing:** Particles clustering into categories
-4. **Taste Reveal:** Cards flip/slide in with spring physics
-5. **Truth Card:** Subtle holographic shimmer effect
-6. **Share:** Card "lifts" and flies to share target
-7. **Pull to refresh:** Custom loading animation
-
----
-
-## Decisions Made
-
-| Question | Decision |
-|----------|----------|
-| Platform | React Native (Expo) - iOS + Android |
-| AI/LLM | GPT-4o-mini for personalized content (archetype, badges, insights) |
-| Data Processing | Taste Intelligence Layer (TIL) - incremental O(1) updates |
-| Truth Card | Static image (Pillow-generated) |
-| Truth Card Refresh | Weekly (via cron job) |
-| Push Notifications | Expo Push Service (daily insights, streaks, profile updates) |
-| Content Generation | AI generates copy; TIL computes stats |
-| Backend | Supabase (Auth/DB/Storage) + Python FastAPI (TIL + AI) |
+### Key Animations
+| Moment | Animation |
+|--------|-----------|
+| Taste Ring | Smooth donut chart animation |
+| Mood Selection | Scale + haptic feedback |
+| Venue Card | Parallax on scroll |
+| Vote Confirmation | Checkmark burst |
+| Session Win | Confetti celebration |
+| Pull to Refresh | Custom loading spinner |
 
 ---
 
 *Last updated: Dec 2024*
-*Version: v0.3 - MVP Spec with TIL + Push Notifications*
+*Version: v1.0 - Full MVP Spec*

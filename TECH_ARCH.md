@@ -1,9 +1,9 @@
 # Ceezaa MVP - Technical Architecture
 
-> **Timeline:** 4 weeks
-> **Stack:** React Native + Supabase + Python FastAPI + OpenAI
-> **Goal:** Link card → AI reveals taste identity → Share Truth Card
-> **Core Magic:** AI transforms spending data into personalized identity narrative
+> **Timeline:** 10 weeks
+> **Stack:** React Native (Expo) + Supabase + Python FastAPI + Google Places + OpenAI
+> **Goal:** Transaction + Quiz data → Taste Intelligence → Personalized Discovery + Group Planning
+> **Core Magic:** Declared preferences (quiz) + Observed behavior (transactions) = True taste profile
 
 ---
 
@@ -11,110 +11,171 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        REACT NATIVE (Expo)                       │
-│                     iOS + Android Mobile App                     │
+│                     REACT NATIVE (Expo)                          │
+│                    iOS + Android Mobile App                      │
 │              Push Notifications (expo-notifications)             │
 └─────────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼
+                                │
+                                ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                           SUPABASE                               │
+│                          SUPABASE                                │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │     Auth     │  │  PostgreSQL  │  │   Storage    │          │
-│  │  (Phone OTP  │  │   Database   │  │ (Truth Card  │          │
-│  │   + Social)  │  │              │  │   Images)    │          │
+│  │  (Phone OTP  │  │   Database   │  │   (Images)   │          │
+│  │   + Social)  │  │              │  │              │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
+│                     + Realtime (WebSockets for group sync)       │
 └─────────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼
+                                │
+                                ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                      PYTHON FASTAPI                              │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │              TASTE INTELLIGENCE LAYER (TIL)                 │ │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │ │
-│  │  │ Transaction  │→ │ Aggregation  │→ │  Analysis    │     │ │
-│  │  │  Processor   │  │   Engine     │  │   Store      │     │ │
+│  │  │    Quiz      │  │ Transaction  │  │    Taste     │     │ │
+│  │  │  Processor   │→ │  Processor   │→ │   Fusion     │     │ │
 │  │  └──────────────┘  └──────────────┘  └──────────────┘     │ │
 │  │                            │                               │ │
 │  │                            ▼                               │ │
-│  │                   ┌──────────────────┐                     │ │
-│  │                   │  AI Interface    │                     │ │
-│  │                   │ (TasteIntelligence)                    │ │
-│  │                   └──────────────────┘                     │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │ │
+│  │  │ Aggregation  │→ │  Analysis    │→ │    Taste     │     │ │
+│  │  │   Engine     │  │    Store     │  │  Interface   │     │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘     │ │
 │  └────────────────────────────────────────────────────────────┘ │
-│                            │                                     │
-│       ┌────────────────────┼────────────────────┐               │
-│       ▼                    ▼                    ▼               │
-│  ┌──────────┐       ┌──────────┐        ┌──────────┐           │
-│  │   AI     │       │  Truth   │        │  Notif   │           │
-│  │ Service  │       │  Card    │        │ Service  │           │
-│  │ (OpenAI) │       │   Gen    │        │  (Expo)  │           │
-│  └──────────┘       └──────────┘        └──────────┘           │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                    CORE SERVICES                            │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │ │
+│  │  │   Session    │  │    Venue     │  │  Matching    │     │ │
+│  │  │   Manager    │  │   Catalog    │  │   Engine     │     │ │
+│  │  │  (Groups)    │  │(Google+GPT)  │  │ (Rankings)   │     │ │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘     │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   Plaid      │  │  Notification │  │    Vault     │          │
+│  │   Service    │  │   Service     │  │   Service    │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
 └─────────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼
+                                │
+                                ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                         EXTERNAL APIs                            │
-│       Plaid API  •  OpenAI API  •  Expo Push Service            │
+│    Plaid API  •  Google Places API  •  OpenAI  •  Expo Push     │
 └─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## The AI-Powered "Aha Moment"
-
-### Why AI is Essential
-
-The magic of Ceezaa isn't categorization (Plaid already does that). The magic is **transforming boring transaction data into a personalized identity narrative** that makes users feel "this app just gets me."
-
-**Rule-based approach gives you:**
-> "43% Food, 28% Coffee, 18% Entertainment"
-
-**AI-powered approach gives you:**
-> "You're an **Urban Explorer** - a Coffee Connoisseur who basically runs on espresso. You've tried 23 different restaurants this year. Your palate is basically a passport."
-
-### What AI Generates
-
-```json
-{
-  "archetype": "Urban Explorer",
-  "archetype_emoji": "🏙️",
-  "trait_badges": [
-    {
-      "name": "Coffee Connoisseur",
-      "emoji": "☕",
-      "description": "10% of your spend is cafes. You basically run on espresso."
-    },
-    {
-      "name": "Late Night Foodie",
-      "emoji": "🌙",
-      "description": "15 orders after 10pm. The city never sleeps, and neither do you."
-    },
-    {
-      "name": "Experience Seeker",
-      "emoji": "🎭",
-      "description": "More concerts than clothes. You collect moments, not things."
-    }
-  ],
-  "headline_insight": "You've explored 23 unique restaurants this year. Your palate is basically a passport.",
-  "rarity_percentile": 12,
-  "share_caption": "Apparently I'm an Urban Explorer. What's your taste identity?"
-}
 ```
 
 ---
 
 ## Taste Intelligence Layer (TIL)
 
-The TIL is the backbone of personalization. It processes transactions incrementally and powers all surfaces.
+The TIL is the core backend. It combines DECLARED preferences (quiz) with OBSERVED behavior (transactions) to build a unified taste profile.
 
-### Layer 1: Transaction Processor
+### Data Flow
 
-Normalizes messy Plaid data into clean, categorized transactions.
+```
+┌─────────────────────────┐     ┌─────────────────────────┐
+│   ONBOARDING QUIZ       │     │   PLAID TRANSACTIONS    │
+│   (Initial Preferences) │     │   (Ongoing Behavior)    │
+│                         │     │                         │
+│  - Food preferences     │     │  - Where they spend     │
+│  - Dietary restrictions │     │  - When (time patterns) │
+│  - Activity interests   │     │  - How often (loyalty)  │
+│  - Vibe preferences     │     │  - Variety (exploration)│
+└───────────┬─────────────┘     └───────────┬─────────────┘
+            │                               │
+            ▼                               ▼
+┌─────────────────────┐         ┌─────────────────────┐
+│   Quiz Processor    │         │ Transaction Processor│
+│                     │         │                     │
+│  Parse answers →    │         │  Normalize data →   │
+│  Extract categories │         │  Map to categories  │
+│  Store declared     │         │  Extract signals    │
+└─────────┬───────────┘         └─────────┬───────────┘
+          │                               │
+          └───────────────┬───────────────┘
+                          │
+                          ▼
+            ┌─────────────────────────┐
+            │    Aggregation Engine   │
+            │                         │
+            │  O(1) incremental ops:  │
+            │  - Category breakdown   │
+            │  - Time patterns        │
+            │  - Merchant loyalty     │
+            │  - Streaks              │
+            │  - Exploration ratio    │
+            └─────────────┬───────────┘
+                          │
+                          ▼
+            ┌─────────────────────────┐
+            │      Taste Fusion       │
+            │                         │
+            │  Combine:               │
+            │  - Declared (quiz)      │
+            │  - Observed (txns)      │
+            │                         │
+            │  Weight by data volume: │
+            │  - New user: 80% quiz   │
+            │  - 100+ txns: 80% txns  │
+            │                         │
+            │  Detect mismatches:     │
+            │  - Says vegan, buys stk │
+            │  - Says coffee, no txns │
+            └─────────────┬───────────┘
+                          │
+                          ▼
+            ┌─────────────────────────┐
+            │     Analysis Store      │
+            │                         │
+            │  Single source of truth │
+            │  Persisted to Supabase  │
+            │  Never recomputes full  │
+            └─────────────┬───────────┘
+                          │
+                          ▼
+            ┌─────────────────────────┐
+            │     Taste Interface     │
+            │                         │
+            │  get_full_profile()     │
+            │    → Pulse Taste Ring   │
+            │                         │
+            │  get_discover_context() │
+            │    → Venue matching     │
+            │                         │
+            │  get_vault_context()    │
+            │    → Place insights     │
+            │                         │
+            │  get_daily_context()    │
+            │    → Notifications      │
+            └─────────────────────────┘
+```
+
+### Quiz Processor
+
+```python
+class QuizProcessor:
+    """Process quiz answers into declared taste preferences."""
+
+    def process(self, answers: List[QuizAnswer]) -> DeclaredTaste:
+        return DeclaredTaste(
+            vibe_preferences=self._extract_vibes(answers),      # chill, social, adventurous
+            cuisine_preferences=self._extract_cuisines(answers), # japanese, mexican, etc.
+            dietary_restrictions=self._extract_dietary(answers), # vegan, gluten-free
+            exploration_style=self._extract_exploration(answers), # adventurous vs routine
+            social_preference=self._extract_social(answers),     # solo, small group, big group
+            coffee_preference=self._extract_coffee(answers),     # third-wave, any, none
+        )
+```
+
+### Transaction Processor
 
 ```python
 class TransactionProcessor:
+    """Normalize Plaid transactions into taste signals."""
+
     def process(self, plaid_txn) -> ProcessedTransaction:
         return ProcessedTransaction(
             id=plaid_txn.transaction_id,
@@ -126,188 +187,312 @@ class TransactionProcessor:
             ),
             taste_category=self._map_category(plaid_txn.personal_finance_category),
             time_bucket=self._get_time_bucket(plaid_txn.datetime),  # morning/afternoon/evening/night
-            day_type=self._get_day_type(plaid_txn.date),  # weekday/weekend
+            day_type=self._get_day_type(plaid_txn.date),            # weekday/weekend
         )
+
+    def _map_category(self, plaid_category) -> str:
+        """Map Plaid categories to taste categories."""
+        CATEGORY_MAP = {
+            "COFFEE_SHOPS": "coffee",
+            "RESTAURANTS": "dining",
+            "FAST_FOOD": "dining",
+            "BARS": "nightlife",
+            "ENTERTAINMENT": "entertainment",
+            "GYMS_AND_FITNESS_CENTERS": "fitness",
+            # ... more mappings
+        }
+        return CATEGORY_MAP.get(plaid_category.primary, "other")
 ```
 
-### Layer 2: Aggregation Engine
+### Aggregation Engine
 
-Maintains running aggregates. **All operations are O(1)** - never recomputes from scratch.
+All operations are **O(1)** - never recomputes from scratch.
 
 ```python
 class AggregationEngine:
+    """Maintain running aggregates for taste analysis."""
+
     def ingest(self, txn: ProcessedTransaction, analysis: UserAnalysis) -> UserAnalysis:
         # 1. Category breakdown
         analysis.categories[txn.taste_category].count += 1
+        analysis.categories[txn.taste_category].total_spend += txn.amount
         analysis.categories[txn.taste_category].merchants.add(txn.merchant.id)
 
         # 2. Time distribution
         analysis.time_buckets[txn.time_bucket] += 1
 
-        # 3. Merchant loyalty
-        analysis.merchant_visits[txn.merchant.id] += 1
+        # 3. Day patterns
+        analysis.day_types[txn.day_type] += 1
 
-        # 4. Streak tracking (per category)
+        # 4. Merchant loyalty
+        analysis.merchant_visits[txn.merchant.id] += 1
+        self._update_top_merchants(analysis)
+
+        # 5. Streak tracking
         self._update_streaks(analysis, txn)
 
-        # 5. Exploration ratio
+        # 6. Exploration ratio
         self._update_exploration(analysis, txn)
+
+        # 7. Update metadata
+        analysis.total_transactions += 1
+        analysis.last_transaction_at = txn.timestamp
 
         return analysis
 ```
 
-### Layer 3: Analysis Store
-
-Single source of truth. Updated incrementally, persisted to DB.
+### Taste Fusion
 
 ```python
-@dataclass
-class UserAnalysis:
-    user_id: str
-    categories: Dict[str, CategoryMetrics]      # {coffee: {count: 43, merchants: set()}}
-    time_buckets: Dict[str, int]                # {morning: 127, afternoon: 296, ...}
-    day_types: Dict[str, int]                   # {weekday: 524, weekend: 323}
-    merchant_visits: Dict[str, int]             # {merchant_id: visit_count}
-    top_merchants: List[MerchantVisit]          # Cached top 10
-    streaks: Dict[str, Streak]                  # {coffee: {current: 5, longest: 12}}
-    exploration: Dict[str, ExplorationMetric]   # {dining: {unique: 23, total: 67}}
-    total_transactions: int
-    last_updated_at: datetime
-```
+class TasteFusion:
+    """Combine declared (quiz) and observed (transactions) taste."""
 
-### Layer 4: AI Interface (TasteIntelligence)
+    def fuse(self, declared: DeclaredTaste, observed: UserAnalysis) -> FusedTaste:
+        # Weight based on transaction volume
+        txn_count = observed.total_transactions
+        declared_weight = max(0.2, 1.0 - (txn_count / 500))  # 80% quiz → 20% quiz over time
+        observed_weight = 1.0 - declared_weight
 
-Clean, purpose-built APIs for different consumers.
+        # Combine category preferences
+        fused_categories = {}
+        for cat in TASTE_CATEGORIES:
+            declared_score = declared.get_category_score(cat)
+            observed_score = observed.get_category_percentage(cat)
+            fused_categories[cat] = (declared_score * declared_weight +
+                                     observed_score * observed_weight)
 
-```python
-class TasteIntelligence:
-    def get_full_profile(self, user_id: str) -> FullProfileContext:
-        """For Truth Card generation - complete analysis"""
+        # Detect mismatches for insights
+        mismatches = self._detect_mismatches(declared, observed)
 
-    def get_daily_context(self, user_id: str) -> DailyContext:
-        """For daily insight - recent activity focus"""
-
-    def get_home_context(self, user_id: str) -> HomeContext:
-        """For home dashboard - lightweight, cached"""
-
-    def get_processing_snapshot(self, user_id: str) -> ProcessingSnapshot:
-        """For real-time processing screen updates"""
+        return FusedTaste(
+            categories=fused_categories,
+            vibes=self._fuse_vibes(declared, observed),
+            top_merchants=observed.top_merchants,
+            streaks=observed.streaks,
+            exploration_ratio=observed.exploration,
+            mismatches=mismatches,
+            confidence=self._calculate_confidence(txn_count),
+        )
 ```
 
 ---
 
-## Data Flow
+## Venue Catalog Architecture
 
-### Initial Onboarding
-```
-User Links Card
-      │
-      ▼
-Plaid: Fetch up to 12 months
-      │
-      ▼
-┌─────────────────────────────────────────┐
-│  FOR EACH transaction (streaming):      │
-│    1. TransactionProcessor.process()    │  ← Normalize
-│    2. AggregationEngine.ingest()        │  ← Update analysis (O(1))
-│    3. SSE: send ProcessingSnapshot      │  ← Real-time UI update
-└─────────────────────────────────────────┘
-      │
-      ▼
-TasteIntelligence.get_full_profile()
-      │
-      ▼
-AI Service: Generate identity
-      │
-      ▼
-Store + Reveal
-```
+The venue catalog is **curated** for MVP - Manually selected 150-200 venues in SF, tagged with taste clusters.
 
-### Ongoing (Manual Refresh)
 ```
-Pull-to-Refresh
-      │
-      ▼
-Plaid: Sync new transactions only
-      │
-      ▼
-FOR EACH new transaction:
-  TransactionProcessor → AggregationEngine
-      │
-      ▼
-Analysis updated (no AI call, no full recompute)
+┌─────────────────────────────────────────────────────────────────┐
+│                    VENUE CATALOG (MVP)                           │
+│                                                                  │
+│  Data Source: Google Places API + CEO Curation                   │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  VENUES TABLE (~150-200 for beta)                         │   │
+│  │                                                           │   │
+│  │  FROM GOOGLE PLACES:                                      │   │
+│  │  - place_id (unique identifier)                           │   │
+│  │  - name, formatted_address                                │   │
+│  │  - photos (references)                                    │   │
+│  │  - opening_hours                                          │   │
+│  │  - rating, price_level                                    │   │
+│  │  - location (lat/lng) → geo-filtering                     │   │
+│  │                                                           │   │
+│  │  PRIMARY TAGS (Manual - CEO assigned):                    │   │
+│  │  - taste_cluster: coffee, dining, nightlife, etc.         │   │
+│  │  - cuisine_type: japanese, mexican, american, etc.        │   │
+│  │  - price_tier: $, $$, $$$, $$$$                           │   │
+│  │                                                           │   │
+│  │  SECONDARY TAGS (GPT-generated from description/reviews): │   │
+│  │  - energy: chill, buzzy, lively                           │   │
+│  │  - date_friendly: boolean                                 │   │
+│  │  - group_friendly: boolean                                │   │
+│  │  - cozy: boolean                                          │   │
+│  │  - vibe_tags: [romantic, trendy, hidden_gem, classic]     │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Weekly Refresh (Cron)
+### Venue Import Flow
+
 ```
-Every 7 days:
-  1. TasteIntelligence.get_full_profile()  ← Analysis already fresh
-  2. AI Service: Regenerate identity       ← Only AI call needed
-  3. Compare with previous                 ← Detect changes
-  4. If changed → Push notification
+1. Manually provide Google Places IDs for curated venues
+           │
+           ▼
+2. Backend fetches full details from Google Places API
+           │
+           ▼
+3. Manually assign primary cluster + cuisine + price
+           │
+           ▼
+4. GPT analyzes description + reviews → secondary tags
+           │
+           ▼
+5. Store in venues table with all tags
+           │
+           ▼
+6. Location-based filtering (SF users see SF venues only)
 ```
 
-**Key Insight:** Analysis updates incrementally (fast). AI regenerates weekly (expensive).
+### GPT Tagging Service
+
+```python
+class VenueTaggingService:
+    """Use GPT to generate secondary tags from venue data."""
+
+    TAGGING_PROMPT = """
+    Given this venue information, generate tags:
+
+    Name: {name}
+    Description: {description}
+    Reviews Summary: {reviews}
+    Price Level: {price_level}
+    Category: {category}
+
+    Return JSON with:
+    - energy: "chill" | "buzzy" | "lively"
+    - date_friendly: boolean
+    - group_friendly: boolean
+    - cozy: boolean
+    - vibe_tags: list of 2-4 tags from [romantic, trendy, hidden_gem, classic,
+                 instagrammable, low_key, upscale, casual, family_friendly]
+    """
+
+    async def generate_tags(self, venue: VenueData) -> SecondaryTags:
+        response = await openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": self.TAGGING_PROMPT.format(...)}],
+            response_format={"type": "json_object"},
+        )
+        return SecondaryTags.model_validate_json(response.choices[0].message.content)
+```
+
+---
+
+## Matching Engine
+
+Matches user taste profile to venues for personalized recommendations.
+
+```python
+class MatchingEngine:
+    """Rank venues by taste match for a user."""
+
+    def rank_venues(
+        self,
+        user_taste: FusedTaste,
+        venues: List[Venue],
+        filters: DiscoverFilters
+    ) -> List[RankedVenue]:
+
+        # 1. Apply hard filters first (price, distance, open now)
+        filtered = self._apply_filters(venues, filters)
+
+        # 2. Score each venue
+        scored = []
+        for venue in filtered:
+            score = self._calculate_match_score(user_taste, venue)
+            scored.append(RankedVenue(venue=venue, match_score=score))
+
+        # 3. Sort by score descending
+        scored.sort(key=lambda x: x.match_score, reverse=True)
+
+        return scored
+
+    def _calculate_match_score(self, taste: FusedTaste, venue: Venue) -> float:
+        score = 0.0
+
+        # Category match (40% weight)
+        category_pref = taste.categories.get(venue.taste_cluster, 0)
+        score += category_pref * 0.4
+
+        # Vibe match (30% weight)
+        vibe_matches = len(set(taste.vibes) & set(venue.vibe_tags))
+        score += (vibe_matches / max(len(taste.vibes), 1)) * 0.3
+
+        # Merchant familiarity bonus (15% weight)
+        if venue.name in taste.top_merchants:
+            score += 0.15
+
+        # Exploration bonus for adventurous users (15% weight)
+        if taste.exploration_ratio > 0.5 and "hidden_gem" in venue.vibe_tags:
+            score += 0.15
+
+        return min(score, 1.0)  # Cap at 100%
+```
 
 ---
 
 ## Tech Stack
 
 ### Frontend - React Native
+
 ```
-Framework:     Expo SDK 52 (managed workflow)
+Framework:     Expo SDK 52+ (managed workflow)
 Navigation:    Expo Router (file-based routing)
-State:         Zustand (lightweight)
+State:         Zustand (lightweight, simple)
 Styling:       NativeWind (Tailwind for RN)
 Plaid:         react-native-plaid-link-sdk
 Auth:          @supabase/supabase-js
-Image Gen:     react-native-view-shot (for Truth Card)
-Push:          expo-notifications (Expo Push Service)
+Push:          expo-notifications
 
-# Delight Stack
+# Animation Stack
 Animations:    react-native-reanimated 3
 Gestures:      react-native-gesture-handler
 Simple Anims:  moti (declarative, built on reanimated)
-Celebrations:  lottie-react-native (confetti, success, loading)
-Haptics:       expo-haptics (tactile feedback)
+Celebrations:  lottie-react-native
+Haptics:       expo-haptics
 Gradients:     expo-linear-gradient
-```
 
-### Backend - Supabase
-```
-Auth:          Phone OTP + Apple/Google OAuth
-Database:      PostgreSQL (managed)
-Storage:       For generated Truth Card images
-Edge Funcs:    For lightweight operations (optional)
+# Testing
+Unit/Int:      Jest + React Native Testing Library
+E2E (later):   Detox
 ```
 
 ### Backend - Python FastAPI
+
 ```
 Framework:     FastAPI + Uvicorn
-Plaid SDK:     plaid-python
-AI SDK:        openai (Python SDK)
-Image Gen:     Pillow + CairoSVG
+Database:      Supabase (PostgreSQL)
+Plaid:         plaid-python
+Google:        googlemaps (Python client)
+AI:            openai (Python SDK)
 Validation:    Pydantic v2
-Hosting:       Render (free tier)
+Background:    APScheduler (cron jobs)
+Testing:       pytest + pytest-asyncio
+Hosting:       Render / Railway
 ```
 
-### AI Service
+### Supabase
+
 ```
-Model:         GPT-4o-mini
-Cost:          ~$0.001 per taste profile
-Latency:       200-500ms
-JSON Mode:     Native support for structured output
-Fallback:      Pre-written templates if API fails
+Auth:          Phone OTP + Apple/Google OAuth
+Database:      PostgreSQL with Row Level Security
+Storage:       Venue images (cached from Google)
+Realtime:      WebSockets for group session sync
+Edge Funcs:    Optional for lightweight operations
 ```
+
+### External APIs
+
+| API | Purpose | Cost |
+|-----|---------|------|
+| Plaid | Transaction data | Free (sandbox) → $0.30/item/mo (prod) |
+| Google Places | Venue data | $17/1000 requests |
+| OpenAI | GPT for tagging/insights | ~$0.001/request (gpt-4o-mini) |
+| Expo Push | Push notifications | Free |
 
 ---
 
 ## Database Schema
 
 ```sql
--- Users table (extends Supabase auth.users)
+-- =============================================
+-- USERS & AUTH
+-- =============================================
+
+-- Extends Supabase auth.users
 CREATE TABLE profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id),
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE,
   display_name TEXT,
   phone TEXT,
@@ -315,9 +500,35 @@ CREATE TABLE profiles (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-  CONSTRAINT username_format CHECK (
-    username ~ '^[a-zA-Z][a-zA-Z0-9_]{2,19}$'
-  )
+  CONSTRAINT username_format CHECK (username ~ '^[a-zA-Z][a-zA-Z0-9_]{2,19}$')
+);
+
+-- =============================================
+-- TASTE INTELLIGENCE
+-- =============================================
+
+-- Quiz answers (declared taste)
+CREATE TABLE quiz_responses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  question_key TEXT NOT NULL,        -- 'ideal_saturday', 'coffee_routine', etc.
+  answer_key TEXT NOT NULL,          -- 'cozy_dinner', 'third_wave', etc.
+  answer_value JSONB,                -- Additional structured data
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, question_key)
+);
+
+-- Declared taste (processed quiz)
+CREATE TABLE declared_taste (
+  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  vibe_preferences JSONB DEFAULT '[]',       -- ['chill', 'social']
+  cuisine_preferences JSONB DEFAULT '[]',    -- ['japanese', 'mexican']
+  dietary_restrictions JSONB DEFAULT '[]',   -- ['vegetarian']
+  exploration_style TEXT,                    -- 'adventurous', 'routine'
+  social_preference TEXT,                    -- 'solo', 'small_group', 'big_group'
+  coffee_preference TEXT,                    -- 'third_wave', 'any', 'none'
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Plaid linked accounts
@@ -331,6 +542,7 @@ CREATE TABLE linked_accounts (
   account_mask TEXT,
   status TEXT DEFAULT 'active',
   last_synced_at TIMESTAMPTZ,
+  cursor TEXT,                               -- Plaid sync cursor
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -338,68 +550,215 @@ CREATE TABLE linked_accounts (
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  linked_account_id UUID REFERENCES linked_accounts(id),
+  linked_account_id UUID REFERENCES linked_accounts(id) ON DELETE CASCADE,
   plaid_transaction_id TEXT UNIQUE,
   amount DECIMAL(12,2),
   date DATE,
+  datetime TIMESTAMPTZ,
   merchant_name TEXT,
   merchant_id TEXT,
-  category_primary TEXT,      -- Plaid's category
-  category_detailed TEXT,     -- Plaid's detailed category
+  plaid_category_primary TEXT,
+  plaid_category_detailed TEXT,
+  taste_category TEXT,                       -- Our mapped category
+  time_bucket TEXT,                          -- morning/afternoon/evening/night
+  day_type TEXT,                             -- weekday/weekend
   location_city TEXT,
   location_state TEXT,
-  taste_category TEXT,        -- Our mapped taste category
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  INDEX idx_transactions_user_date (user_id, date DESC)
 );
 
--- User analysis (Layer 3: Analysis Store) - Updated incrementally
+-- User analysis (observed taste - TIL aggregates)
 CREATE TABLE user_analysis (
   user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
 
-  -- Core aggregates (JSONB for flexibility)
-  categories JSONB NOT NULL DEFAULT '{}',       -- {coffee: {count: 43, merchants: [...]}}
-  time_buckets JSONB NOT NULL DEFAULT '{}',     -- {morning: 127, afternoon: 296, ...}
-  day_types JSONB NOT NULL DEFAULT '{}',        -- {weekday: 524, weekend: 323}
-  merchant_visits JSONB NOT NULL DEFAULT '{}',  -- {merchant_id: visit_count}
-  streaks JSONB NOT NULL DEFAULT '{}',          -- {coffee: {current: 5, longest: 12, last_date: ...}}
-  exploration JSONB NOT NULL DEFAULT '{}',      -- {dining: {unique: 23, total: 67}}
+  -- Category aggregates
+  categories JSONB NOT NULL DEFAULT '{}',        -- {coffee: {count: 43, spend: 215.50, merchants: [...]}}
 
-  -- Cached top merchants (for fast reads)
-  top_merchants JSONB NOT NULL DEFAULT '[]',
+  -- Time patterns
+  time_buckets JSONB NOT NULL DEFAULT '{}',      -- {morning: 127, afternoon: 296, ...}
+  day_types JSONB NOT NULL DEFAULT '{}',         -- {weekday: 524, weekend: 323}
+
+  -- Merchant data
+  merchant_visits JSONB NOT NULL DEFAULT '{}',   -- {merchant_id: visit_count}
+  top_merchants JSONB NOT NULL DEFAULT '[]',     -- Cached top 10
+
+  -- Behavioral patterns
+  streaks JSONB NOT NULL DEFAULT '{}',           -- {coffee: {current: 5, longest: 12, last_date: ...}}
+  exploration JSONB NOT NULL DEFAULT '{}',       -- {dining: {unique: 23, total: 67}}
 
   -- Meta
   total_transactions INT NOT NULL DEFAULT 0,
   first_transaction_at TIMESTAMPTZ,
   last_transaction_at TIMESTAMPTZ,
   last_updated_at TIMESTAMPTZ DEFAULT NOW(),
-
-  -- Version for optimistic locking
-  version INT NOT NULL DEFAULT 0
+  version INT NOT NULL DEFAULT 0                 -- Optimistic locking
 );
 
--- AI-generated taste profile (refreshed weekly)
-CREATE TABLE taste_profiles (
+-- Fused taste profile (declared + observed combined)
+CREATE TABLE fused_taste (
   user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
-
-  -- AI-generated content
-  archetype TEXT,                         -- "Urban Explorer"
-  archetype_emoji TEXT,                   -- "🏙️"
-  trait_badges JSONB,                     -- [{name, emoji, description}, ...]
-  headline_insight TEXT,                  -- Main reveal line
-  rarity_percentile INT,                  -- 1-100
-  share_caption TEXT,                     -- For social sharing
-
-  -- AI metadata
-  model_version TEXT,                     -- "gpt-4o-mini-2024-07-18"
-  generated_at TIMESTAMPTZ,
-
-  -- For change detection
-  previous_archetype TEXT,
-
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  categories JSONB NOT NULL DEFAULT '{}',        -- Weighted category scores
+  vibes JSONB NOT NULL DEFAULT '[]',             -- Combined vibe preferences
+  exploration_ratio FLOAT,
+  confidence FLOAT,                              -- Based on data volume
+  mismatches JSONB DEFAULT '[]',                 -- Declared vs observed differences
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Push notification tokens
+-- =============================================
+-- VENUE CATALOG
+-- =============================================
+
+CREATE TABLE venues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  google_place_id TEXT UNIQUE NOT NULL,
+
+  -- Google Places data
+  name TEXT NOT NULL,
+  formatted_address TEXT,
+  lat DECIMAL(10, 8),
+  lng DECIMAL(11, 8),
+  city TEXT NOT NULL,                            -- For geo-filtering
+  google_rating DECIMAL(2, 1),
+  google_price_level INT,                        -- 0-4
+  opening_hours JSONB,
+  photo_references JSONB DEFAULT '[]',
+
+  -- Primary tags (CEO assigned)
+  taste_cluster TEXT NOT NULL,                   -- coffee, dining, nightlife, etc.
+  cuisine_type TEXT,                             -- japanese, mexican, etc. (if dining)
+  price_tier TEXT,                               -- $, $$, $$$, $$$$
+
+  -- Secondary tags (GPT generated)
+  energy TEXT,                                   -- chill, buzzy, lively
+  date_friendly BOOLEAN DEFAULT false,
+  group_friendly BOOLEAN DEFAULT false,
+  cozy BOOLEAN DEFAULT false,
+  vibe_tags JSONB DEFAULT '[]',                  -- [romantic, trendy, hidden_gem]
+
+  -- Meta
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  INDEX idx_venues_city (city),
+  INDEX idx_venues_cluster (taste_cluster)
+);
+
+-- =============================================
+-- GROUP SESSIONS
+-- =============================================
+
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  host_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,                           -- "Dinner with friends"
+  planned_date DATE,
+  planned_time TIME,
+  status TEXT DEFAULT 'voting',                  -- voting, closed, confirmed
+  invite_code TEXT UNIQUE,                       -- For sharing
+  winning_venue_id UUID REFERENCES venues(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  closed_at TIMESTAMPTZ
+);
+
+CREATE TABLE session_participants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  role TEXT DEFAULT 'participant',               -- host, participant
+  joined_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(session_id, user_id)
+);
+
+CREATE TABLE session_venues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
+  added_by UUID REFERENCES profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(session_id, venue_id)
+);
+
+CREATE TABLE session_votes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(session_id, venue_id, user_id)
+);
+
+-- =============================================
+-- VAULT (Place Visits)
+-- =============================================
+
+CREATE TABLE place_visits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  venue_id UUID REFERENCES venues(id),           -- NULL if from transaction only
+  transaction_id UUID REFERENCES transactions(id),
+
+  -- Visit data
+  visited_at TIMESTAMPTZ NOT NULL,
+  merchant_name TEXT,                            -- From transaction or manual
+  amount DECIMAL(12,2),                          -- From transaction
+
+  -- User additions
+  reaction TEXT,                                 -- love, meh, will_return, hidden_gem, disappointed
+  notes TEXT,
+  mood_tags JSONB DEFAULT '[]',                  -- User-selected mood tags
+
+  -- Source tracking
+  source TEXT DEFAULT 'transaction',             -- transaction, manual
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  INDEX idx_place_visits_user_date (user_id, visited_at DESC)
+);
+
+-- =============================================
+-- BOOKMARKS & PLAYLISTS
+-- =============================================
+
+CREATE TABLE bookmarks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, venue_id)
+);
+
+CREATE TABLE playlists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE playlist_venues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
+  venue_id UUID REFERENCES venues(id) ON DELETE CASCADE,
+  position INT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(playlist_id, venue_id)
+);
+
+-- =============================================
+-- NOTIFICATIONS
+-- =============================================
+
 CREATE TABLE push_tokens (
   user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
   expo_push_token TEXT NOT NULL,
@@ -408,252 +767,151 @@ CREATE TABLE push_tokens (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Generated Truth Cards
-CREATE TABLE truth_cards (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  image_url TEXT,
-  version INT DEFAULT 1,
-  card_data JSONB,            -- Snapshot of taste profile at generation time
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE notification_preferences (
+  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  daily_insights BOOLEAN DEFAULT true,
+  streak_milestones BOOLEAN DEFAULT true,
+  session_invites BOOLEAN DEFAULT true,
+  voting_reminders BOOLEAN DEFAULT true,
+  plan_confirmations BOOLEAN DEFAULT true,
+  marketing BOOLEAN DEFAULT false
 );
 
--- Daily insights (AI-generated)
 CREATE TABLE daily_insights (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-
-  insight_type TEXT,          -- streak, discovery, milestone, comparison
-  emoji TEXT,
-  title TEXT,                 -- "You're on fire!"
-  body TEXT,                  -- "5-day coffee streak at Blue Bottle"
-
-  source_data JSONB,          -- What triggered this insight
-  ai_model_version TEXT,
-
+  insight_type TEXT,                             -- streak, discovery, milestone
+  title TEXT,
+  body TEXT,
+  source_data JSONB,
   shown_at DATE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
 
-  UNIQUE(user_id, shown_at)   -- One insight per user per day
+  UNIQUE(user_id, shown_at)
 );
 
--- AI response cache (cost optimization)
-CREATE TABLE ai_cache (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cache_key TEXT UNIQUE,      -- Hash of input stats
-  response JSONB,
-  model_version TEXT,
+-- =============================================
+-- ONBOARDING STATE
+-- =============================================
+
+CREATE TABLE onboarding_state (
+  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  step TEXT DEFAULT 'welcome',                   -- welcome, auth, quiz, initial_taste, card_link, enhanced_reveal, complete
+  quiz_completed BOOLEAN DEFAULT false,
+  initial_taste_shown BOOLEAN DEFAULT false,     -- NEW: tracks if quiz-based profile was shown
+  card_linked BOOLEAN DEFAULT false,
+  initial_sync_done BOOLEAN DEFAULT false,
+  completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '1 hour'
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
-
----
-
-## Taste Categorization System
-
-### Base Categories (7 core)
-| Key | Name | Emoji | Plaid Categories |
-|-----|------|-------|------------------|
-| coffee | Coffee Culture | ☕ | Coffee Shop |
-| dining | Dining & Food | 🍜 | Restaurants, Fast Food |
-| nightlife | Nightlife | 🌙 | Bar, Nightlife |
-| entertainment | Entertainment | 🎵 | Entertainment, Music, Movies |
-| fitness | Fitness & Wellness | 💪 | Gyms and Fitness Centers |
-| shopping | Shopping | 🛍️ | Shops, Clothing |
-| travel | Travel & Adventure | ✈️ | Travel, Airlines, Hotels |
-
-### Financial Data Analysis (computed once, AI interprets)
-
-Instead of rigid rules like "15+ transactions = Night Owl", we aggregate raw data and let AI decide what's interesting about this specific user.
-
-**What We Compute (deterministic):**
-```json
-{
-  "category_breakdown": {
-    "coffee": { "percentage": 43, "transaction_count": 43, "unique_merchants": 12 },
-    "dining": { "percentage": 28, "transaction_count": 67, "unique_merchants": 23 }
-  },
-  "time_distribution": {
-    "morning": 15,      // % of transactions 6am-12pm
-    "afternoon": 35,    // % 12pm-6pm
-    "evening": 30,      // % 6pm-10pm
-    "night": 20         // % 10pm-6am
-  },
-  "day_of_week": {
-    "weekday": 62,      // % Mon-Fri
-    "weekend": 38       // % Sat-Sun
-  },
-  "merchant_loyalty": [
-    { "name": "Blue Bottle Coffee", "visits": 18, "category": "coffee" },
-    { "name": "Philz Coffee", "visits": 12, "category": "coffee" }
-  ],
-  "streaks": {
-    "current_coffee_streak": 5,    // consecutive days with coffee transaction
-    "longest_dining_streak": 3
-  },
-  "exploration_ratio": {
-    "dining": { "unique": 23, "total": 67, "ratio": 0.34 }  // high = explorer
-  },
-  "period": {
-    "days": 365,
-    "total_transactions": 847
-  }
-}
-```
-
-**What AI Deduces:**
-Given this data, AI decides:
-- Is 20% night transactions notable for this user? (Maybe, maybe not)
-- Is 5-day coffee streak impressive? (Context matters)
-- Which patterns deserve badges vs just a mention?
-- What archetype captures the overall vibe?
-
-This is more powerful because AI weighs context rather than hitting arbitrary thresholds.
-
-### Archetype Generation (AI-powered)
-The AI receives category breakdown + patterns and generates a creative 2-word archetype:
-
-| If Top Categories Are... | AI Might Generate... |
-|--------------------------|---------------------|
-| dining, coffee, nightlife | "Urban Explorer", "City Dweller" |
-| fitness, coffee, shopping | "Wellness Warrior", "Active Minimalist" |
-| entertainment, dining, travel | "Culture Vulture", "Experience Collector" |
-| nightlife, dining, entertainment | "Social Butterfly", "Scene Setter" |
-
-*Note: AI has creative freedom - these are examples, not fixed mappings.*
 
 ---
 
 ## API Endpoints
 
-```
-# Health
-GET  /health
-
-# Plaid
-POST /api/plaid/create-link-token
-POST /api/plaid/exchange-token
-POST /api/plaid/sync-transactions
-
-# Taste Analysis
-POST /api/taste/analyze                    # Triggers full analysis
-GET  /api/taste/analyze-stream/{user_id}   # SSE stream for progress
-GET  /api/taste/profile/{user_id}          # Get taste profile
-
-# Truth Card
-POST /api/truth-card/generate
-GET  /api/truth-card/{user_id}
-
-# Daily Insights
-GET  /api/insights/daily/{user_id}
-```
-
-### Progressive Analysis Stream (SSE)
-
-The `/api/taste/analyze-stream/{user_id}` endpoint sends Server-Sent Events for the reveal experience:
+### Auth
 
 ```
-Phase 1 (0-5s):   {"phase": 1, "message": "Reading your story...", "count": 847}
-Phase 2 (5-15s):  {"phase": 2, "message": "Spotting patterns...", "categories": ["coffee", "dining"]}
-Phase 3 (15-25s): {"phase": 3, "message": "Crafting your identity...", "teaser": "Looks like you love coffee..."}
-Phase 4 (25-30s): {"phase": 4, "complete": true, "profile_id": "uuid"}
+POST   /api/auth/signup              # Phone/email signup
+POST   /api/auth/verify-otp          # Verify OTP code
+POST   /api/auth/social/{provider}   # Apple/Google OAuth
+POST   /api/auth/logout
 ```
 
----
+### Onboarding
 
-## AI Service Implementation
-
-### Prompt Strategy
-
-**Key Principle:** Send structured analysis, let AI interpret what's interesting. No rigid rules - AI decides what matters for THIS user.
-
-```python
-TASTE_PROFILE_SYSTEM_PROMPT = """
-You are a witty lifestyle analyst creating personalized taste identities.
-Your copy should feel like Spotify Wrapped - fun, slightly sassy, shareable.
-Never judgmental about spending. Always celebratory and playful.
-
-Your job: Look at the data and find what's INTERESTING about this person.
-- Don't just describe the numbers - find the story
-- A 5-day coffee streak might be notable... or not, depending on context
-- 20% night transactions could mean "night owl" or be unremarkable
-- You decide what deserves to be highlighted as a badge
-
-Return ONLY valid JSON matching the exact schema provided.
-"""
-
-TASTE_PROFILE_USER_PROMPT = """
-FINANCIAL ANALYSIS FOR USER:
-
-Period: {days} days, {total_transactions} transactions
-
-CATEGORY BREAKDOWN:
-{category_breakdown}
-
-TIME DISTRIBUTION:
-- Morning (6am-12pm): {morning}%
-- Afternoon (12pm-6pm): {afternoon}%
-- Evening (6pm-10pm): {evening}%
-- Night (10pm-6am): {night}%
-
-DAY PATTERN:
-- Weekday: {weekday}%
-- Weekend: {weekend}%
-
-TOP MERCHANTS (by visit frequency):
-{top_merchants}
-
-STREAKS:
-{streaks}
-
-EXPLORATION (unique merchants / total visits):
-{exploration_ratios}
-
----
-
-Based on this data, create a taste identity:
-
-1. archetype: A creative 2-word identity that captures their vibe (not just their top category)
-2. archetype_emoji: One emoji that fits
-3. trait_badges: 2-3 badges for the MOST interesting patterns you found
-   - Each badge needs: name, emoji, witty one-liner description
-   - Only highlight what's actually notable - don't force badges
-4. headline_insight: One punchy "aha moment" - the single most interesting thing
-5. rarity_percentile: 1-100, estimate how unique this combination is
-6. share_caption: Short, shareable caption for social media
-
-{schema}
-"""
+```
+GET    /api/onboarding/state         # Get user's onboarding progress
+PATCH  /api/onboarding/state         # Update step
+POST   /api/onboarding/quiz          # Submit quiz answers
+GET    /api/onboarding/initial-taste # Get quiz-based taste profile (for Initial Taste Card)
+POST   /api/onboarding/complete      # Mark onboarding complete
 ```
 
-### Response Validation
+### Plaid (Card Linking)
 
-```python
-from pydantic import BaseModel, Field
-from typing import List
-
-class TraitBadge(BaseModel):
-    name: str
-    emoji: str
-    description: str = Field(max_length=100)
-
-class AITasteContent(BaseModel):
-    archetype: str = Field(max_length=30)
-    archetype_emoji: str
-    trait_badges: List[TraitBadge] = Field(max_length=3)
-    headline_insight: str = Field(max_length=150)
-    rarity_percentile: int = Field(ge=1, le=100)
-    share_caption: str = Field(max_length=100)
+```
+POST   /api/plaid/create-link-token  # Get Plaid Link token
+POST   /api/plaid/exchange-token     # Exchange public token for access
+POST   /api/plaid/sync               # Sync transactions (manual trigger)
+DELETE /api/plaid/accounts/{id}      # Remove linked account
 ```
 
-### Fallback Strategy
+### Taste Profile
 
-If OpenAI API fails:
-1. Use cached response if available (1-hour TTL)
-2. Fall back to template-based archetype mapping
-3. Generate simpler, rule-based badges
-4. Never fail the user experience
+```
+GET    /api/taste/profile            # Get fused taste profile
+GET    /api/taste/ring               # Get Taste Ring data for Pulse
+GET    /api/taste/insights           # Get daily insight
+```
+
+### Discover
+
+```
+POST   /api/discover/feed            # Get personalized venue feed
+       Body: { mood?: string, filters?: DiscoverFilters }
+GET    /api/venues/{id}              # Get venue details
+```
+
+### Sessions (Group Planning)
+
+```
+POST   /api/sessions                 # Create new session
+GET    /api/sessions/{id}            # Get session details
+GET    /api/sessions/{code}/join     # Join via invite code
+POST   /api/sessions/{id}/venues     # Add venue to session
+DELETE /api/sessions/{id}/venues/{venue_id}
+POST   /api/sessions/{id}/vote       # Cast votes
+       Body: { venue_ids: string[] }
+POST   /api/sessions/{id}/close      # Close voting (host only)
+GET    /api/sessions/active          # Get user's active sessions
+GET    /api/sessions/history         # Get past sessions
+```
+
+### Vault
+
+```
+GET    /api/vault/visits             # Get place visits (paginated)
+       Query: ?category=&reaction=&from=&to=
+POST   /api/vault/visits             # Add manual visit
+PATCH  /api/vault/visits/{id}        # Update reaction/notes
+DELETE /api/vault/visits/{id}        # Delete visit
+GET    /api/vault/places/{venue_id}  # Get user's history with a place
+```
+
+### Bookmarks & Playlists
+
+```
+GET    /api/bookmarks                # Get all bookmarks
+POST   /api/bookmarks                # Add bookmark
+DELETE /api/bookmarks/{venue_id}     # Remove bookmark
+
+GET    /api/playlists                # Get all playlists
+POST   /api/playlists                # Create playlist
+PATCH  /api/playlists/{id}           # Update playlist
+DELETE /api/playlists/{id}           # Delete playlist
+POST   /api/playlists/{id}/venues    # Add venue to playlist
+DELETE /api/playlists/{id}/venues/{venue_id}
+```
+
+### Profile
+
+```
+GET    /api/profile                  # Get profile
+PATCH  /api/profile                  # Update profile
+GET    /api/profile/linked-cards     # Get linked Plaid accounts
+```
+
+### Notifications
+
+```
+POST   /api/notifications/token      # Register push token
+DELETE /api/notifications/token      # Unregister
+GET    /api/notifications/preferences
+PATCH  /api/notifications/preferences
+```
 
 ---
 
@@ -661,214 +919,401 @@ If OpenAI API fails:
 
 ```
 ceezaa-mvp/
-├── mobile/                      # React Native Expo
+├── mobile/                          # React Native Expo
 │   ├── app/
 │   │   ├── (auth)/
 │   │   │   ├── welcome.tsx
 │   │   │   ├── login.tsx
 │   │   │   └── verify.tsx
 │   │   ├── (onboarding)/
-│   │   │   ├── intro.tsx
-│   │   │   ├── connect-bank.tsx
-│   │   │   └── notifications.tsx   # Push notification permission
-│   │   ├── (main)/
-│   │   │   ├── index.tsx           # Home dashboard
-│   │   │   ├── processing.tsx      # AI analysis progress
-│   │   │   ├── reveal.tsx          # Taste reveal
-│   │   │   ├── truth-card.tsx      # View & share
-│   │   │   └── profile.tsx
+│   │   │   ├── quiz.tsx
+│   │   │   ├── initial-taste.tsx    # Quiz-based taste card (shown before card link)
+│   │   │   ├── card-link.tsx
+│   │   │   └── enhanced-reveal.tsx  # Final reveal (quiz + transactions)
+│   │   ├── (tabs)/
+│   │   │   ├── pulse/
+│   │   │   │   ├── index.tsx        # Taste Ring, insights
+│   │   │   │   └── taste-detail.tsx
+│   │   │   ├── discover/
+│   │   │   │   ├── index.tsx        # Mood grid
+│   │   │   │   ├── feed.tsx         # Filtered feed
+│   │   │   │   ├── venue/[id].tsx   # Venue detail
+│   │   │   │   └── session/
+│   │   │   │       ├── create.tsx
+│   │   │   │       ├── [id].tsx     # Voting screen
+│   │   │   │       └── confirmed.tsx
+│   │   │   ├── vault/
+│   │   │   │   ├── index.tsx        # Place visits
+│   │   │   │   └── place/[id].tsx   # Place detail
+│   │   │   └── profile/
+│   │   │       ├── index.tsx
+│   │   │       ├── cards.tsx
+│   │   │       ├── notifications.tsx
+│   │   │       └── privacy.tsx
 │   │   └── _layout.tsx
+│   │
 │   ├── components/
-│   │   ├── ui/
-│   │   ├── TasteRevealCard.tsx
-│   │   ├── TruthCard.tsx
-│   │   ├── InsightCard.tsx
-│   │   ├── StreakBadge.tsx         # Streak display component
-│   │   └── ProcessingAnimation.tsx
+│   │   ├── ui/                      # Reusable primitives
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── Input.tsx
+│   │   │   └── __tests__/
+│   │   ├── pulse/
+│   │   │   ├── TasteRing.tsx
+│   │   │   ├── InsightCard.tsx
+│   │   │   └── __tests__/
+│   │   ├── discover/
+│   │   │   ├── MoodGrid.tsx
+│   │   │   ├── VenueCard.tsx
+│   │   │   ├── FilterBar.tsx
+│   │   │   └── __tests__/
+│   │   ├── vault/
+│   │   │   ├── PlaceCard.tsx
+│   │   │   ├── ReactionPicker.tsx
+│   │   │   └── __tests__/
+│   │   └── session/
+│   │       ├── VotingCard.tsx
+│   │       ├── ParticipantList.tsx
+│   │       └── __tests__/
+│   │
 │   ├── lib/
 │   │   ├── supabase.ts
 │   │   ├── api.ts
 │   │   ├── plaid.ts
-│   │   └── notifications.ts        # Expo push notification setup
-│   └── stores/
-│       └── useStore.ts
+│   │   └── __tests__/
+│   │
+│   ├── stores/
+│   │   ├── authStore.ts
+│   │   ├── tasteStore.ts
+│   │   ├── sessionStore.ts
+│   │   └── __tests__/
+│   │
+│   ├── hooks/
+│   │   ├── useTasteProfile.ts
+│   │   ├── useSession.ts
+│   │   └── __tests__/
+│   │
+│   └── __mocks__/
 │
-├── backend/                     # Python FastAPI
+├── backend/                         # Python FastAPI
 │   ├── app/
 │   │   ├── main.py
 │   │   ├── config.py
-│   │   ├── intelligence/           # TASTE INTELLIGENCE LAYER
-│   │   │   ├── __init__.py
-│   │   │   ├── processor.py        # Layer 1: Transaction Processor
-│   │   │   ├── aggregator.py       # Layer 2: Aggregation Engine
-│   │   │   ├── store.py            # Layer 3: Analysis Store
-│   │   │   ├── interface.py        # Layer 4: TasteIntelligence API
-│   │   │   └── models.py           # Pydantic models for TIL
+│   │   ├── dependencies.py
+│   │   │
 │   │   ├── routers/
+│   │   │   ├── auth.py
+│   │   │   ├── onboarding.py
 │   │   │   ├── plaid.py
 │   │   │   ├── taste.py
-│   │   │   ├── truth_card.py
-│   │   │   └── insights.py
+│   │   │   ├── discover.py
+│   │   │   ├── sessions.py
+│   │   │   ├── vault.py
+│   │   │   ├── bookmarks.py
+│   │   │   ├── profile.py
+│   │   │   └── notifications.py
+│   │   │
 │   │   ├── services/
 │   │   │   ├── plaid_service.py
-│   │   │   ├── ai_service.py        # OpenAI integration
-│   │   │   ├── notification_service.py  # Expo push notifications
-│   │   │   └── card_generator.py
-│   │   ├── jobs/
-│   │   │   ├── weekly_refresh.py    # Weekly AI regeneration
-│   │   │   └── daily_insights.py    # Daily insight generation
-│   │   ├── prompts/
-│   │   │   ├── taste_prompts.py
-│   │   │   └── insight_prompts.py
-│   │   └── utils/
-│   │       └── categories.py
+│   │   │   ├── google_places_service.py
+│   │   │   ├── notification_service.py
+│   │   │   └── venue_tagging_service.py
+│   │   │
+│   │   ├── intelligence/            # TASTE INTELLIGENCE LAYER
+│   │   │   ├── __init__.py
+│   │   │   ├── quiz_processor.py
+│   │   │   ├── transaction_processor.py
+│   │   │   ├── aggregation_engine.py
+│   │   │   ├── taste_fusion.py
+│   │   │   ├── analysis_store.py
+│   │   │   ├── taste_interface.py
+│   │   │   ├── matching_engine.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── models/
+│   │   │   ├── user.py
+│   │   │   ├── taste.py
+│   │   │   ├── venue.py
+│   │   │   ├── session.py
+│   │   │   └── vault.py
+│   │   │
+│   │   └── jobs/
+│   │       ├── daily_insights.py
+│   │       ├── streak_checker.py
+│   │       └── transaction_sync.py
+│   │
+│   ├── tests/
+│   │   ├── test_auth.py
+│   │   ├── test_onboarding.py
+│   │   ├── test_taste.py
+│   │   ├── test_discover.py
+│   │   ├── test_sessions.py
+│   │   ├── test_vault.py
+│   │   └── intelligence/
+│   │       ├── test_quiz_processor.py
+│   │       ├── test_transaction_processor.py
+│   │       ├── test_aggregation_engine.py
+│   │       ├── test_taste_fusion.py
+│   │       └── test_matching_engine.py
+│   │
 │   ├── requirements.txt
 │   └── Dockerfile
 │
 ├── supabase/
 │   └── migrations/
-│       └── 001_initial_schema.sql
+│       ├── 001_initial_schema.sql
+│       ├── 002_taste_tables.sql
+│       └── 003_sessions.sql
 │
-├── mock-data/                   # Frontend mock data
-│   ├── taste-profile.json
-│   ├── processing-sse.json
-│   └── daily-insights.json
+├── scripts/
+│   ├── import_venues.py             # Import curated venues
+│   ├── tag_venues.py                # GPT tagging
+│   └── seed_test_data.py
 │
-├── APP_LAYOUT.md
-├── TECH_ARCH.md
+├── PRDs/                            # Source of truth
+│   ├── Ceezaa MVP v1 – PRD.pdf
+│   ├── Ceezaa MVP v1 – Onboarding PRD.pdf
+│   ├── Ceezaa MVP v1 – Discover PRD.pdf
+│   ├── Ceezaa MVP v1 – Pulse PRD.pdf
+│   ├── Ceezaa MVP v1 – Vault PRD.pdf
+│   └── Ceezaa MVP v1 – Profile PRD.pdf
+│
+├── APP_LAYOUT.md                    # UX/UI spec
+├── TECH_ARCH.md                     # This file
 └── README.md
 ```
 
 ---
 
-## 4-Week Sprint Plan (Frontend-First)
+## TDD Approach
 
-### Week 1-2: Frontend Prototype
-**Goal:** Complete UI with mock AI data
+### Red-Green-Refactor Workflow
 
-**Screens to Build:**
-- [ ] Welcome + Auth flow (phone, username)
-- [ ] Onboarding carousel
-- [ ] Connect Bank (Plaid modal)
-- [ ] Processing animation (progressive phases)
-- [ ] Taste Reveal (swipeable cards with AI content)
-- [ ] Truth Card view & share
-- [ ] Home dashboard
-- [ ] Profile/Settings
+```
+1. RED    - Write failing test first
+2. GREEN  - Write minimum code to pass
+3. REFACTOR - Improve while keeping green
+4. REPEAT
+```
 
-**Mock Data:**
-- [ ] User profile
-- [ ] Taste profile with AI-generated fields
-- [ ] Daily insights
+### Frontend Testing
 
-### Week 3: Backend + AI Integration
-**Goal:** Real data pipeline
+```typescript
+// Example: TasteRing component test
+describe('TasteRing', () => {
+  it('renders category breakdown correctly', () => {
+    const mockData = {
+      categories: { coffee: 34, dining: 28, nightlife: 22, entertainment: 16 }
+    };
 
-**Days 1-2:**
-- [ ] Supabase setup (schema, RLS)
-- [ ] Plaid integration (sandbox)
-- [ ] Token exchange flow
+    const { getByText } = render(<TasteRing data={mockData} />);
 
-**Days 3-4:**
-- [ ] AI service implementation
-- [ ] Prompt engineering & testing
-- [ ] Response validation
+    expect(getByText('34%')).toBeTruthy();
+    expect(getByText('Coffee')).toBeTruthy();
+  });
 
-**Days 5-7:**
-- [ ] Content generator (rules + AI merge)
-- [ ] SSE streaming endpoint
-- [ ] API endpoints complete
+  it('animates on mount', () => {
+    // Test animation triggers
+  });
 
-### Week 4: Integration + Polish
-**Goal:** Connected, polished app
+  it('navigates to detail on tap', () => {
+    // Test navigation
+  });
+});
+```
 
-**Days 1-2:**
-- [ ] Connect frontend to backend
-- [ ] Real Plaid flow testing
+### Backend Testing
 
-**Days 3-4:**
-- [ ] End-to-end with AI
-- [ ] Error handling
-- [ ] Template fallbacks
+```python
+# Example: Aggregation Engine test
+class TestAggregationEngine:
+    def test_ingests_transaction_updates_category(self):
+        """Verify category count increments on transaction ingest."""
+        engine = AggregationEngine()
+        analysis = UserAnalysis(user_id="test")
+        txn = ProcessedTransaction(
+            id="txn_1",
+            taste_category="coffee",
+            amount=5.50,
+            merchant=MerchantInfo(name="Blue Bottle", id="bb_1")
+        )
 
-**Days 5-7:**
-- [ ] Loading/error states
-- [ ] Share functionality
-- [ ] TestFlight build
+        result = engine.ingest(txn, analysis)
+
+        assert result.categories["coffee"].count == 1
+        assert result.categories["coffee"].total_spend == 5.50
+        assert "bb_1" in result.categories["coffee"].merchants
+
+    def test_updates_streak_on_consecutive_days(self):
+        """Verify streaks increment for consecutive day visits."""
+        # ...
+
+    def test_operations_are_o1(self):
+        """Verify no full recomputation on ingest."""
+        # ...
+```
+
+### Test Coverage Goals
+
+| Area | Target | Priority |
+|------|--------|----------|
+| TIL Core | 90% | Critical |
+| Matching Engine | 85% | Critical |
+| API Endpoints | 80% | High |
+| UI Components | 75% | High |
+| Integration | 70% | Medium |
 
 ---
 
-## Mock Data (For Prototype)
+## Implementation Timeline (10 Weeks)
 
-```typescript
-// lib/mockData.ts
+### Phase 1: Foundation (Week 1)
+**Goal:** Project setup + testing infrastructure
 
-export const MOCK_USER = {
-  id: "user_123",
-  username: "samcodes",
-  displayName: "Sam",
-  avatarUrl: null,
-};
+**Frontend:**
+- [ ] Expo project with TypeScript strict mode
+- [ ] Jest + React Native Testing Library setup
+- [ ] UI primitives with tests (Button, Input, Card, Modal)
+- [ ] Navigation skeleton (4 tabs)
+- [ ] Mock data layer
 
-export const MOCK_TASTE_PROFILE = {
-  // Computed financial analysis (what AI receives)
-  financialAnalysis: {
-    categoryBreakdown: {
-      coffee: { percentage: 43, transactionCount: 43, uniqueMerchants: 12 },
-      dining: { percentage: 28, transactionCount: 67, uniqueMerchants: 23 },
-      entertainment: { percentage: 18, transactionCount: 22, uniqueMerchants: 8 },
-      shopping: { percentage: 11, transactionCount: 15, uniqueMerchants: 10 },
-    },
-    timeDistribution: { morning: 15, afternoon: 35, evening: 30, night: 20 },
-    dayOfWeek: { weekday: 62, weekend: 38 },
-    merchantLoyalty: [
-      { name: "Blue Bottle Coffee", visits: 18, category: "coffee" },
-      { name: "Philz Coffee", visits: 12, category: "coffee" },
-      { name: "Ramen Tatsunoya", visits: 8, category: "dining" },
-    ],
-    streaks: { currentCoffeeStreak: 5, longestDiningStreak: 3 },
-    explorationRatio: { dining: { unique: 23, total: 67, ratio: 0.34 } },
-    period: { days: 365, totalTransactions: 847 },
-  },
+**Backend:**
+- [ ] FastAPI project with pytest setup
+- [ ] Supabase project + initial schema
+- [ ] Health check endpoint
+- [ ] CI pipeline (lint + test)
 
-  // AI-generated content (what AI outputs)
-  archetype: { name: "Urban Explorer", emoji: "🏙️" },
-  traitBadges: [
-    {
-      name: "Coffee Connoisseur",
-      emoji: "☕",
-      description: "Blue Bottle knows your order by heart. 18 visits says it all.",
-    },
-    {
-      name: "Culinary Cartographer",
-      emoji: "🗺️",
-      description: "23 different restaurants in a year. Your palate is a passport.",
-    },
-    {
-      name: "Night Crawler",
-      emoji: "🌙",
-      description: "20% of your meals happen after dark. The city never sleeps.",
-    },
-  ],
-  headlineInsight: "You've mapped 23 restaurants this year while running on Blue Bottle. Explorer with excellent taste.",
-  rarityPercentile: 12,
-  shareCaption: "Apparently I'm an Urban Explorer. What's your taste identity?",
-};
+### Phase 2: Auth + Onboarding (Week 2)
+**Goal:** User can sign up, complete quiz, link card
 
-export const MOCK_DAILY_INSIGHT = {
-  type: "streak",
-  emoji: "🔥",
-  title: "You're on fire!",
-  body: "5-day coffee streak! Blue Bottle is clearly your happy place.",
-};
+**Frontend:**
+- [ ] Welcome/Splash screen
+- [ ] Phone/Email/Social auth screens
+- [ ] Taste Profile Quiz (5-7 questions)
+- [ ] Initial Taste Card (quiz-based profile, shown before card link)
+- [ ] Card Link screen (Plaid modal, required - no skip)
+- [ ] Enhanced Reveal (quiz + transactions combined)
+- [ ] Tests
 
-export const MOCK_PROCESSING_PHASES = [
-  { phase: 1, message: "Reading your story...", delay: 3000 },
-  { phase: 2, message: "Spotting patterns...", delay: 5000 },
-  { phase: 3, message: "Crafting your identity...", delay: 5000 },
-  { phase: 4, message: "Almost there...", delay: 2000 },
-];
-```
+**Backend:**
+- [ ] Supabase Auth configuration
+- [ ] `/api/auth/*` endpoints
+- [ ] `/api/onboarding/*` endpoints (including `/initial-taste` for quiz-based profile)
+- [ ] Quiz response storage
+- [ ] Quiz-to-taste-profile algorithm (for Initial Taste Card)
+- [ ] Plaid integration (create-link-token, exchange-token)
+- [ ] Initial transaction fetch
+- [ ] Tests
+
+### Phase 3: Taste Intelligence Layer (Week 3)
+**Goal:** Transaction + Quiz → Taste Profile
+
+**Backend (primary focus):**
+- [ ] Quiz Processor
+- [ ] Transaction Processor
+- [ ] Aggregation Engine (O(1) operations)
+- [ ] Taste Fusion (declared + observed)
+- [ ] Analysis Store (persistence)
+- [ ] Taste Interface APIs
+- [ ] Tests for each TIL component
+
+**Frontend (parallel):**
+- [ ] Pulse home screen (Taste Ring, Insights)
+- [ ] Connect to taste profile API
+- [ ] Tests
+
+### Phase 4: Discover + Venue Catalog (Week 4-5)
+**Goal:** Personalized venue discovery
+
+**Backend:**
+- [ ] Google Places integration
+- [ ] Venue import scripts
+- [ ] GPT tagging service
+- [ ] Matching Engine
+- [ ] Discover endpoints
+- [ ] Tests
+
+**Frontend:**
+- [ ] Mood Grid
+- [ ] Filtered Feed
+- [ ] Venue Detail
+- [ ] Filter components
+- [ ] Connect to APIs
+- [ ] Tests
+
+### Phase 5: Group Sessions (Week 5-6)
+**Goal:** Full group planning flow
+
+**Backend:**
+- [ ] Session CRUD
+- [ ] Invite code generation
+- [ ] Voting logic
+- [ ] Supabase Realtime setup
+- [ ] Winner calculation
+- [ ] Tests
+
+**Frontend:**
+- [ ] Create Session screen
+- [ ] Voting screen (real-time)
+- [ ] Participant list
+- [ ] Confirmed plan view
+- [ ] Deep linking for invites
+- [ ] Tests
+
+### Phase 6: Vault + Profile (Week 6-7)
+**Goal:** Complete remaining tabs
+
+**Backend:**
+- [ ] Place visits CRUD
+- [ ] Auto-create visits from transactions
+- [ ] Reactions system
+- [ ] Profile endpoints
+- [ ] Notification preferences
+- [ ] Tests
+
+**Frontend:**
+- [ ] Vault main screen
+- [ ] Place detail with history
+- [ ] Reaction picker
+- [ ] Profile screens
+- [ ] Linked cards management
+- [ ] Tests
+
+### Phase 7: Notifications + Polish (Week 7-8)
+**Goal:** Push notifications, polish
+
+**Backend:**
+- [ ] Push notification service
+- [ ] Daily insight generation job
+- [ ] Streak notification triggers
+- [ ] Tests
+
+**Frontend:**
+- [ ] Notification permission flow
+- [ ] Settings screens
+- [ ] Loading/error states
+- [ ] Animation polish
+- [ ] Tests
+
+### Phase 8: Integration + Testing (Week 8-9)
+**Goal:** E2E testing, bug fixes
+
+- [ ] End-to-end testing (all user journeys)
+- [ ] Error handling review
+- [ ] Offline state handling
+- [ ] Performance profiling
+- [ ] Bug fixes
+
+### Phase 9: Production Prep (Week 9-10)
+**Goal:** Ready to ship
+
+- [ ] Plaid production credentials
+- [ ] Google Places production setup
+- [ ] Environment configuration
+- [ ] App Store / Play Store submission prep
+- [ ] TestFlight / Internal testing
+- [ ] Final bug fixes
+- [ ] Documentation
 
 ---
 
@@ -879,6 +1324,7 @@ export const MOCK_PROCESSING_PHASES = [
 EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
 EXPO_PUBLIC_API_URL=
+EXPO_PUBLIC_PLAID_ENV=sandbox
 ```
 
 ### Backend (.env)
@@ -892,55 +1338,16 @@ PLAID_CLIENT_ID=
 PLAID_SECRET=
 PLAID_ENV=sandbox
 
+# Google
+GOOGLE_PLACES_API_KEY=
+
 # OpenAI
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
 
-# Feature Flags
-ENABLE_AI_GENERATION=true
-AI_FALLBACK_TO_TEMPLATES=true
-AI_CACHE_TTL_SECONDS=3600
+# Push
+EXPO_ACCESS_TOKEN=
 ```
-
----
-
-## Plaid Setup
-
-1. **Create Account:** https://dashboard.plaid.com/signup
-2. **Get Sandbox Keys:** Developers → Keys → Copy client_id + sandbox secret
-3. **Test Credentials:** Username: `user_good` / Password: `pass_good`
-4. **Apply for Production:** Do this early (1-5 business days approval)
-5. **Enable Products:** Transactions (required)
-
----
-
-## OpenAI Setup
-
-1. **Create Account:** https://platform.openai.com
-2. **Get API Key:** Settings → API Keys → Create new secret key
-3. **Set Usage Limits:** Set a spending cap to avoid surprises
-4. **Model:** Use `gpt-4o-mini` for cost efficiency
-
-### Cost Estimation
-| Operation | Tokens | Cost |
-|-----------|--------|------|
-| Taste Profile | ~800 | ~$0.001 |
-| Daily Insight | ~300 | ~$0.0004 |
-| Per user/month | ~30 insights + 1 profile | ~$0.02 |
-
----
-
-## Lottie Animations
-
-| Moment | Animation |
-|--------|-----------|
-| Processing Phase 1 | Particles floating |
-| Processing Phase 2 | Particles clustering |
-| Processing Phase 3 | Identity forming |
-| Taste Reveal | Confetti celebration |
-| Truth Card Share | Card flying out |
-
-Source: https://lottiefiles.com/free-animations
 
 ---
 
@@ -948,122 +1355,18 @@ Source: https://lottiefiles.com/free-animations
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Mobile | React Native (Expo) | Cross-platform, fast iteration |
-| Auth | Supabase (Phone OTP + Social) | Simple, Gen Z friendly |
-| Database | Supabase PostgreSQL | Managed, great DX |
-| Processing | Python FastAPI | Best for AI/data work |
-| AI Model | GPT-4o-mini | Cost + speed + quality balance |
-| AI Scope | Content generation only | Plaid handles categorization |
-| Hosting | Render | Free tier, easy deploy |
-| Animations | Reanimated + Moti + Lottie | Duolingo-class feel |
-
----
-
-## Push Notifications
-
-### Notification Types
-
-| Type | Trigger | Example |
-|------|---------|---------|
-| Daily Insight | Daily at user's preferred time | "☕ You're on a 5-day coffee streak! Keep it going." |
-| Streak Milestone | Streak hits 3, 5, 7, 10, etc. | "🔥 7-day dining streak! You're unstoppable." |
-| Streak at Risk | No activity in category for 24h | "☕ Don't break your coffee streak! Visit a cafe today." |
-| Weekly Refresh | Truth Card updated | "✨ Your taste profile updated. See what changed!" |
-| Archetype Change | Archetype changed | "🎭 Plot twist: You're now a Wellness Warrior!" |
-
-### Implementation
-
-```python
-# services/notification_service.py
-
-class NotificationService:
-    def __init__(self):
-        self.expo_push_url = "https://exp.host/--/api/v2/push/send"
-
-    async def send_notification(self, user_id: str, title: str, body: str, data: dict = None):
-        token = await self._get_push_token(user_id)
-        if not token:
-            return
-
-        message = {
-            "to": token,
-            "title": title,
-            "body": body,
-            "data": data or {},
-            "sound": "default"
-        }
-
-        async with httpx.AsyncClient() as client:
-            await client.post(self.expo_push_url, json=message)
-
-    async def send_daily_insight(self, user_id: str, insight: DailyInsight):
-        await self.send_notification(
-            user_id,
-            insight.title,
-            insight.body,
-            {"type": "daily_insight", "insight_id": insight.id}
-        )
-
-    async def send_streak_milestone(self, user_id: str, category: str, days: int):
-        emoji = CATEGORY_EMOJIS.get(category, "🔥")
-        await self.send_notification(
-            user_id,
-            f"{emoji} {days}-day {category} streak!",
-            f"You're on fire! Keep the momentum going.",
-            {"type": "streak", "category": category, "days": days}
-        )
-```
-
-### Daily Job (Cron)
-
-```python
-# jobs/daily_insights.py
-
-async def generate_daily_insights():
-    """Run daily to generate and send insights for all users."""
-
-    users = await get_active_users()
-
-    for user_id in users:
-        # Get analysis from TIL
-        context = taste_intelligence.get_daily_context(user_id)
-
-        # Check for notable patterns
-        if context.active_streaks:
-            best_streak = max(context.active_streaks, key=lambda s: s.current)
-            if best_streak.current in [3, 5, 7, 10, 14, 21, 30]:
-                await notification_service.send_streak_milestone(
-                    user_id, best_streak.category, best_streak.current
-                )
-
-        # Generate AI insight
-        insight = await ai_service.generate_daily_insight(context)
-        await save_daily_insight(user_id, insight)
-        await notification_service.send_daily_insight(user_id, insight)
-```
-
-### API Endpoints
-
-```
-POST /api/notifications/register    # Register push token
-DELETE /api/notifications/unregister
-GET /api/notifications/preferences
-PUT /api/notifications/preferences  # Enable/disable types
-```
-
----
-
-## Out of Scope (V1.1+)
-
-- Lobbies / community
-- Taste Search
-- Black Book (favorites)
-- Friend connections
-- Plaid webhooks (auto-sync)
-- Multiple card designs
-- Web dashboard
-- Taste Graph visualization
+| Mobile | React Native (Expo managed) | Cross-platform, fast iteration, per PRD |
+| Auth | Supabase (Phone OTP + Social) | Simple, Gen Z friendly, built-in |
+| Database | Supabase PostgreSQL | Managed, Realtime built-in |
+| Backend | Python FastAPI | Best for data/AI work, per PRD |
+| Venue Data | Google Places + curation | Clean data, controlled quality |
+| Tagging | GPT-4o-mini | Cost-effective, good quality |
+| Real-time | Supabase Realtime | Built-in WebSockets |
+| Animations | Reanimated + Moti | Native performance |
+| Testing | Jest + pytest | TDD requirement |
+| Hosting | Render/Railway | Simple deploy, free tier |
 
 ---
 
 *Last updated: Dec 2024*
+*Version: v1.0 - Full MVP Architecture*
