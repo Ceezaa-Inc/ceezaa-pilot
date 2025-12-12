@@ -53,21 +53,34 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 |
 | F1-09 | Set up CI pipeline (lint + test on PR) | `infra` | P1 | M | F1-03 |
 
-### UI Primitives
+### Design System (see DESIGN_SYSTEM.md)
 
 | ID | Task | Label | Priority | Size | Depends |
 |----|------|-------|----------|------|---------|
-| F1-10 | Create Button component (primary, secondary, ghost variants) | `frontend` | P0 | M | F1-04 |
+| F1-09a | Create design tokens (colors, typography, spacing, shadows, animations) | `design` | P0 | S | F1-04 |
+| F1-09b | Configure NativeWind theme with design tokens | `design` | P0 | S | F1-09a |
+| F1-09c | Set up Manrope font (all weights) | `design` | P0 | S | F1-01 |
+
+### UI Primitives (Navy-First + Premium Luxury)
+
+> **Design Language:** Navy-first (#0A1A2F bg), warm gold accent (#D3B481), colorful mood gradients for discovery.
+> Light "Trust Mode" ONLY for card linking. See DESIGN_SYSTEM.md for full specs.
+
+| ID | Task | Label | Priority | Size | Depends |
+|----|------|-------|----------|------|---------|
+| F1-10 | Create Button component (pill-shaped primary, secondary with border, ghost) | `frontend` | P0 | M | F1-09b |
 | F1-11 | Write Button component tests | `test` | P0 | S | F1-10 |
-| F1-12 | Create Input component (text, phone, OTP) | `frontend` | P0 | M | F1-04 |
+| F1-12 | Create Input component (navy surface bg #132138, gold focus border) | `frontend` | P0 | M | F1-09b |
 | F1-13 | Write Input component tests | `test` | P0 | S | F1-12 |
-| F1-14 | Create Card component (elevated, flat variants) | `frontend` | P0 | S | F1-04 |
+| F1-14 | Create Card component (navy surface #132138, info/venue/trust variants) | `frontend` | P0 | S | F1-09b |
 | F1-15 | Write Card component tests | `test` | P0 | XS | F1-14 |
-| F1-16 | Create Modal/BottomSheet component | `frontend` | P1 | M | F1-04 |
+| F1-16 | Create Modal/BottomSheet component (dark bg, rounded-t-2xl) | `frontend` | P1 | M | F1-09b |
 | F1-17 | Write Modal component tests | `test` | P1 | S | F1-16 |
-| F1-18 | Create Typography components (H1, H2, Body, Caption) | `frontend` | P1 | S | F1-04 |
-| F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-04 |
-| F1-20 | Create LoadingSpinner component | `frontend` | P1 | XS | F1-04 |
+| F1-18 | Create Typography components (Manrope all weights) | `frontend` | P1 | S | F1-09c |
+| F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-09b |
+| F1-20 | Create LoadingSpinner component (gold accent) | `frontend` | P1 | XS | F1-09b |
+| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b |
+| F1-20b | Create OTPInput component (6-digit dark boxes) | `frontend` | P0 | M | F1-12 |
 
 ### Navigation Shell
 
@@ -564,7 +577,7 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 | Phase | Tasks | Priority Breakdown |
 |-------|-------|-------------------|
-| Phase 1: Foundation | 24 | P0: 15, P1: 8, P2: 1 |
+| Phase 1: Foundation | 26 | P0: 17, P1: 8, P2: 1 |
 | Phase 2: Onboarding UI | 26 | P0: 22, P1: 3, P2: 1 |
 | Phase 3: Core Tabs UI | 41 | P0: 35, P1: 5, P2: 1 |
 | Phase 4: Backend Foundation | 27 | P0: 24, P1: 3, P2: 0 |
@@ -573,7 +586,7 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | Phase 7: Integration | 30 | P0: 27, P1: 3, P2: 0 |
 | Phase 8: Polish | 17 | P0: 8, P1: 7, P2: 2 |
 | Phase 9: Launch | 19 | P0: 19, P1: 0, P2: 0 |
-| **Total** | **248** | **P0: 207, P1: 36, P2: 5** |
+| **Total** | **250** | **P0: 209, P1: 36, P2: 5** |
 
 ---
 

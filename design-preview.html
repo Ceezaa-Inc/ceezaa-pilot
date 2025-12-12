@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ceezaa Design System Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Brand Colors */
+      --white: #FFFFFF;
+      --navy: #0A1A2F;
+      --gold: #D3B481;
+
+      /* Dark Theme */
+      --background: #0A1A2F;
+      --surface: #132138;
+      --surface-alt: #1C2D47;
+      --surface-muted: #243752;
+      --border: #2E4562;
+      --border-muted: #1E3550;
+
+      /* Primary (Gold) */
+      --primary: #D3B481;
+      --primary-hover: #C4A572;
+      --primary-active: #B59663;
+      --primary-muted: #2A2418;
+
+      /* Grayscale */
+      --cloud: #EDEFF7;
+      --smoke: #D3D6E0;
+      --steel: #BCBFCC;
+      --space: #9DA2B3;
+      --graphite: #6E7180;
+      --arsenic: #40424D;
+      --phantom: #1E1E24;
+      --black: #000000;
+
+      /* Text */
+      --text-primary: #FFFFFF;
+      --text-secondary: #9DA2B3;
+      --text-muted: #6E7180;
+      --text-disabled: #40424D;
+
+      /* Semantic */
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --info: #3B82F6;
+
+      /* Trust Mode */
+      --trust-bg: #FFFFFF;
+      --trust-surface: #EDEFF7;
+      --trust-text: #0A1A2F;
+      --trust-text-secondary: #40424D;
+      --trust-border: #D3D6E0;
+
+      /* Mood Gradients */
+      --mood-chill-start: #6366F1;
+      --mood-chill-end: #4338CA;
+      --mood-energetic-start: #F97316;
+      --mood-energetic-end: #DC2626;
+      --mood-romantic-start: #EC4899;
+      --mood-romantic-end: #BE185D;
+      --mood-social-start: #0EA5E9;
+      --mood-social-end: #0284C7;
+      --mood-adventurous-start: #14B8A6;
+      --mood-adventurous-end: #0D9488;
+      --mood-cozy-start: #F59E0B;
+      --mood-cozy-end: #D97706;
+
+      /* Typography */
+      --font-family: 'Manrope', system-ui, sans-serif;
+
+      /* Spacing */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: var(--space-2xl) 0;
+      border-bottom: 1px solid var(--border-muted);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .header h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: var(--space-sm);
+      letter-spacing: -1px;
+      color: var(--gold);
+    }
+
+    .header .subtitle {
+      color: var(--text-secondary);
+      font-size: 18px;
+    }
+
+    .header .tag {
+      display: inline-block;
+      background: var(--primary-muted);
+      color: var(--primary);
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: var(--space-md);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: var(--space-2xl);
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    /* Color Swatches */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .color-swatch {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .color-swatch .preview {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-swatch .info {
+      background: var(--surface);
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .color-swatch .name {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .color-swatch .hex {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    /* Mood Grid */
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+    }
+
+    .mood-tile {
+      aspect-ratio: 1;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mood-tile:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .mood-chill { background: linear-gradient(135deg, var(--mood-chill-start), var(--mood-chill-end)); }
+    .mood-energetic { background: linear-gradient(135deg, var(--mood-energetic-start), var(--mood-energetic-end)); }
+    .mood-romantic { background: linear-gradient(135deg, var(--mood-romantic-start), var(--mood-romantic-end)); }
+    .mood-social { background: linear-gradient(135deg, var(--mood-social-start), var(--mood-social-end)); }
+    .mood-adventurous { background: linear-gradient(135deg, var(--mood-adventurous-start), var(--mood-adventurous-end)); }
+    .mood-cozy { background: linear-gradient(135deg, var(--mood-cozy-start), var(--mood-cozy-end)); }
+
+    /* Typography */
+    .type-sample {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-md);
+    }
+
+    .type-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: var(--space-xs);
+    }
+
+    .h1-sample {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .h2-sample {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      line-height: 1.25;
+    }
+
+    .h3-sample {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .body-sample {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .caption-sample {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* Buttons */
+    .button-row {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .btn {
+      font-family: var(--font-family);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--navy);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 0 20px rgba(211, 180, 129, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-alt);
+      border-color: var(--text-muted);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .btn-lg {
+      padding: 18px 40px;
+      font-size: 18px;
+    }
+
+    /* Inputs */
+    .input-group {
+      margin-bottom: var(--space-md);
+    }
+
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: var(--space-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input {
+      width: 100%;
+      max-width: 400px;
+      padding: 14px 16px;
+      font-family: var(--font-family);
+      font-size: 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+
+    .input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(211, 180, 129, 0.1);
+    }
+
+    .input-error {
+      border-color: var(--error);
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .error-text {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: var(--space-xs);
+    }
+
+    /* OTP Input */
+    .otp-container {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .otp-box {
+      width: 48px;
+      height: 56px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family);
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .otp-box:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .otp-box.filled {
+      border-color: var(--primary);
+      background: var(--primary-muted);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card-info {
+      background: var(--surface);
+      padding: var(--space-lg);
+    }
+
+    .card-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+
+    .card-info p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .card-venue {
+      background: linear-gradient(135deg, var(--mood-chill-start), var(--mood-chill-end));
+      padding: var(--space-lg);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .card-venue h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-venue .meta {
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .card-trust {
+      background: var(--trust-bg);
+      padding: var(--space-lg);
+      color: var(--trust-text);
+    }
+
+    .card-trust h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      color: var(--trust-text);
+    }
+
+    .card-trust p {
+      color: var(--trust-text-secondary);
+      font-size: 14px;
+    }
+
+    .card-trust .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: var(--space-md);
+    }
+
+    /* Tab Bar */
+    .tab-bar-container {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+    }
+
+    .tab-bar {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-lg);
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid var(--border-muted);
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-item .icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .tab-item.active .icon {
+      background: var(--primary);
+    }
+
+    .tab-item .label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .tab-item.active .label {
+      color: var(--primary);
+    }
+
+    /* Phone Mockup */
+    .phone-mockup {
+      width: 375px;
+      height: 812px;
+      background: var(--background);
+      border-radius: 40px;
+      border: 8px solid #1E3550;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #1E3550;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .phone-screen {
+      height: 100%;
+      padding: 50px var(--space-md) var(--space-md);
+      overflow-y: auto;
+    }
+
+    .phone-home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: white;
+      border-radius: 3px;
+    }
+
+    .mockup-container {
+      display: flex;
+      gap: var(--space-xl);
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: var(--space-xl) 0;
+    }
+
+    /* Screen content styles */
+    .screen-header {
+      text-align: center;
+      padding: var(--space-xl) 0;
+    }
+
+    .screen-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+
+    .screen-header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .taste-ring {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--mood-chill-start) 0deg 60deg,
+        var(--mood-energetic-start) 60deg 120deg,
+        var(--mood-romantic-start) 120deg 180deg,
+        var(--mood-social-start) 180deg 240deg,
+        var(--mood-adventurous-start) 240deg 300deg,
+        var(--mood-cozy-start) 300deg 360deg
+      );
+      margin: var(--space-lg) auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .taste-ring-inner {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: var(--background);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .taste-ring-inner .score {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .taste-ring-inner .label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin: var(--space-md) 0;
+    }
+
+    .insight-card .overline {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: var(--space-xs);
+    }
+
+    .insight-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .insight-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Mini mood grid for phone */
+    .mini-mood-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+      margin: var(--space-md) 0;
+    }
+
+    .mini-mood-tile {
+      aspect-ratio: 1.5;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Logo Display */
+    .logo-display {
+      display: flex;
+      gap: var(--space-xl);
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-md);
+    }
+
+    .logo-box {
+      padding: var(--space-lg);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-box.light {
+      background: var(--cloud);
+    }
+
+    .logo-box.dark {
+      background: var(--navy);
+    }
+
+    .logo-box.gold-bg {
+      background: var(--gold);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border-muted);
+      margin: var(--space-2xl) 0;
+    }
+
+    /* Two column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+    }
+
+    @media (max-width: 768px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .mood-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .phone-mockup {
+        width: 320px;
+        height: 693px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>Ceezaa</h1>
+      <p class="subtitle">Warm, intelligent social discovery with luxurious depth</p>
+      <span class="tag">Design System Preview</span>
+    </header>
+
+    <!-- Brand Colors Section -->
+    <section class="section">
+      <h2 class="section-title">Brand Colors</h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="preview" style="background: #FFFFFF; border: 1px solid #D3D6E0;"></div>
+          <div class="info">
+            <div class="name">White</div>
+            <div class="hex">#FFFFFF</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #0A1A2F;"></div>
+          <div class="info">
+            <div class="name">Navy</div>
+            <div class="hex">#0A1A2F</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #D3B481;"></div>
+          <div class="info">
+            <div class="name">Gold</div>
+            <div class="hex">#D3B481</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dark Theme Colors -->
+    <section class="section">
+      <h2 class="section-title">Dark Theme Surfaces</h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="preview" style="background: #0A1A2F;"></div>
+          <div class="info">
+            <div class="name">Background</div>
+            <div class="hex">#0A1A2F</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #132138;"></div>
+          <div class="info">
+            <div class="name">Surface</div>
+            <div class="hex">#132138</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #1C2D47;"></div>
+          <div class="info">
+            <div class="name">Surface Alt</div>
+            <div class="hex">#1C2D47</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #243752;"></div>
+          <div class="info">
+            <div class="name">Surface Muted</div>
+            <div class="hex">#243752</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grayscale -->
+    <section class="section">
+      <h2 class="section-title">Grayscale Palette</h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="preview" style="background: #EDEFF7;"></div>
+          <div class="info">
+            <div class="name">Cloud</div>
+            <div class="hex">#EDEFF7</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #D3D6E0;"></div>
+          <div class="info">
+            <div class="name">Smoke</div>
+            <div class="hex">#D3D6E0</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #BCBFCC;"></div>
+          <div class="info">
+            <div class="name">Steel</div>
+            <div class="hex">#BCBFCC</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #9DA2B3;"></div>
+          <div class="info">
+            <div class="name">Space</div>
+            <div class="hex">#9DA2B3</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #6E7180;"></div>
+          <div class="info">
+            <div class="name">Graphite</div>
+            <div class="hex">#6E7180</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #40424D;"></div>
+          <div class="info">
+            <div class="name">Arsenic</div>
+            <div class="hex">#40424D</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #1E1E24;"></div>
+          <div class="info">
+            <div class="name">Phantom</div>
+            <div class="hex">#1E1E24</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #000000;"></div>
+          <div class="info">
+            <div class="name">Black</div>
+            <div class="hex">#000000</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mood Palette -->
+    <section class="section">
+      <h2 class="section-title">Mood Palette - Discover Tiles</h2>
+      <div class="mood-grid">
+        <div class="mood-tile mood-chill">Chill</div>
+        <div class="mood-tile mood-energetic">Energetic</div>
+        <div class="mood-tile mood-romantic">Romantic</div>
+        <div class="mood-tile mood-social">Social</div>
+        <div class="mood-tile mood-adventurous">Adventurous</div>
+        <div class="mood-tile mood-cozy">Cozy</div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Typography -->
+    <section class="section">
+      <h2 class="section-title">Typography - Manrope</h2>
+      <div class="two-col">
+        <div>
+          <div class="type-sample">
+            <div class="type-label">H1 - Manrope Bold 32px</div>
+            <div class="h1-sample">Your Taste Profile</div>
+          </div>
+          <div class="type-sample">
+            <div class="type-label">H2 - Manrope SemiBold 24px</div>
+            <div class="h2-sample">Discover Your Vibe</div>
+          </div>
+          <div class="type-sample">
+            <div class="type-label">H3 - Manrope SemiBold 20px</div>
+            <div class="h3-sample">Trending Near You</div>
+          </div>
+        </div>
+        <div>
+          <div class="type-sample">
+            <div class="type-label">Body - Manrope Regular 16px</div>
+            <div class="body-sample">Find your next favorite spot based on where you actually spend your time and money. We analyze your taste, not just your preferences.</div>
+          </div>
+          <div class="type-sample">
+            <div class="type-label">Caption - Manrope SemiBold 12px</div>
+            <div class="caption-sample">RECOMMENDED FOR YOU</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Buttons -->
+    <section class="section">
+      <h2 class="section-title">Buttons</h2>
+      <div class="button-row">
+        <button class="btn btn-primary">Get Started</button>
+        <button class="btn btn-secondary">Skip for now</button>
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Medium</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-danger">Delete Account</button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Inputs -->
+    <section class="section">
+      <h2 class="section-title">Inputs</h2>
+      <div class="two-col">
+        <div>
+          <div class="input-group">
+            <label class="input-label">Default</label>
+            <input type="text" class="input" placeholder="Enter your email">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Focused</label>
+            <input type="text" class="input" value="john@example.com" style="border-color: var(--primary);">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Error</label>
+            <input type="text" class="input input-error" value="invalid-email">
+            <div class="error-text">Please enter a valid email address</div>
+          </div>
+        </div>
+        <div>
+          <div class="input-group">
+            <label class="input-label">OTP Input</label>
+            <div class="otp-container">
+              <input type="text" class="otp-box filled" value="8" maxlength="1">
+              <input type="text" class="otp-box filled" value="7" maxlength="1">
+              <input type="text" class="otp-box filled" value="3" maxlength="1">
+              <input type="text" class="otp-box" maxlength="1">
+              <input type="text" class="otp-box" maxlength="1">
+              <input type="text" class="otp-box" maxlength="1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Cards -->
+    <section class="section">
+      <h2 class="section-title">Cards</h2>
+      <div class="card-grid">
+        <div class="card card-info">
+          <h3>Today's Insight</h3>
+          <p>You've been exploring more cozy spots lately. We found 5 new places that match your vibe.</p>
+        </div>
+        <div class="card card-venue">
+          <h3>Cafe Luna</h3>
+          <div class="meta">
+            <span>4.8</span>
+            <span>Coffee & Brunch</span>
+          </div>
+        </div>
+        <div class="card card-trust">
+          <h3>Bank-grade Security</h3>
+          <p>Your data is encrypted and we never store your banking credentials. Read-only access only.</p>
+          <div class="trust-badge">
+            <span>256-bit encryption</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Tab Bar -->
+    <section class="section">
+      <h2 class="section-title">Tab Bar</h2>
+      <div class="tab-bar-container">
+        <div class="tab-bar">
+          <div class="tab-item active">
+            <div class="icon"></div>
+            <span class="label">Pulse</span>
+          </div>
+          <div class="tab-item">
+            <div class="icon"></div>
+            <span class="label">Discover</span>
+          </div>
+          <div class="tab-item">
+            <div class="icon"></div>
+            <span class="label">Vault</span>
+          </div>
+          <div class="tab-item">
+            <div class="icon"></div>
+            <span class="label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Phone Mockups -->
+    <section class="section">
+      <h2 class="section-title">Screen Previews</h2>
+      <div class="mockup-container">
+        <!-- Pulse Screen -->
+        <div class="phone-mockup">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="screen-header">
+              <h1>Your Taste</h1>
+              <p>Based on where you actually go</p>
+            </div>
+
+            <div class="taste-ring">
+              <div class="taste-ring-inner">
+                <div class="score">87</div>
+                <div class="label">Taste Score</div>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="overline">Today's Insight</div>
+              <h3>Coffee Explorer</h3>
+              <p>You've visited 12 unique coffee spots this month. That's 3x the average!</p>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button class="btn btn-primary" style="flex: 1; padding: 12px;">Find a spot</button>
+              <button class="btn btn-secondary" style="flex: 1; padding: 12px;">Plan with friends</button>
+            </div>
+          </div>
+          <div class="phone-home-indicator"></div>
+        </div>
+
+        <!-- Discover Screen -->
+        <div class="phone-mockup">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="screen-header">
+              <h1>Discover</h1>
+              <p>What's your vibe today?</p>
+            </div>
+
+            <div class="mini-mood-grid">
+              <div class="mini-mood-tile mood-chill">Chill</div>
+              <div class="mini-mood-tile mood-energetic">Energetic</div>
+              <div class="mini-mood-tile mood-romantic">Romantic</div>
+              <div class="mini-mood-tile mood-social">Social</div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <h3 style="font-size: 16px; margin-bottom: 12px;">Trending Near You</h3>
+              <div class="card card-venue" style="min-height: 120px; margin-bottom: 12px;">
+                <h3 style="font-size: 16px;">The Rooftop Bar</h3>
+                <div class="meta" style="font-size: 12px;">
+                  <span>4.6</span>
+                  <span>Cocktails</span>
+                </div>
+              </div>
+              <div class="card card-venue mood-romantic" style="min-height: 120px;">
+                <h3 style="font-size: 16px;">Moonlight Bistro</h3>
+                <div class="meta" style="font-size: 12px;">
+                  <span>4.9</span>
+                  <span>Fine Dining</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-home-indicator"></div>
+        </div>
+
+        <!-- Card Linking (Trust Mode) -->
+        <div class="phone-mockup" style="background: white;">
+          <div class="phone-notch" style="background: #D3D6E0;"></div>
+          <div class="phone-screen" style="background: white; color: #0A1A2F;">
+            <div class="screen-header">
+              <h1 style="color: #0A1A2F;">Link Your Card</h1>
+              <p style="color: #40424D;">See where you actually spend time</p>
+            </div>
+
+            <div style="background: #EDEFF7; border-radius: 16px; padding: 20px; margin: 24px 0;">
+              <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">&#128274;</div>
+                <h3 style="font-size: 18px; color: #0A1A2F; margin-bottom: 8px;">Bank-grade Security</h3>
+                <p style="color: #40424D; font-size: 14px;">We use Plaid to securely connect. We never see your password.</p>
+              </div>
+            </div>
+
+            <div style="margin: 20px 0;">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #D3D6E0;">
+                <span style="color: #22C55E;">&#10003;</span>
+                <span style="color: #0A1A2F; font-size: 14px;">Read-only access</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #D3D6E0;">
+                <span style="color: #22C55E;">&#10003;</span>
+                <span style="color: #0A1A2F; font-size: 14px;">256-bit encryption</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0;">
+                <span style="color: #22C55E;">&#10003;</span>
+                <span style="color: #0A1A2F; font-size: 14px;">Disconnect anytime</span>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 24px;">Connect with Plaid</button>
+          </div>
+          <div class="phone-home-indicator" style="background: #0A1A2F;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 48px 0; color: var(--text-muted); font-size: 12px;">
+      Ceezaa Design System v2.0 - Navy + Gold Edition - December 2024
+    </footer>
+  </div>
+</body>
+</html>
