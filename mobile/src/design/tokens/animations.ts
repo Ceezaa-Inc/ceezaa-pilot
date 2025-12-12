@@ -1,17 +1,17 @@
 /**
- * Animation System - Smooth, subtle transitions
+ * Animation System - Ceezaa Design System
  * For use with react-native-reanimated and moti
  */
 
-import { Easing } from 'react-native-reanimated'
+import { Easing } from 'react-native-reanimated';
 
 export const duration = {
   instant: 0,
-  fast: 150,
-  normal: 250,
-  slow: 350,
+  fast: 100,
+  normal: 200,
+  slow: 300,
   slower: 500,
-} as const
+} as const;
 
 export const easing = {
   // Standard easings
@@ -29,7 +29,7 @@ export const easing = {
 
   // Sharp for quick feedback
   sharp: Easing.bezier(0.4, 0, 0.2, 1),
-} as const
+} as const;
 
 // Spring configurations for react-native-reanimated
 export const spring = {
@@ -60,9 +60,9 @@ export const spring = {
     stiffness: 120,
     mass: 1.2,
   },
-} as const
+} as const;
 
-// Pre-defined animation presets
+// Pre-defined animation presets for moti
 export const animationPresets = {
   // Fade in
   fadeIn: {
@@ -71,9 +71,23 @@ export const animationPresets = {
     transition: { duration: duration.normal },
   },
 
+  // Fade out
+  fadeOut: {
+    from: { opacity: 1 },
+    animate: { opacity: 0 },
+    transition: { duration: duration.normal },
+  },
+
   // Slide up (for modals, cards)
   slideUp: {
     from: { opacity: 0, translateY: 20 },
+    animate: { opacity: 1, translateY: 0 },
+    transition: { type: 'spring', ...spring.gentle },
+  },
+
+  // Slide down
+  slideDown: {
+    from: { opacity: 0, translateY: -20 },
     animate: { opacity: 1, translateY: 0 },
     transition: { type: 'spring', ...spring.gentle },
   },
@@ -94,6 +108,6 @@ export const animationPresets = {
     scale: 1,
     opacity: 1,
   },
-} as const
+} as const;
 
-export type DurationToken = keyof typeof duration
+export type DurationToken = keyof typeof duration;

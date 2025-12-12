@@ -41,57 +41,57 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 ### Infra & Setup
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F1-01 | Initialize Expo project with TypeScript strict mode | `infra` | P0 | S | - |
-| F1-02 | Configure ESLint + Prettier | `infra` | P1 | XS | F1-01 |
-| F1-03 | Set up Jest + React Native Testing Library | `test` | P0 | S | F1-01 |
-| F1-04 | Configure NativeWind (Tailwind for RN) | `infra` | P0 | S | F1-01 |
-| F1-05 | Set up Expo Router file-based navigation | `frontend` | P0 | M | F1-01 |
-| F1-06 | Configure Zustand store boilerplate | `frontend` | P1 | S | F1-01 |
-| F1-07 | Set up react-native-reanimated + moti | `frontend` | P1 | S | F1-01 |
-| F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 |
-| F1-09 | Set up CI pipeline (lint + test on PR) | `infra` | P1 | M | F1-03 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F1-01 | Initialize Expo project with TypeScript strict mode | `infra` | P0 | S | - | ✅ |
+| F1-02 | Configure ESLint + Prettier | `infra` | P1 | XS | F1-01 | ✅ |
+| F1-03 | Set up Jest + React Native Testing Library | `test` | P0 | S | F1-01 | ✅ |
+| F1-04 | Configure NativeWind (Tailwind for RN) | `infra` | P0 | S | F1-01 | ✅ |
+| F1-05 | Set up Expo Router file-based navigation | `frontend` | P0 | M | F1-01 | ✅ |
+| F1-06 | Configure Zustand store boilerplate | `frontend` | P1 | S | F1-01 | |
+| F1-07 | Set up react-native-reanimated + moti | `frontend` | P1 | S | F1-01 | ✅ |
+| F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 | |
+| F1-09 | Set up CI pipeline (lint + test on PR) | `infra` | P1 | M | F1-03 | |
 
 ### Design System (see DESIGN_SYSTEM.md)
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F1-09a | Create design tokens (colors, typography, spacing, shadows, animations) | `design` | P0 | S | F1-04 |
-| F1-09b | Configure NativeWind theme with design tokens | `design` | P0 | S | F1-09a |
-| F1-09c | Set up Manrope font (all weights) | `design` | P0 | S | F1-01 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F1-09a | Create design tokens (colors, typography, spacing, shadows, animations) | `design` | P0 | S | F1-04 | ✅ |
+| F1-09b | Configure NativeWind theme with design tokens | `design` | P0 | S | F1-09a | ✅ |
+| F1-09c | Set up Manrope font (all weights) | `design` | P0 | S | F1-01 | ✅ |
 
 ### UI Primitives (Dark-First + Brand Accents)
 
 > **Design Language:** Black-first (#0A0A0A bg) with gold (#D3B481) + navy (#0A1A2F) as accents. Like Spotify/Booking.com.
 > Light "Trust Mode" ONLY for card linking. See DESIGN_SYSTEM.md for full specs.
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F1-10 | Create Button component (pill-shaped primary, secondary with border, ghost) | `frontend` | P0 | M | F1-09b |
-| F1-11 | Write Button component tests | `test` | P0 | S | F1-10 |
-| F1-12 | Create Input component (dark surface bg #1A1A1A, gold focus border) | `frontend` | P0 | M | F1-09b |
-| F1-13 | Write Input component tests | `test` | P0 | S | F1-12 |
-| F1-14 | Create Card component (dark surface #141414, info/venue/trust variants) | `frontend` | P0 | S | F1-09b |
-| F1-15 | Write Card component tests | `test` | P0 | XS | F1-14 |
-| F1-16 | Create Modal/BottomSheet component (dark bg, rounded-t-2xl) | `frontend` | P1 | M | F1-09b |
-| F1-17 | Write Modal component tests | `test` | P1 | S | F1-16 |
-| F1-18 | Create Typography components (Manrope all weights) | `frontend` | P1 | S | F1-09c |
-| F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-09b |
-| F1-20 | Create LoadingSpinner component (gold accent) | `frontend` | P1 | XS | F1-09b |
-| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b |
-| F1-20b | Create OTPInput component (6-digit dark boxes) | `frontend` | P0 | M | F1-12 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F1-10 | Create Button component (pill-shaped primary, secondary with border, ghost) | `frontend` | P0 | M | F1-09b | ✅ |
+| F1-11 | Write Button component tests | `test` | P0 | S | F1-10 | ✅ |
+| F1-12 | Create Input component (dark surface bg #1A1A1A, gold focus border) | `frontend` | P0 | M | F1-09b | ✅ |
+| F1-13 | Write Input component tests | `test` | P0 | S | F1-12 | ✅ |
+| F1-14 | Create Card component (dark surface #141414, info/venue/trust variants) | `frontend` | P0 | S | F1-09b | ✅ |
+| F1-15 | Write Card component tests | `test` | P0 | XS | F1-14 | ✅ |
+| F1-16 | Create Modal/BottomSheet component (dark bg, rounded-t-2xl) | `frontend` | P1 | M | F1-09b | ✅ |
+| F1-17 | Write Modal component tests | `test` | P1 | S | F1-16 | ✅ |
+| F1-18 | Create Typography components (Manrope all weights) | `frontend` | P1 | S | F1-09c | ✅ |
+| F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-09b | |
+| F1-20 | Create LoadingSpinner component (gold accent) | `frontend` | P1 | XS | F1-09b | ✅ |
+| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b | |
+| F1-20b | Create OTPInput component (6-digit dark boxes) | `frontend` | P0 | M | F1-12 | ✅ |
 
 ### Navigation Shell
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F1-21 | Create tab bar layout (4 tabs: Pulse, Discover, Vault, Profile) | `frontend` | P0 | M | F1-05 |
-| F1-22 | Create auth stack (welcome, login, verify) | `frontend` | P0 | S | F1-05 |
-| F1-23 | Create onboarding stack (quiz, initial-taste, card-link, reveal) | `frontend` | P0 | S | F1-05 |
-| F1-24 | Implement navigation guard (auth state check) | `frontend` | P1 | M | F1-22, F1-06 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F1-21 | Create tab bar layout (4 tabs: Pulse, Discover, Vault, Profile) | `frontend` | P0 | M | F1-05 | ✅ |
+| F1-22 | Create auth stack (welcome, login, verify) | `frontend` | P0 | S | F1-05 | ✅ |
+| F1-23 | Create onboarding stack (quiz, initial-taste, card-link, reveal) | `frontend` | P0 | S | F1-05 | ✅ |
+| F1-24 | Implement navigation guard (auth state check) | `frontend` | P1 | M | F1-22, F1-06 | |
 
-**Phase 1 Deliverable:** App runs, has navigation shell, passes lint/test CI
+**Phase 1 Deliverable:** App runs, has navigation shell, passes lint/test CI ✅
 
 ---
 
@@ -101,61 +101,61 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 ### Auth Screens
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-01 | Build Welcome/Splash screen with branding | `frontend` | P0 | M | F1-22 |
-| F2-02 | Build Login screen (phone input + social buttons) | `frontend` | P0 | M | F1-12 |
-| F2-03 | Build OTP Verification screen | `frontend` | P0 | M | F1-12 |
-| F2-04 | Write auth screen tests | `test` | P0 | M | F2-01, F2-02, F2-03 |
-| F2-05 | Create mock auth service | `frontend` | P0 | S | F1-08 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-01 | Build Welcome/Splash screen with branding | `frontend` | P0 | M | F1-22 | ✅ |
+| F2-02 | Build Login screen (phone input + social buttons) | `frontend` | P0 | M | F1-12 | ✅ |
+| F2-03 | Build OTP Verification screen | `frontend` | P0 | M | F1-12 | ✅ |
+| F2-04 | Write auth screen tests | `test` | P0 | M | F2-01, F2-02, F2-03 | |
+| F2-05 | Create mock auth service | `frontend` | P0 | S | F1-08 | |
 
 ### Quiz Screens
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-06 | Design quiz question data structure | `frontend` | P0 | S | - |
-| F2-07 | Build Quiz screen with swipeable questions | `frontend` | P0 | L | F1-07 |
-| F2-08 | Add progress bar to quiz | `frontend` | P1 | S | F2-07 |
-| F2-09 | Create quiz answer animations | `frontend` | P2 | M | F2-07 |
-| F2-10 | Write quiz screen tests | `test` | P0 | M | F2-07 |
-| F2-11 | Create mock quiz response storage | `frontend` | P0 | S | F1-06 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-06 | Design quiz question data structure | `frontend` | P0 | S | - | ✅ |
+| F2-07 | Build Quiz screen with swipeable questions | `frontend` | P0 | L | F1-07 | ✅ |
+| F2-08 | Add progress bar to quiz | `frontend` | P1 | S | F2-07 | ✅ |
+| F2-09 | Create quiz answer animations | `frontend` | P2 | M | F2-07 | 🔄 |
+| F2-10 | Write quiz screen tests | `test` | P0 | M | F2-07 | |
+| F2-11 | Create mock quiz response storage | `frontend` | P0 | S | F1-06 | |
 
 ### Initial Taste Card
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-12 | Build Initial Taste Card screen | `frontend` | P0 | M | F1-14 |
-| F2-13 | Create taste card component (shareable design) | `frontend` | P0 | L | F2-12 |
-| F2-14 | Add card reveal animation | `frontend` | P1 | M | F2-13 |
-| F2-15 | Write Initial Taste Card tests | `test` | P0 | S | F2-12 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-12 | Build Initial Taste Card screen | `frontend` | P0 | M | F1-14 | ✅ |
+| F2-13 | Create taste card component (shareable design) | `frontend` | P0 | L | F2-12 | ✅ |
+| F2-14 | Add card reveal animation | `frontend` | P1 | M | F2-13 | ✅ |
+| F2-15 | Write Initial Taste Card tests | `test` | P0 | S | F2-12 | |
 
 ### Card Linking
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-16 | Build Card Link screen (value prop + CTA) | `frontend` | P0 | M | F1-14 |
-| F2-17 | Add Plaid Link placeholder (mock modal) | `frontend` | P0 | S | F2-16 |
-| F2-18 | Build processing state (analyzing transactions) | `frontend` | P0 | M | F2-17 |
-| F2-19 | Write Card Link screen tests | `test` | P0 | S | F2-16 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-16 | Build Card Link screen (value prop + CTA) | `frontend` | P0 | M | F1-14 | ✅ |
+| F2-17 | Add Plaid Link placeholder (mock modal) | `frontend` | P0 | S | F2-16 | ✅ |
+| F2-18 | Build processing state (analyzing transactions) | `frontend` | P0 | M | F2-17 | ✅ |
+| F2-19 | Write Card Link screen tests | `test` | P0 | S | F2-16 | |
 
 ### Enhanced Reveal
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-20 | Build Enhanced Reveal screen | `frontend` | P0 | M | F1-14 |
-| F2-21 | Create Taste Ring preview component | `frontend` | P0 | L | F2-20 |
-| F2-22 | Add confetti/celebration animation | `frontend` | P1 | M | F2-20 |
-| F2-23 | Write Enhanced Reveal tests | `test` | P0 | S | F2-20 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-20 | Build Enhanced Reveal screen | `frontend` | P0 | M | F1-14 | ✅ |
+| F2-21 | Create Taste Ring preview component | `frontend` | P0 | L | F2-20 | ✅ |
+| F2-22 | Add confetti/celebration animation | `frontend` | P1 | M | F2-20 | |
+| F2-23 | Write Enhanced Reveal tests | `test` | P0 | S | F2-20 | |
 
 ### Onboarding Flow
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F2-24 | Wire complete onboarding flow end-to-end | `frontend` | P0 | M | F2-01 to F2-23 |
-| F2-25 | Create onboarding state store | `frontend` | P0 | S | F1-06 |
-| F2-26 | Write onboarding flow integration test | `test` | P0 | M | F2-24 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F2-24 | Wire complete onboarding flow end-to-end | `frontend` | P0 | M | F2-01 to F2-23 | ✅ |
+| F2-25 | Create onboarding state store | `frontend` | P0 | S | F1-06 | |
+| F2-26 | Write onboarding flow integration test | `test` | P0 | M | F2-24 | |
 
-**Phase 2 Deliverable:** User can complete full onboarding with mock data
+**Phase 2 Deliverable:** User can complete full onboarding with mock data ✅
 
 ---
 
@@ -165,71 +165,71 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 ### Pulse Tab
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F3-01 | Build Pulse home screen layout | `frontend` | P0 | M | F1-21 |
-| F3-02 | Create Taste Ring component (animated donut chart) | `frontend` | P0 | XL | F3-01 |
-| F3-03 | Write Taste Ring tests | `test` | P0 | M | F3-02 |
-| F3-04 | Create Insight Card component | `frontend` | P0 | M | F3-01 |
-| F3-05 | Write Insight Card tests | `test` | P0 | S | F3-04 |
-| F3-06 | Create Quick Actions component (Find a spot, Plan with friends) | `frontend` | P1 | M | F3-01 |
-| F3-07 | Build Taste Detail screen (tappable from ring) | `frontend` | P1 | M | F3-02 |
-| F3-08 | Create mock taste profile data | `frontend` | P0 | S | F1-08 |
-| F3-09 | Write Pulse screen tests | `test` | P0 | M | F3-01 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F3-01 | Build Pulse home screen layout | `frontend` | P0 | M | F1-21 | ✅ |
+| F3-02 | Create Taste Ring component (animated donut chart) | `frontend` | P0 | XL | F3-01 | 🔄 |
+| F3-03 | Write Taste Ring tests | `test` | P0 | M | F3-02 | |
+| F3-04 | Create Insight Card component | `frontend` | P0 | M | F3-01 | ✅ |
+| F3-05 | Write Insight Card tests | `test` | P0 | S | F3-04 | |
+| F3-06 | Create Quick Actions component (Find a spot, Plan with friends) | `frontend` | P1 | M | F3-01 | ✅ |
+| F3-07 | Build Taste Detail screen (tappable from ring) | `frontend` | P1 | M | F3-02 | |
+| F3-08 | Create mock taste profile data | `frontend` | P0 | S | F1-08 | ✅ |
+| F3-09 | Write Pulse screen tests | `test` | P0 | M | F3-01 | |
 
 ### Discover Tab
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F3-10 | Build Discover home screen (Mood Grid) | `frontend` | P0 | M | F1-21 |
-| F3-11 | Create MoodGrid component (6 mood tiles) | `frontend` | P0 | L | F3-10 |
-| F3-12 | Write MoodGrid tests | `test` | P0 | S | F3-11 |
-| F3-13 | Create VenueCard component | `frontend` | P0 | M | F3-10 |
-| F3-14 | Write VenueCard tests | `test` | P0 | S | F3-13 |
-| F3-15 | Build Filtered Feed screen | `frontend` | P0 | L | F3-11 |
-| F3-16 | Create FilterBar component | `frontend` | P0 | M | F3-15 |
-| F3-17 | Write FilterBar tests | `test` | P0 | S | F3-16 |
-| F3-18 | Build Venue Detail screen | `frontend` | P0 | L | F3-13 |
-| F3-19 | Write Venue Detail tests | `test` | P0 | M | F3-18 |
-| F3-20 | Create mock venue data (20+ venues) | `frontend` | P0 | M | F1-08 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F3-10 | Build Discover home screen (Mood Grid) | `frontend` | P0 | M | F1-21 | ✅ |
+| F3-11 | Create MoodGrid component (6 mood tiles) | `frontend` | P0 | L | F3-10 | ✅ |
+| F3-12 | Write MoodGrid tests | `test` | P0 | S | F3-11 | |
+| F3-13 | Create VenueCard component | `frontend` | P0 | M | F3-10 | ✅ |
+| F3-14 | Write VenueCard tests | `test` | P0 | S | F3-13 | |
+| F3-15 | Build Filtered Feed screen | `frontend` | P0 | L | F3-11 | |
+| F3-16 | Create FilterBar component | `frontend` | P0 | M | F3-15 | |
+| F3-17 | Write FilterBar tests | `test` | P0 | S | F3-16 | |
+| F3-18 | Build Venue Detail screen | `frontend` | P0 | L | F3-13 | |
+| F3-19 | Write Venue Detail tests | `test` | P0 | M | F3-18 | |
+| F3-20 | Create mock venue data (20+ venues) | `frontend` | P0 | M | F1-08 | ✅ |
 
 ### Group Sessions
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F3-21 | Build Create Session screen | `frontend` | P0 | M | F3-10 |
-| F3-22 | Build Voting screen | `frontend` | P0 | L | F3-21 |
-| F3-23 | Create VotingCard component | `frontend` | P0 | M | F3-22 |
-| F3-24 | Write VotingCard tests | `test` | P0 | S | F3-23 |
-| F3-25 | Create ParticipantList component | `frontend` | P1 | S | F3-22 |
-| F3-26 | Build Confirmed Plan screen | `frontend` | P0 | M | F3-22 |
-| F3-27 | Write session flow tests | `test` | P0 | M | F3-21 to F3-26 |
-| F3-28 | Create mock session data | `frontend` | P0 | S | F1-08 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F3-21 | Build Create Session screen | `frontend` | P0 | M | F3-10 | |
+| F3-22 | Build Voting screen | `frontend` | P0 | L | F3-21 | |
+| F3-23 | Create VotingCard component | `frontend` | P0 | M | F3-22 | |
+| F3-24 | Write VotingCard tests | `test` | P0 | S | F3-23 | |
+| F3-25 | Create ParticipantList component | `frontend` | P1 | S | F3-22 | |
+| F3-26 | Build Confirmed Plan screen | `frontend` | P0 | M | F3-22 | |
+| F3-27 | Write session flow tests | `test` | P0 | M | F3-21 to F3-26 | |
+| F3-28 | Create mock session data | `frontend` | P0 | S | F1-08 | |
 
 ### Vault Tab
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F3-29 | Build Vault main screen | `frontend` | P0 | M | F1-21 |
-| F3-30 | Create PlaceCard component (with visit history) | `frontend` | P0 | M | F3-29 |
-| F3-31 | Write PlaceCard tests | `test` | P0 | S | F3-30 |
-| F3-32 | Create ReactionPicker component | `frontend` | P0 | M | F3-29 |
-| F3-33 | Write ReactionPicker tests | `test` | P0 | S | F3-32 |
-| F3-34 | Build Place Detail screen | `frontend` | P0 | L | F3-30 |
-| F3-35 | Write Place Detail tests | `test` | P0 | M | F3-34 |
-| F3-36 | Create mock vault/visit data | `frontend` | P0 | S | F1-08 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F3-29 | Build Vault main screen | `frontend` | P0 | M | F1-21 | ✅ |
+| F3-30 | Create PlaceCard component (with visit history) | `frontend` | P0 | M | F3-29 | ✅ |
+| F3-31 | Write PlaceCard tests | `test` | P0 | S | F3-30 | |
+| F3-32 | Create ReactionPicker component | `frontend` | P0 | M | F3-29 | ✅ |
+| F3-33 | Write ReactionPicker tests | `test` | P0 | S | F3-32 | |
+| F3-34 | Build Place Detail screen | `frontend` | P0 | L | F3-30 | |
+| F3-35 | Write Place Detail tests | `test` | P0 | M | F3-34 | |
+| F3-36 | Create mock vault/visit data | `frontend` | P0 | S | F1-08 | ✅ |
 
 ### Profile Tab
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| F3-37 | Build Profile home screen | `frontend` | P0 | M | F1-21 |
-| F3-38 | Build Linked Cards screen | `frontend` | P0 | M | F3-37 |
-| F3-39 | Build Notifications Settings screen | `frontend` | P1 | M | F3-37 |
-| F3-40 | Build Privacy screen | `frontend` | P1 | M | F3-37 |
-| F3-41 | Write Profile screen tests | `test` | P0 | M | F3-37 to F3-40 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| F3-37 | Build Profile home screen | `frontend` | P0 | M | F1-21 | ✅ |
+| F3-38 | Build Linked Cards screen | `frontend` | P0 | M | F3-37 | |
+| F3-39 | Build Notifications Settings screen | `frontend` | P1 | M | F3-37 | |
+| F3-40 | Build Privacy screen | `frontend` | P1 | M | F3-37 | |
+| F3-41 | Write Profile screen tests | `test` | P0 | M | F3-37 to F3-40 | |
 
-**Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype
+**Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype 🔄
 
 ---
 

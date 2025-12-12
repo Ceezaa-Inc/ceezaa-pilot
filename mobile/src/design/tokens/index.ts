@@ -1,11 +1,11 @@
 /**
- * Design Tokens - Ceezaa MVP
- * Inspired by Believe app's minimal, elegant aesthetic
+ * Design Tokens - Ceezaa Design System
+ * Central export for all design tokens
  */
 
-export * from './colors'
-export * from './typography'
-export * from './spacing'
-export * from './borderRadius'
-export * from './shadows'
-export * from './animations'
+export * from './colors';
+export * from './typography';
+export * from './spacing';
+export * from './borderRadius';
+export * from './shadows';
+export * from './animations';

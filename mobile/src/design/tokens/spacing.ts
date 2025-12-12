@@ -1,6 +1,6 @@
 /**
- * Spacing System - Generous whitespace for clean, breathable layouts
- * Based on 4px grid system
+ * Spacing System - Ceezaa Design System
+ * 4px base unit for consistent rhythm
  */
 
 export const spacing = {
@@ -28,27 +28,36 @@ export const spacing = {
   24: 96,
   28: 112,
   32: 128,
-} as const
+} as const;
 
 // Semantic spacing aliases
 export const layoutSpacing = {
+  // Named sizes
+  xs: spacing[1], // 4px
+  sm: spacing[2], // 8px
+  md: spacing[4], // 16px
+  lg: spacing[6], // 24px
+  xl: spacing[8], // 32px
+  '2xl': spacing[12], // 48px
+  '3xl': spacing[16], // 64px
+
   // Screen padding
-  screenHorizontal: spacing[5], // 20px - standard screen padding
-  screenVertical: spacing[6],   // 24px
+  screenHorizontal: spacing[5], // 20px
+  screenVertical: spacing[6], // 24px
 
   // Section spacing
-  sectionGap: spacing[8],       // 32px between major sections
-  contentGap: spacing[4],       // 16px between content blocks
+  sectionGap: spacing[8], // 32px between major sections
+  contentGap: spacing[4], // 16px between content blocks
 
   // Component spacing
-  cardPadding: spacing[4],      // 16px inside cards
-  inputPadding: spacing[4],     // 16px inside inputs
-  buttonPaddingY: spacing[4],   // 16px vertical button padding
-  buttonPaddingX: spacing[8],   // 32px horizontal button padding
+  cardPadding: spacing[4], // 16px inside cards
+  inputPadding: spacing[4], // 16px inside inputs
+  buttonPaddingY: spacing[3], // 12px vertical button padding
+  buttonPaddingX: spacing[8], // 32px horizontal button padding
 
   // List spacing
-  listItemGap: spacing[3],      // 12px between list items
-  listItemPadding: spacing[4],  // 16px inside list items
-} as const
+  listItemGap: spacing[3], // 12px between list items
+  listItemPadding: spacing[4], // 16px inside list items
+} as const;
 
-export type SpacingToken = keyof typeof spacing
+export type SpacingToken = keyof typeof spacing;
