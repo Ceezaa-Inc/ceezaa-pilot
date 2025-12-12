@@ -61,18 +61,18 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F1-09b | Configure NativeWind theme with design tokens | `design` | P0 | S | F1-09a |
 | F1-09c | Set up Manrope font (all weights) | `design` | P0 | S | F1-01 |
 
-### UI Primitives (Navy-First + Premium Luxury)
+### UI Primitives (Dark-First + Brand Accents)
 
-> **Design Language:** Navy-first (#0A1A2F bg), warm gold accent (#D3B481), colorful mood gradients for discovery.
+> **Design Language:** Black-first (#0A0A0A bg) with gold (#D3B481) + navy (#0A1A2F) as accents. Like Spotify/Booking.com.
 > Light "Trust Mode" ONLY for card linking. See DESIGN_SYSTEM.md for full specs.
 
 | ID | Task | Label | Priority | Size | Depends |
 |----|------|-------|----------|------|---------|
 | F1-10 | Create Button component (pill-shaped primary, secondary with border, ghost) | `frontend` | P0 | M | F1-09b |
 | F1-11 | Write Button component tests | `test` | P0 | S | F1-10 |
-| F1-12 | Create Input component (navy surface bg #132138, gold focus border) | `frontend` | P0 | M | F1-09b |
+| F1-12 | Create Input component (dark surface bg #1A1A1A, gold focus border) | `frontend` | P0 | M | F1-09b |
 | F1-13 | Write Input component tests | `test` | P0 | S | F1-12 |
-| F1-14 | Create Card component (navy surface #132138, info/venue/trust variants) | `frontend` | P0 | S | F1-09b |
+| F1-14 | Create Card component (dark surface #141414, info/venue/trust variants) | `frontend` | P0 | S | F1-09b |
 | F1-15 | Write Card component tests | `test` | P0 | XS | F1-14 |
 | F1-16 | Create Modal/BottomSheet component (dark bg, rounded-t-2xl) | `frontend` | P1 | M | F1-09b |
 | F1-17 | Write Modal component tests | `test` | P1 | S | F1-16 |

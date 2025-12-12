@@ -1,7 +1,7 @@
 # Ceezaa Design System
 
 > **Philosophy:** Warm, intelligent social discovery with luxurious depth
-> **Brand Colors:** Navy + Gold + White
+> **Brand Colors:** Navy + Gold + White (used as accents on black)
 
 ---
 
@@ -33,8 +33,8 @@
 
 | Principle | Description |
 |-----------|-------------|
-| **Navy-First** | Deep navy backgrounds convey premium sophistication |
-| **Golden Warmth** | Gold accents provide warmth and luxury |
+| **Dark-First** | Black/dark gray backgrounds like Spotify/Booking.com |
+| **Navy + Gold Accents** | Brand colors layered as accent elements |
 | **Trust Mode** | Light theme ONLY for card linking. Bank-level trust. |
 | **Bold Discovery** | Colorful tiles for mood-based exploration |
 | **Manrope Typography** | Clean, modern, highly readable |
@@ -48,10 +48,12 @@
 │   PREMIUM                   CEEZAA                 SOCIAL   │
 │   ───────                   ──────                 ──────   │
 │                                                             │
-│   Navy depth        ──►     Navy-first      ◄──   Vibrant   │
-│   Gold luxury       ──►     Warm gold       ◄──   Colorful  │
+│   Dark depth        ──►     Black-first     ◄──   Vibrant   │
+│   Gold/Navy accent  ──►     Warm accents    ◄──   Colorful  │
 │   Sophisticated     ──►     Manrope         ◄──   Modern    │
 │   Trust             ──►     Discovery       ◄──   Playful   │
+│                                                             │
+│   (Like Spotify green / Booking.com blue on black)          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -81,19 +83,23 @@
 | Token | Hex | Usage |
 |-------|-----|-------|
 | `white` | `#FFFFFF` | Text on dark, light backgrounds |
-| `navy` | `#0A1A2F` | Primary dark background, logo |
-| `gold` | `#D3B481` | Accent, buttons, highlights, logo mark |
+| `navy` | `#0A1A2F` | Accent surfaces, headers, logo |
+| `gold` | `#D3B481` | Primary accent, buttons, highlights, logo mark |
 
-### 2.2 Dark Theme (Default)
+### 2.2 Dark Theme (Default) - Black Background + Brand Accents
+
+Like Spotify (green accent) or Booking.com (blue accent) - black base with brand colors as accents.
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `background` | `#0A1A2F` | App background, base layer |
-| `surface` | `#132138` | Cards, bottom sheets |
-| `surfaceAlt` | `#1C2D47` | Elevated cards, active states |
-| `surfaceMuted` | `#243752` | Secondary surfaces, dividers |
-| `border` | `#2E4562` | Subtle borders |
-| `borderMuted` | `#1E3550` | Very subtle separators |
+| `background` | `#0A0A0A` | App background, base layer |
+| `surface` | `#141414` | Cards, bottom sheets |
+| `surfaceAlt` | `#1A1A1A` | Elevated cards, active states |
+| `surfaceMuted` | `#242424` | Secondary surfaces, dividers |
+| `border` | `#2A2A2A` | Subtle borders |
+| `borderMuted` | `#1E1E1E` | Very subtle separators |
+| `navyAccent` | `#0A1A2F` | Header bars, accent surfaces |
+| `navyAccentLight` | `#132138` | Navy-tinted surfaces when needed |
 
 ### 2.3 Primary Accent (Gold)
 
@@ -400,9 +406,9 @@ Navy theme shadows with subtle warmth:
 ### 8.3 Tab Bar
 
 ```
-bg: #0A1A2F (navy)
+bg: #0A0A0A (black, matches background)
 height: 83px (with safe area)
-border-top: 1px solid #1E3550
+border-top: 1px solid #1E1E1E
 
 Active: #D3B481 (gold)
 Inactive: #6E7180 (graphite)
@@ -415,22 +421,22 @@ Inactive: #6E7180 (graphite)
 | Screen | Theme | Notes |
 |--------|-------|-------|
 | **Onboarding** |||
-| Welcome/Splash | Navy | Premium first impression |
-| Auth (Phone/Social) | Navy | Consistent flow |
-| OTP Verification | Navy | Consistent flow |
-| Quiz | Navy | Fun, engaging |
-| Initial Taste Card | Navy | Celebration |
+| Welcome/Splash | Dark | Black bg, gold/navy accents |
+| Auth (Phone/Social) | Dark | Consistent flow |
+| OTP Verification | Dark | Consistent flow |
+| Quiz | Dark | Fun, engaging |
+| Initial Taste Card | Dark | Celebration |
 | Card Linking | **Trust (Light)** | Bank trust signals |
-| Enhanced Reveal | Navy | Celebration |
+| Enhanced Reveal | Dark | Celebration |
 | **Main App** |||
-| Pulse | Navy | Home, social |
-| Discover | Navy | Colorful mood tiles |
-| Vault | Navy | Personal history |
-| Profile | Navy | Settings |
+| Pulse | Dark | Home, social |
+| Discover | Dark | Colorful mood tiles pop on black |
+| Vault | Dark | Personal history |
+| Profile | Dark | Settings |
 | **Modals** |||
-| Share Sheet | Navy | Consistent with app |
-| Session Invite | Navy | Social |
-| Venue Detail | Navy | Content focus |
+| Share Sheet | Dark | Consistent with app |
+| Session Invite | Dark | Social |
+| Venue Detail | Dark | Content focus |
 
 ---
 
@@ -458,19 +464,21 @@ export const fonts = {
 ```typescript
 // design/tokens/colors.ts
 export const colors = {
-  // Brand
+  // Brand (used as accents)
   white: '#FFFFFF',
   navy: '#0A1A2F',
   gold: '#D3B481',
 
-  // Dark theme (default)
+  // Dark theme (default) - black bg with brand accents
   dark: {
-    background: '#0A1A2F',
-    surface: '#132138',
-    surfaceAlt: '#1C2D47',
-    surfaceMuted: '#243752',
-    border: '#2E4562',
+    background: '#0A0A0A',
+    surface: '#141414',
+    surfaceAlt: '#1A1A1A',
+    surfaceMuted: '#242424',
+    border: '#2A2A2A',
 
+    // Brand accents
+    navyAccent: '#0A1A2F',
     primary: '#D3B481',
     primaryHover: '#C4A572',
 
@@ -528,9 +536,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#0A1A2F',
-        surface: '#132138',
-        'surface-alt': '#1C2D47',
+        background: '#0A0A0A',
+        surface: '#141414',
+        'surface-alt': '#1A1A1A',
+        'navy-accent': '#0A1A2F',
         primary: '#D3B481',
         'text-primary': '#FFFFFF',
         'text-secondary': '#9DA2B3',
@@ -557,8 +566,12 @@ module.exports = {
 │  CEEZAA DESIGN QUICK REFERENCE                              │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  BRAND COLORS                                               │
-│  Navy:  #0A1A2F    Gold: #D3B481    White: #FFFFFF         │
+│  BACKGROUND                                                 │
+│  Base: #0A0A0A (black)   Surface: #141414                  │
+│                                                             │
+│  ACCENT COLORS (layered on black, like Spotify/Booking)    │
+│  Gold: #D3B481 (primary accent - buttons, highlights)      │
+│  Navy: #0A1A2F (secondary accent - headers, special UI)    │
 │                                                             │
 │  TYPOGRAPHY                                                 │
 │  Font: Manrope (all weights)                               │
@@ -571,10 +584,11 @@ module.exports = {
 │  sm:8  md:12  lg:16  xl:24  full:9999                      │
 │                                                             │
 │  THEME RULE                                                 │
-│  Everything NAVY except Card Linking (Trust/Light)         │
+│  Everything BLACK except Card Linking (Trust/Light)        │
+│  Gold + Navy used as ACCENTS (like green on Spotify)       │
 │                                                             │
 │  LOGO                                                       │
-│  Primary: Navy on light    Secondary: Gold on navy          │
+│  Primary: Navy on light    Secondary: Gold on dark          │
 │  Logo files: Media_Kit/Logo_files/                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
