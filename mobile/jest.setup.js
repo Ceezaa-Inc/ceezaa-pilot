@@ -33,8 +33,7 @@ jest.mock('expo-font', () => ({
   loadAsync: jest.fn(),
 }));
 
-// Silence the warning: Animated: `useNativeDriver` is not supported
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+// Note: NativeAnimatedHelper mock removed - path changed in newer RN versions
 
 // Mock console.warn to avoid noisy output in tests
 const originalWarn = console.warn;

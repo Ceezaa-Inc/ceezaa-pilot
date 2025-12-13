@@ -6,15 +6,11 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
-
-const TASTE_TRAITS = [
-  { label: 'Adventurous', value: 78, color: colors.mood.adventurous.start },
-  { label: 'Social', value: 65, color: colors.mood.social.start },
-  { label: 'Refined', value: 82, color: colors.primary.DEFAULT },
-  { label: 'Cozy', value: 45, color: colors.mood.cozy.start },
-];
+import { TasteRing } from '@/components/pulse/TasteRing';
+import { useTasteStore } from '@/stores';
 
 export default function InitialTasteScreen() {
+  const { traits } = useTasteStore();
   const [isLoading, setIsLoading] = useState(true);
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -65,35 +61,24 @@ export default function InitialTasteScreen() {
         </View>
 
         <Card variant="elevated" padding="lg" style={styles.tasteCard}>
-          <View style={styles.tasteRing}>
-            <View style={styles.ringOuter}>
-              <View style={styles.ringInner}>
-                <Typography variant="h1" color="gold">
-                  82
-                </Typography>
-                <Typography variant="caption" color="secondary">
-                  Taste Score
-                </Typography>
-              </View>
-            </View>
-          </View>
+          <TasteRing size={160} showCard={false} onPress={() => {}} />
 
           <View style={styles.traits}>
-            {TASTE_TRAITS.map((trait) => (
-              <View key={trait.label} style={styles.traitRow}>
+            {traits.map((trait) => (
+              <View key={trait.name} style={styles.traitRow}>
                 <Typography variant="bodySmall" color="secondary" style={styles.traitLabel}>
-                  {trait.label}
+                  {trait.emoji} {trait.name}
                 </Typography>
                 <View style={styles.traitBar}>
                   <View
                     style={[
                       styles.traitFill,
-                      { width: `${trait.value}%`, backgroundColor: trait.color },
+                      { width: `${trait.score}%`, backgroundColor: trait.color },
                     ]}
                   />
                 </View>
                 <Typography variant="caption" color="muted">
-                  {trait.value}%
+                  {trait.score}%
                 </Typography>
               </View>
             ))}
@@ -139,21 +124,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.lg,
   },
-  tasteRing: {
-    marginVertical: layoutSpacing.md,
-  },
-  ringOuter: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 8,
-    borderColor: colors.primary.DEFAULT,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ringInner: {
-    alignItems: 'center',
-  },
   traits: {
     width: '100%',
     gap: layoutSpacing.sm,
@@ -164,7 +134,7 @@ const styles = StyleSheet.create({
     gap: layoutSpacing.sm,
   },
   traitLabel: {
-    width: 100,
+    width: 120,
   },
   traitBar: {
     flex: 1,

@@ -48,9 +48,9 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F1-03 | Set up Jest + React Native Testing Library | `test` | P0 | S | F1-01 | ✅ |
 | F1-04 | Configure NativeWind (Tailwind for RN) | `infra` | P0 | S | F1-01 | ✅ |
 | F1-05 | Set up Expo Router file-based navigation | `frontend` | P0 | M | F1-01 | ✅ |
-| F1-06 | Configure Zustand store boilerplate | `frontend` | P1 | S | F1-01 | |
+| F1-06 | Configure Zustand store boilerplate | `frontend` | P1 | S | F1-01 | ✅ |
 | F1-07 | Set up react-native-reanimated + moti | `frontend` | P1 | S | F1-01 | ✅ |
-| F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 | |
+| F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 | ✅ |
 | F1-09 | Set up CI pipeline (lint + test on PR) | `infra` | P1 | M | F1-03 | |
 
 ### Design System (see DESIGN_SYSTEM.md)
@@ -157,6 +157,8 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 **Phase 2 Deliverable:** User can complete full onboarding with mock data ✅
 
+> **Additional work completed:** Updated onboarding taste cards (initial-taste.tsx, enhanced-reveal.tsx) to use redesigned TasteRing component with `diningStyle` instead of numeric score.
+
 ---
 
 ## Phase 3: Core Tabs UI (Week 3-4)
@@ -168,12 +170,12 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | ID | Task | Label | Priority | Size | Depends | Status |
 |----|------|-------|----------|------|---------|--------|
 | F3-01 | Build Pulse home screen layout | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-02 | Create Taste Ring component (animated donut chart) | `frontend` | P0 | XL | F3-01 | 🔄 |
+| F3-02 | Create Taste Ring component (animated donut chart) | `frontend` | P0 | XL | F3-01 | ✅ |
 | F3-03 | Write Taste Ring tests | `test` | P0 | M | F3-02 | |
 | F3-04 | Create Insight Card component | `frontend` | P0 | M | F3-01 | ✅ |
 | F3-05 | Write Insight Card tests | `test` | P0 | S | F3-04 | |
-| F3-06 | Create Quick Actions component (Find a spot, Plan with friends) | `frontend` | P1 | M | F3-01 | ✅ |
-| F3-07 | Build Taste Detail screen (tappable from ring) | `frontend` | P1 | M | F3-02 | |
+| F3-06 | ~~Create Quick Actions component~~ | `frontend` | P1 | M | F3-01 | REMOVED (PRD: replaced with Playlists) |
+| F3-07 | Build Taste Detail screen (tappable from ring) | `frontend` | P1 | M | F3-02 | ✅ |
 | F3-08 | Create mock taste profile data | `frontend` | P0 | S | F1-08 | ✅ |
 | F3-09 | Write Pulse screen tests | `test` | P0 | M | F3-01 | |
 
@@ -230,6 +232,12 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F3-41 | Write Profile screen tests | `test` | P0 | M | F3-37 to F3-40 | |
 
 **Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype 🔄
+
+> **Progress Notes:**
+> - Pulse Tab: ✅ Complete (TasteRing with SVG segments + moti animation, horizontal scrolling Insights/Playlists, Saved Plans section)
+> - 52 Zustand store tests written (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
+> - TasteRing shows `diningStyle` ("Experience Seeker") instead of numeric score per PRD
+> - Added `playlists.ts` and `plans.ts` mock data
 
 ---
 

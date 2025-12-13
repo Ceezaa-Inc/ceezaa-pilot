@@ -5,21 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
-
-const ENHANCED_TRAITS = [
-  { label: 'Adventurous', value: 85, color: colors.mood.adventurous.start },
-  { label: 'Social', value: 72, color: colors.mood.social.start },
-  { label: 'Refined', value: 91, color: colors.primary.DEFAULT },
-  { label: 'Cozy', value: 58, color: colors.mood.cozy.start },
-];
-
-const INSIGHTS = [
-  { emoji: '🍕', text: 'Italian is your top cuisine' },
-  { emoji: '🌃', text: 'You prefer evening dining' },
-  { emoji: '👥', text: 'Usually dine in groups of 2-4' },
-];
+import { TasteRing } from '@/components/pulse/TasteRing';
+import { useTasteStore } from '@/stores';
 
 export default function EnhancedRevealScreen() {
+  const { traits, insights } = useTasteStore();
   const [isLoading, setIsLoading] = useState(true);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.9));
@@ -82,42 +72,24 @@ export default function EnhancedRevealScreen() {
         </View>
 
         <Card variant="elevated" padding="lg" style={styles.tasteCard}>
-          <View style={styles.scoreSection}>
-            <View style={styles.ringOuter}>
-              <View style={styles.ringMiddle}>
-                <View style={styles.ringInner}>
-                  <Typography variant="h1" color="gold">
-                    91
-                  </Typography>
-                  <Typography variant="caption" color="secondary">
-                    Taste Score
-                  </Typography>
-                </View>
-              </View>
-            </View>
-            <View style={styles.scoreBadge}>
-              <Typography variant="caption" color="gold">
-                +9 from transactions
-              </Typography>
-            </View>
-          </View>
+          <TasteRing size={160} showCard={false} onPress={() => {}} />
 
           <View style={styles.traits}>
-            {ENHANCED_TRAITS.map((trait) => (
-              <View key={trait.label} style={styles.traitRow}>
+            {traits.map((trait) => (
+              <View key={trait.name} style={styles.traitRow}>
                 <Typography variant="bodySmall" color="secondary" style={styles.traitLabel}>
-                  {trait.label}
+                  {trait.emoji} {trait.name}
                 </Typography>
                 <View style={styles.traitBar}>
                   <View
                     style={[
                       styles.traitFill,
-                      { width: `${trait.value}%`, backgroundColor: trait.color },
+                      { width: `${trait.score}%`, backgroundColor: trait.color },
                     ]}
                   />
                 </View>
                 <Typography variant="caption" color="muted">
-                  {trait.value}%
+                  {trait.score}%
                 </Typography>
               </View>
             ))}
@@ -129,11 +101,11 @@ export default function EnhancedRevealScreen() {
             Key Insights
           </Typography>
           <View style={styles.insightsList}>
-            {INSIGHTS.map((insight, index) => (
-              <View key={index} style={styles.insightRow}>
+            {insights.slice(0, 3).map((insight) => (
+              <View key={insight.id} style={styles.insightRow}>
                 <Typography variant="body">{insight.emoji}</Typography>
                 <Typography variant="bodySmall" color="secondary">
-                  {insight.text}
+                  {insight.description}
                 </Typography>
               </View>
             ))}
@@ -175,37 +147,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.lg,
   },
-  scoreSection: {
-    alignItems: 'center',
-  },
-  ringOuter: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 4,
-    borderColor: colors.primary.muted,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ringMiddle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 6,
-    borderColor: colors.primary.DEFAULT,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ringInner: {
-    alignItems: 'center',
-  },
-  scoreBadge: {
-    marginTop: layoutSpacing.sm,
-    paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: 4,
-    backgroundColor: colors.primary.muted,
-    borderRadius: 12,
-  },
   traits: {
     width: '100%',
     gap: layoutSpacing.sm,
@@ -216,7 +157,7 @@ const styles = StyleSheet.create({
     gap: layoutSpacing.sm,
   },
   traitLabel: {
-    width: 100,
+    width: 120,
   },
   traitBar: {
     flex: 1,

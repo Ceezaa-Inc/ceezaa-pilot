@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ViewStyle, StyleSheet } from 'react-native';
+import { View, ViewStyle, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { layoutSpacing } from '@/design/tokens/spacing';
@@ -13,6 +13,7 @@ export interface CardProps {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   style?: ViewStyle;
   testID?: string;
+  onPress?: () => void;
 }
 
 export function Card({
@@ -21,6 +22,7 @@ export function Card({
   padding = 'md',
   style,
   testID,
+  onPress,
 }: CardProps) {
   const getCardStyle = (): ViewStyle[] => {
     const baseStyle: ViewStyle = {
@@ -56,11 +58,21 @@ export function Card({
     return [baseStyle, paddingStyles[padding], variantStyles[variant], style ?? {}];
   };
 
-  return (
+  const content = (
     <View testID={testID} style={getCardStyle()}>
       {children}
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 }
 
 export default Card;
