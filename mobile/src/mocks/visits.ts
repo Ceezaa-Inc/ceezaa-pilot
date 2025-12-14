@@ -1,4 +1,6 @@
 export type Reaction = 'loved' | 'good' | 'meh' | 'never_again';
+export type VisitSource = 'transaction' | 'manual';
+export type StatusFilter = 'all' | 'visited' | 'review';
 
 export interface Visit {
   id: string;
@@ -7,9 +9,10 @@ export interface Visit {
   venueType: string;
   date: string;
   amount?: number;
-  reaction: Reaction;
+  reaction?: Reaction; // Optional - undefined means needs review
   notes?: string;
   photos?: string[];
+  source?: VisitSource;
 }
 
 export interface Place {
@@ -19,7 +22,7 @@ export interface Place {
   visitCount: number;
   lastVisit: string;
   totalSpent: number;
-  reaction: Reaction;
+  reaction?: Reaction; // Optional - undefined means needs review
   visits: Visit[];
 }
 
@@ -33,6 +36,7 @@ export const VISITS: Visit[] = [
     amount: 85,
     reaction: 'loved',
     notes: 'Amazing carbonara! Will definitely come back.',
+    source: 'transaction',
   },
   {
     id: 'v2',
@@ -42,6 +46,7 @@ export const VISITS: Visit[] = [
     date: '2024-11-28',
     amount: 72,
     reaction: 'loved',
+    source: 'transaction',
   },
   {
     id: 'v3',
@@ -52,6 +57,7 @@ export const VISITS: Visit[] = [
     amount: 95,
     reaction: 'loved',
     notes: 'Great wine selection',
+    source: 'transaction',
   },
   {
     id: 'v4',
@@ -61,6 +67,7 @@ export const VISITS: Visit[] = [
     date: '2024-10-22',
     amount: 68,
     reaction: 'good',
+    source: 'transaction',
   },
   {
     id: 'v5',
@@ -70,6 +77,7 @@ export const VISITS: Visit[] = [
     date: '2024-09-30',
     amount: 78,
     reaction: 'loved',
+    source: 'transaction',
   },
   {
     id: 'v6',
@@ -80,6 +88,7 @@ export const VISITS: Visit[] = [
     amount: 32,
     reaction: 'good',
     notes: 'Good brunch spot for work meetings',
+    source: 'transaction',
   },
   {
     id: 'v7',
@@ -89,6 +98,7 @@ export const VISITS: Visit[] = [
     date: '2024-11-20',
     amount: 28,
     reaction: 'good',
+    source: 'transaction',
   },
   {
     id: 'v8',
@@ -98,6 +108,7 @@ export const VISITS: Visit[] = [
     date: '2024-10-15',
     amount: 35,
     reaction: 'good',
+    source: 'transaction',
   },
   {
     id: 'v9',
@@ -108,6 +119,7 @@ export const VISITS: Visit[] = [
     amount: 120,
     reaction: 'loved',
     notes: 'Best omakase in the city!',
+    source: 'transaction',
   },
   {
     id: 'v10',
@@ -117,6 +129,7 @@ export const VISITS: Visit[] = [
     date: '2024-11-10',
     amount: 95,
     reaction: 'loved',
+    source: 'transaction',
   },
   {
     id: 'v11',
@@ -127,6 +140,7 @@ export const VISITS: Visit[] = [
     amount: 15,
     reaction: 'meh',
     notes: 'Too crowded, tacos were cold',
+    source: 'transaction',
   },
   {
     id: 'v12',
@@ -137,8 +151,40 @@ export const VISITS: Visit[] = [
     amount: 22,
     reaction: 'never_again',
     notes: 'Food poisoning. Never going back.',
+    source: 'transaction',
+  },
+  // Unrated visits - pending review (from recent transactions)
+  {
+    id: 'v13',
+    venueId: '5',
+    venueName: 'The Rooftop',
+    venueType: 'American',
+    date: '2024-12-12',
+    amount: 85,
+    source: 'transaction',
+    // No reaction - needs review
+  },
+  {
+    id: 'v14',
+    venueId: '7',
+    venueName: 'Green Garden',
+    venueType: 'Vegan',
+    date: '2024-12-13',
+    amount: 42,
+    source: 'transaction',
+    // No reaction - needs review
   },
 ];
+
+// Helper to check if a place has unrated visits
+export const hasUnratedVisits = (place: Place): boolean => {
+  return place.visits.some((v) => !v.reaction);
+};
+
+// Helper to check if a place is rated
+export const isPlaceRated = (place: Place): boolean => {
+  return place.reaction !== undefined;
+};
 
 // Aggregate visits into places
 export const PLACES: Place[] = [
@@ -192,6 +238,27 @@ export const PLACES: Place[] = [
     reaction: 'never_again',
     visits: VISITS.filter((v) => v.venueId === '14'),
   },
+  // Unrated places - pending review
+  {
+    venueId: '5',
+    venueName: 'The Rooftop',
+    venueType: 'American',
+    visitCount: 1,
+    lastVisit: '2024-12-12',
+    totalSpent: 85,
+    reaction: undefined, // Needs review
+    visits: VISITS.filter((v) => v.venueId === '5'),
+  },
+  {
+    venueId: '7',
+    venueName: 'Green Garden',
+    venueType: 'Vegan',
+    visitCount: 1,
+    lastVisit: '2024-12-13',
+    totalSpent: 42,
+    reaction: undefined, // Needs review
+    visits: VISITS.filter((v) => v.venueId === '7'),
+  },
 ];
 
 export const getPlaceById = (venueId: string): Place | undefined => {
@@ -200,6 +267,19 @@ export const getPlaceById = (venueId: string): Place | undefined => {
 
 export const getPlacesByReaction = (reaction: Reaction): Place[] => {
   return PLACES.filter((place) => place.reaction === reaction);
+};
+
+export const getPlacesByStatus = (places: Place[], status: StatusFilter): Place[] => {
+  switch (status) {
+    case 'all':
+      return places;
+    case 'visited':
+      return places.filter((place) => isPlaceRated(place));
+    case 'review':
+      return places.filter((place) => !isPlaceRated(place) || hasUnratedVisits(place));
+    default:
+      return places;
+  }
 };
 
 export const getReactionEmoji = (reaction: Reaction): string => {

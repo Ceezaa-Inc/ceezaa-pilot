@@ -1,19 +1,26 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 
 const MENU_ITEMS = [
-  { icon: '💳', label: 'Linked Cards', subtitle: '1 card connected' },
-  { icon: '🔔', label: 'Notifications', subtitle: 'Manage alerts' },
-  { icon: '🔒', label: 'Privacy', subtitle: 'Control your data' },
-  { icon: '❓', label: 'Help & Support', subtitle: 'Get assistance' },
+  { icon: '💳', label: 'Linked Cards', subtitle: '1 card connected', route: '/(tabs)/profile/cards' },
+  { icon: '🔔', label: 'Notifications', subtitle: 'Manage alerts', route: '/(tabs)/profile/notifications' },
+  { icon: '🔒', label: 'Privacy', subtitle: 'Control your data', route: '/(tabs)/profile/privacy' },
+  { icon: '❓', label: 'Help & Support', subtitle: 'Get assistance', route: null },
 ];
 
 export default function ProfileScreen() {
+  const handleMenuPress = (route: string | null) => {
+    if (route) {
+      router.push(route as any);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -36,7 +43,7 @@ export default function ProfileScreen() {
             <Typography variant="h4" color="primary">
               Your Taste DNA
             </Typography>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/pulse/taste-detail')}>
               <Typography variant="bodySmall" color="gold">
                 View full →
               </Typography>
@@ -52,7 +59,7 @@ export default function ProfileScreen() {
         {/* Menu Items */}
         <View style={styles.menu}>
           {MENU_ITEMS.map((item, index) => (
-            <TouchableOpacity key={index}>
+            <TouchableOpacity key={index} onPress={() => handleMenuPress(item.route)}>
               <Card variant="default" padding="md" style={styles.menuItem}>
                 <View style={styles.menuRow}>
                   <View style={styles.menuIcon}>

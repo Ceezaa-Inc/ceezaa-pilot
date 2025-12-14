@@ -69,21 +69,34 @@ describe('useVaultStore', () => {
   });
 
   describe('setFilter', () => {
-    it('should filter by loved reaction', () => {
+    it('should filter by visited status (places with reactions)', () => {
       act(() => {
-        useVaultStore.getState().setFilter('loved');
+        useVaultStore.getState().setFilter('visited');
       });
       const state = useVaultStore.getState();
-      expect(state.currentFilter).toBe('loved');
+      expect(state.currentFilter).toBe('visited');
       state.filteredPlaces.forEach((place) => {
-        expect(place.reaction).toBe('loved');
+        expect(place.reaction).toBeDefined();
+      });
+    });
+
+    it('should filter by review status (places needing review)', () => {
+      act(() => {
+        useVaultStore.getState().setFilter('review');
+      });
+      const state = useVaultStore.getState();
+      expect(state.currentFilter).toBe('review');
+      // Review filter shows places without reaction or with unrated visits
+      state.filteredPlaces.forEach((place) => {
+        const needsReview = !place.reaction || place.visits.some((v) => !v.reaction);
+        expect(needsReview).toBe(true);
       });
     });
 
     it('should show all places when filter is all', () => {
       // First filter
       act(() => {
-        useVaultStore.getState().setFilter('loved');
+        useVaultStore.getState().setFilter('visited');
       });
 
       // Then show all
@@ -91,7 +104,7 @@ describe('useVaultStore', () => {
         useVaultStore.getState().setFilter('all');
       });
       const state = useVaultStore.getState();
-      expect(state.filteredPlaces).toEqual(PLACES);
+      expect(state.filteredPlaces).toEqual(state.places);
       expect(state.currentFilter).toBe('all');
     });
   });

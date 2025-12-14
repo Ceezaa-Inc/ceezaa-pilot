@@ -221,7 +221,7 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F3-31 | Write PlaceCard tests | `test` | P0 | S | F3-30 | |
 | F3-32 | Create ReactionPicker component | `frontend` | P0 | M | F3-29 | ✅ |
 | F3-33 | Write ReactionPicker tests | `test` | P0 | S | F3-32 | |
-| F3-34 | Build Place Detail screen | `frontend` | P0 | L | F3-30 | |
+| F3-34 | Build Place Detail screen | `frontend` | P0 | L | F3-30 | ✅ |
 | F3-35 | Write Place Detail tests | `test` | P0 | M | F3-34 | |
 | F3-36 | Create mock vault/visit data | `frontend` | P0 | S | F1-08 | ✅ |
 
@@ -230,17 +230,19 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | ID | Task | Label | Priority | Size | Depends | Status |
 |----|------|-------|----------|------|---------|--------|
 | F3-37 | Build Profile home screen | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-38 | Build Linked Cards screen | `frontend` | P0 | M | F3-37 | |
-| F3-39 | Build Notifications Settings screen | `frontend` | P1 | M | F3-37 | |
-| F3-40 | Build Privacy screen | `frontend` | P1 | M | F3-37 | |
+| F3-38 | Build Linked Cards screen | `frontend` | P0 | M | F3-37 | ✅ |
+| F3-39 | Build Notifications Settings screen | `frontend` | P1 | M | F3-37 | ✅ |
+| F3-40 | Build Privacy screen | `frontend` | P1 | M | F3-37 | ✅ |
 | F3-41 | Write Profile screen tests | `test` | P0 | M | F3-37 to F3-40 | |
 
-**Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype 🔄
+**Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype ✅
 
 > **Progress Notes:**
 > - Pulse Tab: ✅ Complete (TasteRing with SVG segments + moti animation, horizontal scrolling Insights/Playlists, Saved Plans section)
 > - Discover Tab: ✅ Complete (MoodTile + VenueCard components, nested routes, FilterBar with mood chips, Venue Detail with day-by-day hours)
 > - Group Sessions: ✅ **CHECKPOINT 4 COMPLETE** (Create Session → Voting → Confirmed screens, VotingCard + ParticipantList + VenuePickerModal + JoinSessionModal + SessionCard components, venue selection during creation, propose/remove during voting, "My Sessions" list on Discover)
+> - Vault Tab: ✅ **CHECKPOINT 5 COMPLETE** (PlaceCard + ReactionPicker components, nested route structure, Place Detail screen with visit timeline and reaction picker, updated Vault index using store)
+> - Profile Tab: ✅ **CHECKPOINT 6 COMPLETE** (Nested route structure, Linked Cards screen, Notifications screen with toggles, Privacy screen with data controls and delete account)
 > - 52 Zustand store tests written and passing (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
 > - TasteRing shows `diningStyle` ("Experience Seeker") instead of numeric score per PRD
 > - Added `playlists.ts` and `plans.ts` mock data
