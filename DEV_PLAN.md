@@ -7,6 +7,151 @@
 
 ---
 
+## 📊 CURRENT PROGRESS
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| **Phase 1: Foundation** | ✅ Complete | 100% |
+| **Phase 2: Onboarding UI** | ✅ Complete | 100% |
+| **Phase 3: Core Tabs UI** | ✅ Complete | 100% |
+| **B0: Backend Setup** | ✅ Complete | 100% |
+| **B1: Plaid Exploration** | ✅ Complete | 100% |
+| **B2: Plaid Integration** | ⬜ Not Started | 0% |
+| **B3: TIL - Quiz Processor** | ⬜ Not Started | 0% |
+| **B4: TIL - Transaction Processor** | ⬜ Not Started | 0% |
+| **B5: TIL - Aggregation Engine** | ⬜ Not Started | 0% |
+| **B6: TIL - Taste Fusion** | ⬜ Not Started | 0% |
+| **B7: TIL - Taste Interface** | ⬜ Not Started | 0% |
+| **B8: Venue Catalog & Matching** | ⬜ Not Started | 0% |
+| **B9: Sessions API** | ⬜ Not Started | 0% |
+| **B10: Vault API** | ⬜ Not Started | 0% |
+| **Phase 7: Integration** | ⬜ Not Started | 0% |
+| **Phase 8: Polish** | ⬜ Not Started | 0% |
+| **Phase 9: Launch** | ⬜ Not Started | 0% |
+
+**Legend:** ⬜ Not Started | 🔄 In Progress | ✅ Complete
+
+---
+
+## 🎯 BACKEND CHECKPOINTS (B0-B10)
+
+### ✅ B0: Project Setup (Complete)
+FastAPI app, Supabase, migrations, GitHub Actions CI
+
+### ✅ B1: Plaid Exploration (Complete)
+
+| # | Task | File | Status |
+|---|------|------|--------|
+| 1 | Create Plaid client helper | `backend/app/services/plaid_client.py` | ✅ |
+| 2 | Write link token exploration test | `backend/tests/exploration/test_plaid_link.py` | ✅ |
+| 3 | Write transaction sync exploration test | `backend/tests/exploration/test_plaid_transactions.py` | ✅ |
+| 4 | Document transaction schema findings | `backend/app/models/plaid.py` | ✅ |
+| 5 | Create category mapping config | `backend/app/mappings/plaid_categories.py` | ✅ |
+| 6 | Run exploration tests & verify | 8/8 tests passing | ✅ |
+
+**Key Findings:**
+- Link token → public_token → access_token flow works ✅
+- transactions/sync endpoint returns cursor-based pagination ✅
+- Fresh sandbox items have 0 transactions (need to wait or use sandbox test endpoints)
+- Transaction schema: `transaction_id`, `amount`, `date`, `datetime`, `merchant_name`, `personal_finance_category`
+
+### 🔲 B2: Plaid Integration
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Write test: create_link_token | RED |
+| 2 | Implement `/api/plaid/create-link-token` | GREEN |
+| 3 | Write test: exchange_token | RED |
+| 4 | Implement `/api/plaid/exchange-token` | GREEN |
+| 5 | Create `linked_accounts` table | Migration |
+| 6 | Write test: initial transaction fetch | RED |
+| 7 | Implement transaction fetch + store | GREEN |
+| 8 | Write test: sync with cursor | RED |
+| 9 | Implement `/api/plaid/sync` | GREEN |
+
+### 🔲 B3: TIL - Quiz Processor
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create QuizProcessor class | RED → GREEN |
+| 2 | Implement vibe preference extraction | RED → GREEN |
+| 3 | Implement cuisine preference extraction | RED → GREEN |
+| 4 | Implement exploration style extraction | RED → GREEN |
+| 5 | Create `declared_taste` table | Migration |
+
+### 🔲 B4: TIL - Transaction Processor
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create TransactionProcessor class | RED → GREEN |
+| 2 | Implement Plaid category mapping | RED → GREEN |
+| 3 | Implement time bucket extraction | RED → GREEN |
+| 4 | Implement day type extraction | RED → GREEN |
+
+### 🔲 B5: TIL - Aggregation Engine
+
+**Critical:** All operations must be O(1) - no loops over all transactions!
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create AggregationEngine class | RED → GREEN |
+| 2 | Implement category breakdown (O(1)) | RED → GREEN |
+| 3 | Implement time pattern tracking (O(1)) | RED → GREEN |
+| 4 | Implement merchant loyalty tracking (O(1)) | RED → GREEN |
+| 5 | Implement streak tracking (O(1)) | RED → GREEN |
+| 6 | Create `user_analysis` table | Migration |
+
+### 🔲 B6: TIL - Taste Fusion
+
+**Key Algorithm:** Weighted fusion (quiz vs transactions based on data volume)
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create TasteFusion class | RED → GREEN |
+| 2 | Implement weighted fusion | RED → GREEN |
+| 3 | Implement mismatch detection | RED → GREEN |
+| 4 | Create `fused_taste` table | Migration |
+
+### 🔲 B7: TIL - Taste Interface
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create TasteInterface class | RED → GREEN |
+| 2 | Create `/api/taste/profile` endpoint | RED → GREEN |
+| 3 | Create `/api/taste/ring` endpoint | RED → GREEN |
+| 4 | Create `/api/taste/insights` endpoint | RED → GREEN |
+
+### 🔲 B8: Venue Catalog & Matching
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create `venues` table | Migration |
+| 2 | Set up Google Places API integration | RED → GREEN |
+| 3 | Create GPT tagging service | RED → GREEN |
+| 4 | Create MatchingEngine class | RED → GREEN |
+| 5 | Create `/api/discover/feed` endpoint | RED → GREEN |
+
+### 🔲 B9: Sessions API
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create session tables | Migration |
+| 2 | Create `/api/sessions` POST endpoint | RED → GREEN |
+| 3 | Create `/api/sessions/{code}/join` endpoint | RED → GREEN |
+| 4 | Create `/api/sessions/{id}/vote` endpoint | RED → GREEN |
+| 5 | Set up Supabase Realtime | Configuration |
+
+### 🔲 B10: Vault API
+
+| # | Task | TDD Step |
+|---|------|----------|
+| 1 | Create `place_visits` table | Migration |
+| 2 | Implement auto-create visits from transactions | RED → GREEN |
+| 3 | Create `/api/vault/visits` endpoints | RED → GREEN |
+| 4 | Create `/api/vault/places/{venue_id}` endpoint | RED → GREEN |
+
+---
+
 ## Overview
 
 ```
@@ -255,16 +400,18 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 **Goal:** Auth working, Plaid integrated, basic API structure
 
-### Project Setup
+### Project Setup (B0) ✅ COMPLETE
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B4-01 | Initialize FastAPI project with pytest | `backend` | P0 | S | - |
-| B4-02 | Set up Supabase project | `infra` | P0 | S | - |
-| B4-03 | Create initial database schema (migrations) | `backend` | P0 | L | B4-02 |
-| B4-04 | Configure environment variables | `infra` | P0 | XS | B4-01 |
-| B4-05 | Set up backend CI (lint + test) | `infra` | P1 | M | B4-01 |
-| B4-06 | Create health check endpoint | `backend` | P0 | XS | B4-01 |
+| ID | Task | Label | Priority | Size | Depends | Status |
+|----|------|-------|----------|------|---------|--------|
+| B4-01 | Initialize FastAPI project with pytest | `backend` | P0 | S | - | ✅ |
+| B4-02 | Set up Supabase project | `infra` | P0 | S | - | ✅ |
+| B4-03 | Create initial database schema (migrations) | `backend` | P0 | L | B4-02 | ✅ |
+| B4-04 | Configure environment variables | `infra` | P0 | XS | B4-01 | ✅ |
+| B4-05 | Set up backend CI (lint + test) | `infra` | P1 | M | B4-01 | ✅ |
+| B4-06 | Create health check endpoint | `backend` | P0 | XS | B4-01 | ✅ |
+
+> **B0 Complete:** FastAPI app running, Supabase connected, 5 migrations applied (profiles, taste tables, venues, sessions, vault), GitHub Actions CI configured, 4 tests passing.
 
 ### Auth
 
