@@ -1,3 +1,19 @@
+export interface DayHours {
+  open: string;
+  close: string;
+  closed?: boolean;
+}
+
+export interface VenueHours {
+  monday: DayHours;
+  tuesday: DayHours;
+  wednesday: DayHours;
+  thursday: DayHours;
+  friday: DayHours;
+  saturday: DayHours;
+  sunday: DayHours;
+}
+
 export interface Venue {
   id: string;
   name: string;
@@ -13,12 +29,24 @@ export interface Venue {
   imageUrl?: string;
   tags: string[];
   moods: string[];
-  hours: {
-    open: string;
-    close: string;
-  };
+  hours: VenueHours;
   features: string[];
 }
+
+// Helper to create hours for all days
+const createHours = (
+  weekday: DayHours,
+  weekend: DayHours,
+  sunday?: DayHours
+): VenueHours => ({
+  monday: weekday,
+  tuesday: weekday,
+  wednesday: weekday,
+  thursday: weekday,
+  friday: weekend,
+  saturday: weekend,
+  sunday: sunday || weekend,
+});
 
 export const VENUES: Venue[] = [
   {
@@ -35,7 +63,11 @@ export const VENUES: Venue[] = [
     distance: '0.3 mi',
     tags: ['Pasta', 'Wine', 'Date Night'],
     moods: ['romantic', 'cozy'],
-    hours: { open: '11:00 AM', close: '10:00 PM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '10:00 PM' },
+      { open: '11:00 AM', close: '11:00 PM' },
+      { open: '12:00 PM', close: '9:00 PM' }
+    ),
     features: ['Outdoor Seating', 'Reservations', 'Full Bar'],
   },
   {
@@ -52,7 +84,11 @@ export const VENUES: Venue[] = [
     distance: '0.5 mi',
     tags: ['Brunch', 'Coffee', 'Comfort Food'],
     moods: ['cozy', 'chill'],
-    hours: { open: '7:00 AM', close: '4:00 PM' },
+    hours: createHours(
+      { open: '7:00 AM', close: '4:00 PM' },
+      { open: '8:00 AM', close: '5:00 PM' },
+      { open: '8:00 AM', close: '3:00 PM' }
+    ),
     features: ['WiFi', 'Laptop Friendly', 'Pet Friendly'],
   },
   {
@@ -69,7 +105,11 @@ export const VENUES: Venue[] = [
     distance: '0.8 mi',
     tags: ['Sushi', 'Sake', 'Omakase'],
     moods: ['refined', 'adventurous'],
-    hours: { open: '5:00 PM', close: '11:00 PM' },
+    hours: createHours(
+      { open: '5:00 PM', close: '10:00 PM' },
+      { open: '5:00 PM', close: '11:00 PM' },
+      { open: '5:00 PM', close: '9:00 PM' }
+    ),
     features: ['Sushi Bar', 'Private Rooms', 'BYOB'],
   },
   {
@@ -86,7 +126,11 @@ export const VENUES: Venue[] = [
     distance: '1.2 mi',
     tags: ['Cocktails', 'Views', 'Happy Hour'],
     moods: ['social', 'energetic'],
-    hours: { open: '4:00 PM', close: '2:00 AM' },
+    hours: createHours(
+      { open: '4:00 PM', close: '12:00 AM' },
+      { open: '2:00 PM', close: '2:00 AM' },
+      { open: '2:00 PM', close: '10:00 PM' }
+    ),
     features: ['Rooftop', 'DJ', 'Bottle Service'],
   },
   {
@@ -103,7 +147,11 @@ export const VENUES: Venue[] = [
     distance: '0.7 mi',
     tags: ['Tacos', 'Margaritas', 'Family Style'],
     moods: ['social', 'energetic'],
-    hours: { open: '11:00 AM', close: '11:00 PM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '10:00 PM' },
+      { open: '11:00 AM', close: '11:00 PM' },
+      { open: '10:00 AM', close: '9:00 PM' }
+    ),
     features: ['Patio', 'Live Music', 'Kids Menu'],
   },
   {
@@ -120,7 +168,11 @@ export const VENUES: Venue[] = [
     distance: '1.5 mi',
     tags: ['Fine Dining', 'Wine Pairing', 'Tasting Menu'],
     moods: ['romantic', 'refined'],
-    hours: { open: '6:00 PM', close: '10:00 PM' },
+    hours: createHours(
+      { open: '6:00 PM', close: '10:00 PM' },
+      { open: '5:30 PM', close: '10:30 PM' },
+      { open: '', close: '', closed: true }
+    ),
     features: ['Prix Fixe', 'Sommelier', 'Valet'],
   },
   {
@@ -137,7 +189,11 @@ export const VENUES: Venue[] = [
     distance: '2.1 mi',
     tags: ['Plant-Based', 'Organic', 'Healthy'],
     moods: ['chill', 'adventurous'],
-    hours: { open: '9:00 AM', close: '9:00 PM' },
+    hours: createHours(
+      { open: '9:00 AM', close: '9:00 PM' },
+      { open: '9:00 AM', close: '10:00 PM' },
+      { open: '10:00 AM', close: '8:00 PM' }
+    ),
     features: ['Gluten-Free Options', 'Smoothies', 'Meditation Space'],
   },
   {
@@ -154,7 +210,11 @@ export const VENUES: Venue[] = [
     distance: '0.4 mi',
     tags: ['Craft Beer', 'Fish & Chips', 'Sports'],
     moods: ['social', 'chill'],
-    hours: { open: '12:00 PM', close: '1:00 AM' },
+    hours: createHours(
+      { open: '12:00 PM', close: '12:00 AM' },
+      { open: '11:00 AM', close: '2:00 AM' },
+      { open: '11:00 AM', close: '11:00 PM' }
+    ),
     features: ['TVs', 'Darts', 'Trivia Night'],
   },
   {
@@ -171,7 +231,11 @@ export const VENUES: Venue[] = [
     distance: '1.8 mi',
     tags: ['Curry', 'Naan', 'Buffet'],
     moods: ['adventurous', 'social'],
-    hours: { open: '11:30 AM', close: '10:30 PM' },
+    hours: createHours(
+      { open: '11:30 AM', close: '10:00 PM' },
+      { open: '11:30 AM', close: '10:30 PM' },
+      { open: '12:00 PM', close: '9:30 PM' }
+    ),
     features: ['Lunch Buffet', 'Vegetarian Options', 'Catering'],
   },
   {
@@ -188,7 +252,11 @@ export const VENUES: Venue[] = [
     distance: '2.5 mi',
     tags: ['Fresh Catch', 'Oysters', 'Sunset Views'],
     moods: ['romantic', 'refined'],
-    hours: { open: '4:00 PM', close: '11:00 PM' },
+    hours: createHours(
+      { open: '4:00 PM', close: '10:00 PM' },
+      { open: '12:00 PM', close: '11:00 PM' },
+      { open: '12:00 PM', close: '9:00 PM' }
+    ),
     features: ['Raw Bar', 'Waterfront Seating', 'Wine List'],
   },
   {
@@ -205,7 +273,11 @@ export const VENUES: Venue[] = [
     distance: '0.2 mi',
     tags: ['Street Tacos', 'Quick Bite', 'Late Night'],
     moods: ['adventurous', 'chill'],
-    hours: { open: '11:00 AM', close: '3:00 AM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '2:00 AM' },
+      { open: '11:00 AM', close: '3:00 AM' },
+      { open: '12:00 PM', close: '12:00 AM' }
+    ),
     features: ['Cash Only', 'Standing Room', 'Salsa Bar'],
   },
   {
@@ -222,7 +294,11 @@ export const VENUES: Venue[] = [
     distance: '1.1 mi',
     tags: ['Hand-Pulled Noodles', 'Dumplings', 'Family Style'],
     moods: ['cozy', 'social'],
-    hours: { open: '11:00 AM', close: '10:00 PM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '10:00 PM' },
+      { open: '11:00 AM', close: '10:30 PM' },
+      { open: '11:00 AM', close: '9:30 PM' }
+    ),
     features: ['Open Kitchen', 'Group Dining', 'BYO Wine'],
   },
   {
@@ -239,7 +315,11 @@ export const VENUES: Venue[] = [
     distance: '1.3 mi',
     tags: ['Live Jazz', 'Cocktails', 'Date Night'],
     moods: ['romantic', 'chill'],
-    hours: { open: '6:00 PM', close: '2:00 AM' },
+    hours: createHours(
+      { open: '6:00 PM', close: '1:00 AM' },
+      { open: '6:00 PM', close: '2:00 AM' },
+      { open: '', close: '', closed: true }
+    ),
     features: ['Live Music', 'Craft Cocktails', 'Dress Code'],
   },
   {
@@ -256,7 +336,11 @@ export const VENUES: Venue[] = [
     distance: '3.2 mi',
     tags: ['Burgers', 'Shakes', 'Fries'],
     moods: ['chill', 'social'],
-    hours: { open: '11:00 AM', close: '10:00 PM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '10:00 PM' },
+      { open: '11:00 AM', close: '11:00 PM' },
+      { open: '11:00 AM', close: '9:00 PM' }
+    ),
     features: ['Drive-Through', 'Kids Play Area', 'Customizable'],
   },
   {
@@ -273,7 +357,11 @@ export const VENUES: Venue[] = [
     distance: '1.6 mi',
     tags: ['Pad Thai', 'Curry', 'Spicy'],
     moods: ['adventurous', 'cozy'],
-    hours: { open: '11:30 AM', close: '10:00 PM' },
+    hours: createHours(
+      { open: '11:30 AM', close: '10:00 PM' },
+      { open: '11:30 AM', close: '10:30 PM' },
+      { open: '12:00 PM', close: '9:00 PM' }
+    ),
     features: ['Spice Level Options', 'Takeout', 'Delivery'],
   },
   {
@@ -290,7 +378,11 @@ export const VENUES: Venue[] = [
     distance: '2.0 mi',
     tags: ['Kebabs', 'Hummus', 'Healthy'],
     moods: ['chill', 'social'],
-    hours: { open: '11:00 AM', close: '9:00 PM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '9:00 PM' },
+      { open: '11:00 AM', close: '10:00 PM' },
+      { open: '12:00 PM', close: '8:00 PM' }
+    ),
     features: ['Build Your Bowl', 'Catering', 'Quick Service'],
   },
   {
@@ -307,7 +399,11 @@ export const VENUES: Venue[] = [
     distance: '1.9 mi',
     tags: ['Steak', 'Wine', 'Business Dinner'],
     moods: ['refined', 'social'],
-    hours: { open: '5:00 PM', close: '11:00 PM' },
+    hours: createHours(
+      { open: '5:00 PM', close: '10:00 PM' },
+      { open: '5:00 PM', close: '11:00 PM' },
+      { open: '4:00 PM', close: '9:00 PM' }
+    ),
     features: ['Dry-Aged', 'Private Dining', 'Valet'],
   },
   {
@@ -324,7 +420,11 @@ export const VENUES: Venue[] = [
     distance: '0.6 mi',
     tags: ['Brunch', 'Pancakes', 'Weekend Spot'],
     moods: ['cozy', 'social'],
-    hours: { open: '7:00 AM', close: '3:00 PM' },
+    hours: createHours(
+      { open: '7:00 AM', close: '2:00 PM' },
+      { open: '7:00 AM', close: '3:00 PM' },
+      { open: '8:00 AM', close: '3:00 PM' }
+    ),
     features: ['Bottomless Mimosas', 'Outdoor Patio', 'Dog Friendly'],
   },
   {
@@ -341,7 +441,11 @@ export const VENUES: Venue[] = [
     distance: '1.4 mi',
     tags: ['Pizza', 'Late Night', 'By the Slice'],
     moods: ['chill', 'social'],
-    hours: { open: '11:00 AM', close: '2:00 AM' },
+    hours: createHours(
+      { open: '11:00 AM', close: '1:00 AM' },
+      { open: '11:00 AM', close: '3:00 AM' },
+      { open: '12:00 PM', close: '12:00 AM' }
+    ),
     features: ['By the Slice', 'Delivery', 'Beer & Wine'],
   },
   {
@@ -358,7 +462,11 @@ export const VENUES: Venue[] = [
     distance: '2.3 mi',
     tags: ['Ramen', 'Izakaya', 'Sake'],
     moods: ['cozy', 'adventurous'],
-    hours: { open: '5:00 PM', close: '12:00 AM' },
+    hours: createHours(
+      { open: '5:00 PM', close: '11:00 PM' },
+      { open: '5:00 PM', close: '12:00 AM' },
+      { open: '5:00 PM', close: '10:00 PM' }
+    ),
     features: ['Sake Menu', 'Small Plates', 'Late Night'],
   },
 ];
@@ -373,4 +481,36 @@ export const getVenuesByMood = (mood: string): Venue[] => {
 
 export const getTopMatches = (limit = 5): Venue[] => {
   return [...VENUES].sort((a, b) => b.matchPercentage - a.matchPercentage).slice(0, limit);
+};
+
+// Helper to format hours for display
+export const formatHoursForDisplay = (hours: VenueHours): { label: string; time: string }[] => {
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  const result: { label: string; time: string }[] = [];
+  let i = 0;
+
+  while (i < days.length) {
+    const currentDay = hours[days[i]];
+    let endIdx = i;
+
+    // Find consecutive days with same hours
+    while (
+      endIdx < days.length - 1 &&
+      hours[days[endIdx + 1]].open === currentDay.open &&
+      hours[days[endIdx + 1]].close === currentDay.close &&
+      hours[days[endIdx + 1]].closed === currentDay.closed
+    ) {
+      endIdx++;
+    }
+
+    const label = i === endIdx ? dayLabels[i] : `${dayLabels[i]} - ${dayLabels[endIdx]}`;
+    const time = currentDay.closed ? 'Closed' : `${currentDay.open} - ${currentDay.close}`;
+
+    result.push({ label, time });
+    i = endIdx + 1;
+  }
+
+  return result;
 };

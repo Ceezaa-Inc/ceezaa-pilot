@@ -11,6 +11,11 @@ export default function WelcomeScreen() {
     router.push('/(auth)/login');
   };
 
+  // DEV ONLY: Skip to home
+  const handleSkipToHome = () => {
+    router.replace('/(tabs)/discover');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -41,6 +46,13 @@ export default function WelcomeScreen() {
 
       <View style={styles.footer}>
         <Button label="Get Started" fullWidth onPress={handleGetStarted} />
+        <Button
+          label="Skip to Home (DEV)"
+          variant="ghost"
+          size="sm"
+          fullWidth
+          onPress={handleSkipToHome}
+        />
         <Typography variant="caption" color="muted" align="center" style={styles.terms}>
           By continuing, you agree to our Terms of Service and Privacy Policy
         </Typography>

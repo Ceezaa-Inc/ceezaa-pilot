@@ -79,7 +79,7 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F1-18 | Create Typography components (Manrope all weights) | `frontend` | P1 | S | F1-09c | ✅ |
 | F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-09b | |
 | F1-20 | Create LoadingSpinner component (gold accent) | `frontend` | P1 | XS | F1-09b | ✅ |
-| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b | |
+| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b | ✅ |
 | F1-20b | Create OTPInput component (6-digit dark boxes) | `frontend` | P0 | M | F1-12 | ✅ |
 
 ### Navigation Shell
@@ -188,10 +188,10 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 | F3-12 | Write MoodGrid tests | `test` | P0 | S | F3-11 | |
 | F3-13 | Create VenueCard component | `frontend` | P0 | M | F3-10 | ✅ |
 | F3-14 | Write VenueCard tests | `test` | P0 | S | F3-13 | |
-| F3-15 | Build Filtered Feed screen | `frontend` | P0 | L | F3-11 | |
-| F3-16 | Create FilterBar component | `frontend` | P0 | M | F3-15 | |
+| F3-15 | Build Filtered Feed screen | `frontend` | P0 | L | F3-11 | ✅ |
+| F3-16 | Create FilterBar component | `frontend` | P0 | M | F3-15 | ✅ |
 | F3-17 | Write FilterBar tests | `test` | P0 | S | F3-16 | |
-| F3-18 | Build Venue Detail screen | `frontend` | P0 | L | F3-13 | |
+| F3-18 | Build Venue Detail screen | `frontend` | P0 | L | F3-13 | ✅ |
 | F3-19 | Write Venue Detail tests | `test` | P0 | M | F3-18 | |
 | F3-20 | Create mock venue data (20+ venues) | `frontend` | P0 | M | F1-08 | ✅ |
 
@@ -235,9 +235,11 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 > **Progress Notes:**
 > - Pulse Tab: ✅ Complete (TasteRing with SVG segments + moti animation, horizontal scrolling Insights/Playlists, Saved Plans section)
+> - Discover Tab: ✅ Complete (MoodTile + VenueCard components, nested routes, FilterBar with mood chips, Venue Detail with day-by-day hours)
 > - 52 Zustand store tests written (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
 > - TasteRing shows `diningStyle` ("Experience Seeker") instead of numeric score per PRD
 > - Added `playlists.ts` and `plans.ts` mock data
+> - Added DEV skip button on welcome screen for faster testing
 
 ---
 
