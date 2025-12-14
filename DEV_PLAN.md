@@ -199,14 +199,18 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 
 | ID | Task | Label | Priority | Size | Depends | Status |
 |----|------|-------|----------|------|---------|--------|
-| F3-21 | Build Create Session screen | `frontend` | P0 | M | F3-10 | |
-| F3-22 | Build Voting screen | `frontend` | P0 | L | F3-21 | |
-| F3-23 | Create VotingCard component | `frontend` | P0 | M | F3-22 | |
+| F3-21 | Build Create Session screen | `frontend` | P0 | M | F3-10 | ✅ |
+| F3-22 | Build Voting screen | `frontend` | P0 | L | F3-21 | ✅ |
+| F3-23 | Create VotingCard component | `frontend` | P0 | M | F3-22 | ✅ |
 | F3-24 | Write VotingCard tests | `test` | P0 | S | F3-23 | |
-| F3-25 | Create ParticipantList component | `frontend` | P1 | S | F3-22 | |
-| F3-26 | Build Confirmed Plan screen | `frontend` | P0 | M | F3-22 | |
+| F3-25 | Create ParticipantList component | `frontend` | P1 | S | F3-22 | ✅ |
+| F3-26 | Build Confirmed Plan screen | `frontend` | P0 | M | F3-22 | ✅ |
 | F3-27 | Write session flow tests | `test` | P0 | M | F3-21 to F3-26 | |
-| F3-28 | Create mock session data | `frontend` | P0 | S | F1-08 | |
+| F3-28 | Create mock session data | `frontend` | P0 | S | F1-08 | ✅ |
+| F3-29a | Create VenuePickerModal component | `frontend` | P0 | M | F3-21 | ✅ |
+| F3-29b | Create JoinSessionModal component | `frontend` | P0 | M | F3-21 | ✅ |
+| F3-29c | Create SessionCard component | `frontend` | P0 | S | F3-21 | ✅ |
+| F3-29d | Add "My Sessions" to Discover | `frontend` | P0 | S | F3-29c | ✅ |
 
 ### Vault Tab
 
@@ -236,10 +240,12 @@ Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9     
 > **Progress Notes:**
 > - Pulse Tab: ✅ Complete (TasteRing with SVG segments + moti animation, horizontal scrolling Insights/Playlists, Saved Plans section)
 > - Discover Tab: ✅ Complete (MoodTile + VenueCard components, nested routes, FilterBar with mood chips, Venue Detail with day-by-day hours)
-> - 52 Zustand store tests written (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
+> - Group Sessions: ✅ **CHECKPOINT 4 COMPLETE** (Create Session → Voting → Confirmed screens, VotingCard + ParticipantList + VenuePickerModal + JoinSessionModal + SessionCard components, venue selection during creation, propose/remove during voting, "My Sessions" list on Discover)
+> - 52 Zustand store tests written and passing (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
 > - TasteRing shows `diningStyle` ("Experience Seeker") instead of numeric score per PRD
 > - Added `playlists.ts` and `plans.ts` mock data
 > - Added DEV skip button on welcome screen for faster testing
+> - Store actions added: `addVenueToSession()`, `removeVenueFromSession()`, `getUserSessions()`
 
 ---
 

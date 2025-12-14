@@ -17,6 +17,7 @@ interface CreateSessionData {
   time: string;
   mood?: MoodType;
   constraints?: string[];
+  venues?: SessionVenue[];
 }
 
 interface SessionState {
@@ -32,6 +33,9 @@ interface SessionState {
   vote: (sessionId: string, venueId: string) => void;
   closeVoting: (sessionId: string) => void;
   refreshActiveSessions: () => void;
+  addVenueToSession: (sessionId: string, venue: SessionVenue) => boolean;
+  removeVenueFromSession: (sessionId: string, venueId: string) => boolean;
+  getUserSessions: () => Session[];
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -45,12 +49,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       set({ currentSession: null });
       return;
     }
-    const session = getSessionById(sessionId);
+    // Search in store's sessions (includes newly created ones), not just mock data
+    const session = get().sessions.find((s) => s.id === sessionId);
     set({ currentSession: session || null });
   },
 
   joinSession: (code) => {
-    const session = getSessionByCode(code.toUpperCase());
+    // Search in store's sessions (includes newly created ones)
+    const session = get().sessions.find((s) => s.code === code.toUpperCase());
     if (session) {
       set({ currentSession: session });
     }
@@ -69,7 +75,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       status: 'voting',
       hostId: 'u1',
       participants: [{ id: 'u1', name: 'You', isHost: true, hasVoted: false }],
-      venues: [],
+      venues: data.venues || [],
       createdAt: new Date().toISOString(),
     };
 
@@ -148,5 +154,58 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   refreshActiveSessions: () => {
     set({ activeSessions: getActiveSessions() });
+  },
+
+  addVenueToSession: (sessionId, venue) => {
+    const session = get().sessions.find((s) => s.id === sessionId);
+    if (!session || session.venues.length >= 10) {
+      return false;
+    }
+
+    // Check if venue already exists
+    if (session.venues.some((v) => v.venueId === venue.venueId)) {
+      return false;
+    }
+
+    set((state) => ({
+      sessions: state.sessions.map((s) =>
+        s.id === sessionId ? { ...s, venues: [...s.venues, venue] } : s
+      ),
+      currentSession:
+        state.currentSession?.id === sessionId
+          ? { ...state.currentSession, venues: [...state.currentSession.venues, venue] }
+          : state.currentSession,
+    }));
+
+    return true;
+  },
+
+  removeVenueFromSession: (sessionId, venueId) => {
+    const session = get().sessions.find((s) => s.id === sessionId);
+    if (!session || session.venues.length <= 1) {
+      return false;
+    }
+
+    set((state) => ({
+      sessions: state.sessions.map((s) =>
+        s.id === sessionId
+          ? { ...s, venues: s.venues.filter((v) => v.venueId !== venueId) }
+          : s
+      ),
+      currentSession:
+        state.currentSession?.id === sessionId
+          ? {
+              ...state.currentSession,
+              venues: state.currentSession.venues.filter((v) => v.venueId !== venueId),
+            }
+          : state.currentSession,
+    }));
+
+    return true;
+  },
+
+  getUserSessions: () => {
+    // Return sessions where user is a participant (for now, user is 'u1')
+    return get().sessions.filter((s) => s.participants.some((p) => p.id === 'u1'));
   },
 }));
