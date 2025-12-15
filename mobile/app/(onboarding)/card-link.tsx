@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  create,
+  open,
+  dismissLink,
+  LinkSuccess,
+  LinkExit,
+  LinkOpenProps,
+} from 'react-native-plaid-link-sdk';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
-import { borderRadius } from '@/design/tokens/borderRadius';
 import { Button, Typography, Card } from '@/components/ui';
+import { plaidService } from '@/services/plaid';
 
 const BENEFITS = [
   {
@@ -25,23 +33,69 @@ const BENEFITS = [
   },
 ];
 
+// TODO: Replace with actual user ID from auth
+const TEMP_USER_ID = 'temp-user-123';
+
 export default function CardLinkScreen() {
   const [isLinking, setIsLinking] = useState(false);
 
-  const handleLinkCard = async () => {
+  const handleLinkCard = useCallback(async () => {
     setIsLinking(true);
-    // Simulate Plaid flow
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLinking(false);
-    router.push('/(onboarding)/enhanced-reveal');
-  };
+
+    try {
+      // Step 1: Get link token from backend
+      console.log('[Plaid] Creating link token...');
+      const { link_token } = await plaidService.createLinkToken(TEMP_USER_ID);
+      console.log('[Plaid] Link token received');
+
+      // Step 2: Configure Plaid Link
+      const linkOpenProps: LinkOpenProps = {
+        onSuccess: async (success: LinkSuccess) => {
+          console.log('[Plaid] Link success:', success.metadata.institution?.name);
+
+          try {
+            // Step 3: Exchange public token for access token
+            await plaidService.exchangeToken(
+              success.publicToken,
+              TEMP_USER_ID,
+              success.metadata.institution?.id,
+              success.metadata.institution?.name
+            );
+
+            console.log('[Plaid] Token exchanged successfully');
+            dismissLink();
+
+            // Navigate to next screen
+            router.push('/(onboarding)/enhanced-reveal');
+          } catch (error) {
+            console.error('[Plaid] Token exchange failed:', error);
+            Alert.alert('Error', 'Failed to link your bank account. Please try again.');
+          }
+        },
+        onExit: (exit: LinkExit) => {
+          console.log('[Plaid] Link exited:', exit.error?.errorMessage || 'User cancelled');
+          if (exit.error) {
+            Alert.alert('Error', exit.error.errorMessage || 'Something went wrong');
+          }
+          setIsLinking(false);
+        },
+      };
+
+      // Step 4: Create and open Plaid Link
+      create({ token: link_token });
+      open(linkOpenProps);
+    } catch (error) {
+      console.error('[Plaid] Failed to create link token:', error);
+      Alert.alert('Error', 'Failed to initialize bank connection. Please try again.');
+      setIsLinking(false);
+    }
+  }, []);
 
   const handleSkip = () => {
     router.replace('/(tabs)/pulse');
   };
 
   return (
-    // Trust Mode - Light theme for financial operations
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>

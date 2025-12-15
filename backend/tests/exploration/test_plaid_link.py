@@ -2,26 +2,12 @@
 Plaid Link Token Exploration Tests.
 
 These tests explore the Plaid Link flow to understand the API before building production code.
-Run with: pytest tests/exploration/test_plaid_link.py -v -s
+Run with: pytest -m exploration tests/exploration/test_plaid_link.py -v -s
 
-IMPORTANT: These tests use REAL Plaid sandbox credentials from .env (not .env.test)
+NOTE: These tests use Plaid sandbox credentials from .env.test (loaded by conftest.py).
 """
 
-from pathlib import Path
-
 import pytest
-from dotenv import load_dotenv
-
-# Load real .env for exploration tests (need actual Plaid sandbox credentials)
-real_env_path = Path(__file__).parent.parent.parent / ".env"
-load_dotenv(real_env_path, override=True)
-
-# Clear caches to pick up new env
-from app.config import get_settings
-from app.services.plaid_client import get_plaid_client
-
-get_settings.cache_clear()
-get_plaid_client.cache_clear()
 
 from app.services.plaid_client import (
     create_link_token,

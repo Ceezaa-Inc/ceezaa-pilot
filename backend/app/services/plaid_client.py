@@ -12,6 +12,12 @@ from plaid.model.products import Products
 from plaid.model.sandbox_public_token_create_request import (
     SandboxPublicTokenCreateRequest,
 )
+from plaid.model.sandbox_public_token_create_request_options import (
+    SandboxPublicTokenCreateRequestOptions,
+)
+from plaid.model.sandbox_public_token_create_request_options_transactions import (
+    SandboxPublicTokenCreateRequestOptionsTransactions,
+)
 from plaid.model.item_public_token_exchange_request import (
     ItemPublicTokenExchangeRequest,
 )
@@ -91,24 +97,68 @@ def exchange_public_token(public_token: str) -> dict:
     }
 
 
-def create_sandbox_public_token(institution_id: str = "ins_109508") -> str:
+def create_sandbox_public_token(
+    institution_id: str = "ins_109508",
+    with_transactions: bool = False,
+) -> str:
     """Create a sandbox public token for testing.
 
     Args:
         institution_id: Plaid institution ID (default: First Platypus Bank)
+        with_transactions: If True, use custom_user to generate realistic transactions
 
     Returns:
         public_token for testing
     """
     client = get_plaid_client()
 
-    request = SandboxPublicTokenCreateRequest(
-        institution_id=institution_id,
-        initial_products=[Products("transactions")],
-    )
+    request_kwargs = {
+        "institution_id": institution_id,
+        "initial_products": [Products("transactions")],
+    }
+
+    # Use custom user options to get transactions with different date ranges
+    if with_transactions:
+        from datetime import date, timedelta
+        # Generate transactions for the past 30 days
+        end = date.today()
+        start = end - timedelta(days=30)
+        request_kwargs["options"] = SandboxPublicTokenCreateRequestOptions(
+            transactions=SandboxPublicTokenCreateRequestOptionsTransactions(
+                start_date=start,
+                end_date=end,
+            )
+        )
+
+    request = SandboxPublicTokenCreateRequest(**request_kwargs)
 
     response = client.sandbox_public_token_create(request)
     return response.public_token
+
+
+def create_sandbox_item_with_transactions() -> dict:
+    """Create a sandbox item with pre-populated transactions for testing.
+
+    This is useful for integration tests that need transaction data.
+
+    Returns:
+        dict with access_token, item_id, and initial transaction sync result
+    """
+    # Create public token with transactions enabled
+    public_token = create_sandbox_public_token(with_transactions=True)
+
+    # Exchange for access token
+    exchange_result = exchange_public_token(public_token)
+
+    # Sync transactions to verify they exist
+    sync_result = sync_transactions(exchange_result["access_token"])
+
+    return {
+        "access_token": exchange_result["access_token"],
+        "item_id": exchange_result["item_id"],
+        "transactions_added": len(sync_result["added"]),
+        "next_cursor": sync_result["next_cursor"],
+    }
 
 
 def sync_transactions(access_token: str, cursor: Optional[str] = None) -> dict:

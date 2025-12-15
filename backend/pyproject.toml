@@ -33,6 +33,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-m 'not exploration'"
 markers = [
     "exploration: marks tests as exploration tests (for understanding external APIs)",
     "unit: marks tests as unit tests",
