@@ -61,14 +61,22 @@ def create_link_token(user_id: str) -> dict:
     """
     client = get_plaid_client()
 
-    request = LinkTokenCreateRequest(
-        products=[Products("transactions")],
-        client_name="Ceezaa",
-        country_codes=[CountryCode("US")],
-        language="en",
-        user=LinkTokenCreateRequestUser(client_user_id=user_id),
-    )
+    request_kwargs = {
+        "products": [Products("transactions")],
+        "client_name": "Ceezaa",
+        "country_codes": [CountryCode("US")],
+        "language": "en",
+        "user": LinkTokenCreateRequestUser(client_user_id=user_id),
+    }
 
+    # Note: redirect_uri for OAuth banks (Chase, etc.) requires configuration
+    # in Plaid Dashboard first. Uncomment once registered:
+    # if settings.plaid_env == "sandbox":
+    #     request_kwargs["redirect_uri"] = "https://cdn.plaid.com/link/v2/stable/sandbox-oauth-a2a-redirect.html"
+    # else:
+    #     request_kwargs["redirect_uri"] = "ceezaa://plaid-oauth"
+
+    request = LinkTokenCreateRequest(**request_kwargs)
     response = client.link_token_create(request)
 
     return {

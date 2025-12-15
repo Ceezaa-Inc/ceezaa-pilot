@@ -16,7 +16,7 @@
 | **Phase 3: Core Tabs UI** | ✅ Complete | 100% |
 | **B0: Backend Setup** | ✅ Complete | 100% |
 | **B1: Plaid Exploration** | ✅ Complete | 100% |
-| **B2: Plaid Integration** | ⬜ Not Started | 0% |
+| **B2: Plaid Integration** | 🔄 In Progress | ~40% |
 | **B3: TIL - Quiz Processor** | ⬜ Not Started | 0% |
 | **B4: TIL - Transaction Processor** | ⬜ Not Started | 0% |
 | **B5: TIL - Aggregation Engine** | ⬜ Not Started | 0% |
@@ -55,19 +55,24 @@ FastAPI app, Supabase, migrations, GitHub Actions CI
 - Fresh sandbox items have 0 transactions (need to wait or use sandbox test endpoints)
 - Transaction schema: `transaction_id`, `amount`, `date`, `datetime`, `merchant_name`, `personal_finance_category`
 
-### 🔲 B2: Plaid Integration
+### 🔄 B2: Plaid Integration (In Progress ~40%)
 
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Write test: create_link_token | RED |
-| 2 | Implement `/api/plaid/create-link-token` | GREEN |
-| 3 | Write test: exchange_token | RED |
-| 4 | Implement `/api/plaid/exchange-token` | GREEN |
-| 5 | Create `linked_accounts` table | Migration |
-| 6 | Write test: initial transaction fetch | RED |
-| 7 | Implement transaction fetch + store | GREEN |
-| 8 | Write test: sync with cursor | RED |
-| 9 | Implement `/api/plaid/sync` | GREEN |
+| # | Task | TDD Step | Status |
+|---|------|----------|--------|
+| 1 | Write test: create_link_token | RED | ✅ |
+| 2 | Implement `/api/plaid/create-link-token` | GREEN | ✅ |
+| 3 | Write test: exchange_token | RED | ✅ |
+| 4 | Implement `/api/plaid/exchange-token` | GREEN | ✅ |
+| 5 | Create `linked_accounts` table | Migration | |
+| 6 | Write test: initial transaction fetch | RED | |
+| 7 | Implement transaction fetch + store | GREEN | |
+| 8 | Write test: sync with cursor | RED | |
+| 9 | Implement `/api/plaid/sync` | GREEN | |
+
+**Progress Notes:**
+- Endpoints working and tested in sandbox
+- Mobile app can open Plaid Link
+- See [PLAID_INTEGRATION.md](backend/PLAID_INTEGRATION.md) for production setup
 
 ### 🔲 B3: TIL - Quiz Processor
 
