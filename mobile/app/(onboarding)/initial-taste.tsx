@@ -4,35 +4,38 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
-import { borderRadius } from '@/design/tokens/borderRadius';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
-import { useTasteStore } from '@/stores';
+import { useTasteStore, useAuthStore } from '@/stores';
 
 export default function InitialTasteScreen() {
-  const { traits } = useTasteStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { profile, traits, isLoading, fetchProfile, hasFetched } = useTasteStore();
+  const { user } = useAuthStore();
   const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    // Simulate processing
-    const timer = setTimeout(() => {
-      setIsLoading(false);
+    // Fetch profile from API when user is available
+    if (user?.id && !hasFetched) {
+      fetchProfile(user.id);
+    }
+  }, [user?.id, hasFetched, fetchProfile]);
+
+  useEffect(() => {
+    // Animate in when loading is done
+    if (!isLoading && hasFetched) {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }).start();
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [isLoading, hasFetched, fadeAnim]);
 
   const handleContinue = () => {
     router.push('/(onboarding)/card-link');
   };
 
-  if (isLoading) {
+  if (isLoading || !hasFetched) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -52,16 +55,13 @@ export default function InitialTasteScreen() {
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={styles.header}>
-          <Typography variant="h2" color="primary" align="center">
-            Your Taste DNA
-          </Typography>
-          <Typography variant="body" color="secondary" align="center">
-            Based on your quiz responses
+          <Typography variant="body" color="secondary" align="center" style={styles.tagline}>
+            "{profile.tagline}"
           </Typography>
         </View>
 
         <Card variant="elevated" padding="lg" style={styles.tasteCard}>
-          <TasteRing size={160} showCard={false} onPress={() => {}} />
+          <TasteRing size={200} showCard={false} onPress={() => {}} />
 
           <View style={styles.traits}>
             {traits.map((trait) => (
@@ -118,7 +118,12 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: layoutSpacing.xl,
-    gap: layoutSpacing.xs,
+    gap: layoutSpacing.sm,
+    alignItems: 'center',
+  },
+  tagline: {
+    fontWeight: '600',
+    marginTop: layoutSpacing.xs,
   },
   tasteCard: {
     alignItems: 'center',

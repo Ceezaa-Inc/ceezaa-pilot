@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
@@ -74,73 +74,80 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Typography variant="body" color="secondary">
-            ← Back
-          </Typography>
-        </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <Typography variant="body" color="secondary">
+                ← Back
+              </Typography>
+            </TouchableOpacity>
 
-        <View style={styles.header}>
-          <Logo variant="emblem" size={36} style={styles.logo} />
-          <Typography variant="h2" color="primary">
-            Welcome back
-          </Typography>
-          <Typography variant="body" color="secondary" style={styles.subtitle}>
-            Enter your phone number to continue
-          </Typography>
-        </View>
+            <View style={styles.header}>
+              <Logo variant="emblem" size={36} style={styles.logo} />
+              <Typography variant="h2" color="primary">
+                Welcome back
+              </Typography>
+              <Typography variant="body" color="secondary" style={styles.subtitle}>
+                Enter your phone number to continue
+              </Typography>
+            </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Phone Number"
-            placeholder="(555) 000-0000"
-            value={formatPhoneDisplay(phone)}
-            onChangeText={handlePhoneChange}
-            keyboardType="phone-pad"
-            autoFocus
-          />
+            <View style={styles.form}>
+              <Input
+                label="Phone Number"
+                placeholder="(555) 000-0000"
+                value={formatPhoneDisplay(phone)}
+                onChangeText={handlePhoneChange}
+                keyboardType="phone-pad"
+              />
 
-          <Button
-            label="Continue"
-            fullWidth
-            loading={isLoading}
-            disabled={phone.length < 10}
-            onPress={handleContinue}
-          />
-        </View>
+              <Button
+                label="Continue"
+                fullWidth
+                loading={isLoading}
+                disabled={phone.length < 10}
+                onPress={handleContinue}
+              />
+            </View>
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Typography variant="caption" color="muted" style={styles.dividerText}>
-            or continue with
-          </Typography>
-          <View style={styles.dividerLine} />
-        </View>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Typography variant="caption" color="muted" style={styles.dividerText}>
+                or continue with
+              </Typography>
+              <View style={styles.dividerLine} />
+            </View>
 
-        <View style={styles.socialButtons}>
-          <Button
-            label="Continue with Google"
-            variant="secondary"
-            fullWidth
-            onPress={() => handleSocialLogin('google')}
-          />
-          <Button
-            label="Continue with Apple"
-            variant="secondary"
-            fullWidth
-            onPress={() => handleSocialLogin('apple')}
-          />
-          {__DEV__ && (
-            <Button
-              label="🔧 DEV: Skip Auth"
-              variant="ghost"
-              fullWidth
-              onPress={handleDevSignIn}
-            />
-          )}
-        </View>
-      </View>
+            <View style={styles.socialButtons}>
+              {__DEV__ && (
+                <Button
+                  label="🔧 DEV: Skip Auth"
+                  variant="primary"
+                  fullWidth
+                  onPress={handleDevSignIn}
+                />
+              )}
+              <Button
+                label="Continue with Google"
+                variant="secondary"
+                fullWidth
+                onPress={() => handleSocialLogin('google')}
+              />
+              <Button
+                label="Continue with Apple"
+                variant="secondary"
+                fullWidth
+                onPress={() => handleSocialLogin('apple')}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
@@ -149,6 +156,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.dark.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   content: {
     flex: 1,

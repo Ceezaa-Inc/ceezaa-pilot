@@ -15,8 +15,15 @@ interface TasteRingProps {
   onPress?: () => void;
 }
 
-export function TasteRing({ size = 160, showCard = true, onPress }: TasteRingProps) {
+export function TasteRing({ size = 200, showCard = true, onPress }: TasteRingProps) {
   const { categories, profile } = useTasteStore();
+
+  // Determine article (a/an) based on title
+  const getArticle = (title: string) => {
+    if (!title) return 'a';
+    const firstLetter = title.charAt(0).toLowerCase();
+    return ['a', 'e', 'i', 'o', 'u'].includes(firstLetter) ? 'an' : 'a';
+  };
 
   const handlePress = () => {
     if (onPress) {
@@ -108,10 +115,10 @@ export function TasteRing({ size = 160, showCard = true, onPress }: TasteRingPro
         {/* Center content */}
         <View style={[styles.centerContent, { width: size, height: size }]}>
           <Typography variant="caption" color="muted">
-            You are
+            You are {getArticle(profile.title)}
           </Typography>
-          <Typography variant="body" color="primary" align="center" style={styles.archetypeText}>
-            {profile.diningStyle}
+          <Typography variant="body" color="gold" align="center" style={styles.archetypeText}>
+            {profile.title}
           </Typography>
         </View>
       </View>
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   archetypeText: {
-    maxWidth: 100,
+    maxWidth: 140,
     fontWeight: '600',
   },
 });

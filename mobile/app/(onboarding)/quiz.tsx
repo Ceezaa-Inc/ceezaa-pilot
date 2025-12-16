@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
-import { borderRadius } from '@/design/tokens/borderRadius';
 import { Button, Typography, Card } from '@/components/ui';
+import { onboardingApi, QuizAnswer } from '@/services/api';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const { width } = Dimensions.get('window');
 
@@ -65,18 +66,52 @@ const QUIZ_QUESTIONS = [
 export default function QuizScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuthStore();
 
   const currentQuestion = QUIZ_QUESTIONS[currentIndex];
   const progress = (currentIndex + 1) / QUIZ_QUESTIONS.length;
 
+  const submitQuiz = async (finalAnswers: Record<number, string>) => {
+    if (!user?.id) {
+      console.error('[Quiz] No user ID available');
+      router.push('/(onboarding)/initial-taste');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Convert answers to API format
+      const quizAnswers: QuizAnswer[] = Object.entries(finalAnswers).map(
+        ([questionId, answerId]) => ({
+          question_id: parseInt(questionId, 10),
+          answer_id: answerId,
+        })
+      );
+
+      console.log('[Quiz] Submitting answers:', quizAnswers);
+      const result = await onboardingApi.submitQuiz(user.id, quizAnswers);
+      console.log('[Quiz] Profile created:', result.profile_title);
+
+      router.push('/(onboarding)/initial-taste');
+    } catch (error) {
+      console.error('[Quiz] Submit error:', error);
+      // Still navigate to taste screen even if API fails
+      router.push('/(onboarding)/initial-taste');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSelect = (optionId: string) => {
-    setAnswers({ ...answers, [currentQuestion.id]: optionId });
+    const newAnswers = { ...answers, [currentQuestion.id]: optionId };
+    setAnswers(newAnswers);
 
     if (currentIndex < QUIZ_QUESTIONS.length - 1) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 300);
     } else {
-      // Quiz complete, go to taste card
-      setTimeout(() => router.push('/(onboarding)/initial-taste'), 500);
+      // Quiz complete, submit to backend
+      setTimeout(() => submitQuiz(newAnswers), 300);
     }
   };
 
@@ -87,6 +122,19 @@ export default function QuizScreen() {
       router.back();
     }
   };
+
+  if (isSubmitting) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary.DEFAULT} />
+          <Typography variant="body" color="secondary" style={styles.loadingText}>
+            Analyzing your taste...
+          </Typography>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -213,5 +261,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.xs,
     paddingVertical: layoutSpacing.sm,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: layoutSpacing.lg,
+  },
+  loadingText: {
+    marginTop: layoutSpacing.md,
   },
 });

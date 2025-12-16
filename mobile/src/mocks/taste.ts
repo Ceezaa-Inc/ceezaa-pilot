@@ -28,8 +28,13 @@ export interface TasteProfile {
   insights: Insight[];
   topCuisines: string[];
   diningStyle: string;
+  title: string;
+  tagline: string;
   pricePreference: string;
   explorationRatio: number;
+  level?: number;
+  xp?: number;
+  nextLevelXp?: number;
 }
 
 export const TASTE_TRAITS: TasteTrait[] = [
@@ -92,6 +97,8 @@ export const TASTE_PROFILE: TasteProfile = {
   insights: INSIGHTS,
   topCuisines: ['Italian', 'Japanese', 'American'],
   diningStyle: 'Experience Seeker',
+  title: 'Experience Seeker',
+  tagline: 'Always chasing the next great bite',
   pricePreference: 'Mid to High',
   explorationRatio: 0.65, // 65% new places vs favorites
 };

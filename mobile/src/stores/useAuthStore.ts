@@ -216,11 +216,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   devSignIn: () => {
     if (!__DEV__) return;
 
+    // Fixed dev user UUID (matches 008_seed_dev_user.sql migration)
+    const DEV_USER_ID = '00000000-0000-0000-0000-000000000001';
+
     // Create a mock user for development
     const mockUser = {
-      id: 'dev-user-' + Date.now(),
+      id: DEV_USER_ID,
       phone: '+15555550100',
-      email: null,
+      email: 'dev@ceezaa.local',
       created_at: new Date().toISOString(),
       user_metadata: { dev_mode: true },
     } as any;
