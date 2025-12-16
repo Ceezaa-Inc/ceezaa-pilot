@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, OTPInput } from '@/components/ui';
+import { useAuthStore } from '@/stores';
 
 export default function VerifyScreen() {
+  const { phone } = useLocalSearchParams<{ phone: string }>();
   const [otp, setOtp] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const { verifyOtp, sendOtp, isLoading, error, clearError } = useAuthStore();
 
   useEffect(() => {
     if (countdown > 0) {
@@ -19,6 +21,12 @@ export default function VerifyScreen() {
   }, [countdown]);
 
   useEffect(() => {
+    if (error) {
+      Alert.alert('Verification Failed', error, [{ text: 'OK', onPress: clearError }]);
+    }
+  }, [error]);
+
+  useEffect(() => {
     // Auto-submit when OTP is complete
     if (otp.length === 6) {
       handleVerify();
@@ -26,21 +34,37 @@ export default function VerifyScreen() {
   }, [otp]);
 
   const handleVerify = async () => {
-    if (otp.length !== 6) return;
+    if (otp.length !== 6 || !phone) return;
 
-    setIsLoading(true);
-    // Simulate verification
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    const success = await verifyOtp(phone, otp);
 
-    // Navigate to onboarding quiz
-    router.replace('/(onboarding)/quiz');
+    if (success) {
+      // Navigate to onboarding quiz on successful verification
+      router.replace('/(onboarding)/quiz');
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
+    if (!phone) return;
+
     setCountdown(30);
     setOtp('');
-    // Mock resend
+
+    const success = await sendOtp(phone);
+    if (success) {
+      Alert.alert('Code Sent', 'A new verification code has been sent to your phone.');
+    }
+  };
+
+  // Format phone for display
+  const formatPhoneDisplay = (phoneNumber: string) => {
+    if (!phoneNumber) return '';
+    // Remove +1 and format
+    const digits = phoneNumber.replace(/^\+1/, '');
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return phoneNumber;
   };
 
   return (
@@ -57,7 +81,7 @@ export default function VerifyScreen() {
             Verify your number
           </Typography>
           <Typography variant="body" color="secondary" style={styles.subtitle}>
-            We sent a 6-digit code to your phone
+            We sent a 6-digit code to {formatPhoneDisplay(phone || '')}
           </Typography>
         </View>
 
@@ -71,7 +95,7 @@ export default function VerifyScreen() {
               Resend code in {countdown}s
             </Typography>
           ) : (
-            <TouchableOpacity onPress={handleResend}>
+            <TouchableOpacity onPress={handleResend} disabled={isLoading}>
               <Typography variant="bodySmall" color="gold">
                 Resend code
               </Typography>

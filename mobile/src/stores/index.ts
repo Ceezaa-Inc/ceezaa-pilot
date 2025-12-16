@@ -1,3 +1,4 @@
+export { useAuthStore } from './useAuthStore';
 export { useVenueStore } from './useVenueStore';
 export { useVaultStore } from './useVaultStore';
 export { useSessionStore } from './useSessionStore';

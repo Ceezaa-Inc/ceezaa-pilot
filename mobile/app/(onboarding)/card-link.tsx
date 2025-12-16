@@ -14,6 +14,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Card } from '@/components/ui';
 import { plaidService } from '@/services/plaid';
+import { useAuthStore } from '@/stores';
 
 const BENEFITS = [
   {
@@ -33,19 +34,25 @@ const BENEFITS = [
   },
 ];
 
-// TODO: Replace with actual user ID from auth
-const TEMP_USER_ID = 'temp-user-123';
-
 export default function CardLinkScreen() {
   const [isLinking, setIsLinking] = useState(false);
+  const { user } = useAuthStore();
+
+  // Get the authenticated user's ID
+  const userId = user?.id;
 
   const handleLinkCard = useCallback(async () => {
+    if (!userId) {
+      Alert.alert('Error', 'You must be logged in to link a card.');
+      return;
+    }
+
     setIsLinking(true);
 
     try {
       // Step 1: Get link token from backend
       console.log('[Plaid] Creating link token...');
-      const { link_token } = await plaidService.createLinkToken(TEMP_USER_ID);
+      const { link_token } = await plaidService.createLinkToken(userId);
       console.log('[Plaid] Link token received');
 
       // Step 2: Configure Plaid Link
@@ -57,7 +64,7 @@ export default function CardLinkScreen() {
             // Step 3: Exchange public token for access token
             await plaidService.exchangeToken(
               success.publicToken,
-              TEMP_USER_ID,
+              userId,
               success.metadata.institution?.id,
               success.metadata.institution?.name
             );
@@ -89,7 +96,7 @@ export default function CardLinkScreen() {
       Alert.alert('Error', 'Failed to initialize bank connection. Please try again.');
       setIsLinking(false);
     }
-  }, []);
+  }, [userId]);
 
   const handleSkip = () => {
     router.replace('/(tabs)/pulse');

@@ -16,7 +16,8 @@
 | **Phase 3: Core Tabs UI** | ✅ Complete | 100% |
 | **B0: Backend Setup** | ✅ Complete | 100% |
 | **B1: Plaid Exploration** | ✅ Complete | 100% |
-| **B2: Plaid Integration** | 🔄 In Progress | ~40% |
+| **B2: Plaid Integration** | ✅ Complete | 100% |
+| **BA: Authentication** | 🔄 Partial | 70% |
 | **B3: TIL - Quiz Processor** | ⬜ Not Started | 0% |
 | **B4: TIL - Transaction Processor** | ⬜ Not Started | 0% |
 | **B5: TIL - Aggregation Engine** | ⬜ Not Started | 0% |
@@ -55,7 +56,7 @@ FastAPI app, Supabase, migrations, GitHub Actions CI
 - Fresh sandbox items have 0 transactions (need to wait or use sandbox test endpoints)
 - Transaction schema: `transaction_id`, `amount`, `date`, `datetime`, `merchant_name`, `personal_finance_category`
 
-### 🔄 B2: Plaid Integration (In Progress ~40%)
+### ✅ B2: Plaid Integration (Complete)
 
 | # | Task | TDD Step | Status |
 |---|------|----------|--------|
@@ -63,16 +64,40 @@ FastAPI app, Supabase, migrations, GitHub Actions CI
 | 2 | Implement `/api/plaid/create-link-token` | GREEN | ✅ |
 | 3 | Write test: exchange_token | RED | ✅ |
 | 4 | Implement `/api/plaid/exchange-token` | GREEN | ✅ |
-| 5 | Create `linked_accounts` table | Migration | |
-| 6 | Write test: initial transaction fetch | RED | |
-| 7 | Implement transaction fetch + store | GREEN | |
-| 8 | Write test: sync with cursor | RED | |
-| 9 | Implement `/api/plaid/sync` | GREEN | |
+| 5 | Create `linked_accounts` table | Migration | ✅ |
+| 6 | Write test: initial transaction fetch | RED | ✅ |
+| 7 | Implement transaction fetch + store | GREEN | ✅ |
+| 8 | Write test: sync with cursor | RED | ✅ |
+| 9 | Implement `/api/plaid/sync` | GREEN | ✅ |
 
-**Progress Notes:**
-- Endpoints working and tested in sandbox
+**Completed:**
+- All endpoints working and tested in sandbox
 - Mobile app can open Plaid Link
+- Transactions synced and stored to database with category mapping
 - See [PLAID_INTEGRATION.md](backend/PLAID_INTEGRATION.md) for production setup
+
+### 🔄 BA: Authentication (Partial - DEV Mode Active)
+
+| # | Task | Status |
+|---|------|--------|
+| 1 | Create backend auth router (`/api/auth/*`) | ✅ |
+| 2 | Set up Supabase client in mobile with secure storage | ✅ |
+| 3 | Create useAuthStore with all auth methods | ✅ |
+| 4 | Connect login/verify screens to Supabase | ✅ |
+| 5 | Add DEV mode skip auth for testing | ✅ |
+| 6 | Create Supabase trigger for profiles table | ✅ |
+| 7 | Configure Twilio for Phone OTP | ⏳ Deferred (needs paid number) |
+| 8 | Implement Sign in with Apple | ⏳ Deferred (needs Xcode dev build) |
+| 9 | Implement Sign in with Google | ⏳ Deferred (needs Xcode dev build) |
+
+**Note:** Using DEV skip auth for development. Full auth to be completed pre-launch.
+
+**Files created/modified:**
+- `backend/app/routers/auth.py` (NEW)
+- `mobile/src/services/supabase.ts` (NEW)
+- `mobile/src/stores/useAuthStore.ts` (NEW)
+- `mobile/app/(auth)/login.tsx`, `verify.tsx` (connected to real auth)
+- `mobile/babel.config.js` (removed nativewind jsxImportSource)
 
 ### 🔲 B3: TIL - Quiz Processor
 

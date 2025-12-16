@@ -1,29 +1,75 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Input, Typography, Logo } from '@/components/ui';
+import { useAuthStore } from '@/stores';
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { sendOtp, devSignIn, isLoading, error, clearError } = useAuthStore();
 
-  const handleContinue = async () => {
-    if (!phone || phone.length < 10) return;
-
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-
-    router.push('/(auth)/verify');
+  // DEV MODE: Quick sign-in for development
+  const handleDevSignIn = () => {
+    devSignIn();
+    router.replace('/(onboarding)/quiz');
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // Mock social login - go straight to verify
-    router.push('/(auth)/verify');
+  // Format phone for display but store raw
+  const formatPhoneDisplay = (value: string) => {
+    // Remove non-digits
+    const digits = value.replace(/\D/g, '');
+
+    // Format as US phone number
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    // Store only digits
+    const digits = value.replace(/\D/g, '').slice(0, 10);
+    setPhone(digits);
+  };
+
+  // Convert to E.164 format
+  const getE164Phone = () => {
+    return `+1${phone}`; // Assuming US numbers for now
+  };
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error, [{ text: 'OK', onPress: clearError }]);
+    }
+  }, [error]);
+
+  const handleContinue = async () => {
+    if (phone.length < 10) return;
+
+    const e164Phone = getE164Phone();
+    const success = await sendOtp(e164Phone);
+
+    if (success) {
+      router.push({
+        pathname: '/(auth)/verify',
+        params: { phone: e164Phone },
+      });
+    }
+  };
+
+  const handleSocialLogin = (provider: 'google' | 'apple') => {
+    // Social login requires native modules - will be implemented with expo-apple-authentication
+    // and expo-auth-session for Google
+    Alert.alert(
+      'Coming Soon',
+      `${provider === 'google' ? 'Google' : 'Apple'} Sign-in requires a development build. Use phone OTP for now in Expo Go.`
+    );
   };
 
   return (
@@ -48,9 +94,9 @@ export default function LoginScreen() {
         <View style={styles.form}>
           <Input
             label="Phone Number"
-            placeholder="+1 (555) 000-0000"
-            value={phone}
-            onChangeText={setPhone}
+            placeholder="(555) 000-0000"
+            value={formatPhoneDisplay(phone)}
+            onChangeText={handlePhoneChange}
             keyboardType="phone-pad"
             autoFocus
           />
@@ -85,6 +131,14 @@ export default function LoginScreen() {
             fullWidth
             onPress={() => handleSocialLogin('apple')}
           />
+          {__DEV__ && (
+            <Button
+              label="🔧 DEV: Skip Auth"
+              variant="ghost"
+              fullWidth
+              onPress={handleDevSignIn}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>

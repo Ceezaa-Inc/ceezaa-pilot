@@ -125,6 +125,7 @@ class TestPlaidServiceSyncTransactions:
         # Mock get_account to return account with cursor
         mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value.data = {
             "id": account_id,
+            "user_id": "user-123",
             "plaid_access_token": "access-xxx",
             "sync_cursor": stored_cursor,
         }
@@ -154,6 +155,7 @@ class TestPlaidServiceSyncTransactions:
 
         mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value.data = {
             "id": account_id,
+            "user_id": "user-123",
             "plaid_access_token": "access-xxx",
             "sync_cursor": None,
         }
@@ -173,6 +175,56 @@ class TestPlaidServiceSyncTransactions:
         update_call = mock_supabase.table.return_value.update.call_args
         update_data = update_call[0][0]
         assert update_data["sync_cursor"] == new_cursor
+
+
+class TestPlaidServiceStoreTransactions:
+    """Tests for PlaidService._store_transactions()."""
+
+    @pytest.mark.unit
+    def test_sync_stores_transactions_to_database(self) -> None:
+        """sync_transactions should store transactions to the database."""
+        mock_supabase = MagicMock()
+        account_id = str(uuid4())
+        user_id = "user-123"
+
+        # Mock get_account
+        mock_supabase.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value.data = {
+            "id": account_id,
+            "user_id": user_id,
+            "plaid_access_token": "access-xxx",
+            "sync_cursor": None,
+        }
+
+        service = PlaidService(mock_supabase)
+
+        # Create mock transaction data
+        mock_tx = MagicMock()
+        mock_tx.transaction_id = "tx-123"
+        mock_tx.amount = 4.50
+        mock_tx.date = datetime.now().date()
+        mock_tx.datetime = datetime.now()
+        mock_tx.merchant_name = "Blue Bottle Coffee"
+        mock_tx.name = "Blue Bottle"
+        mock_tx.merchant_entity_id = "merchant-123"
+        mock_tx.personal_finance_category = MagicMock()
+        mock_tx.personal_finance_category.primary = "FOOD_AND_DRINK"
+        mock_tx.personal_finance_category.detailed = "FOOD_AND_DRINK_COFFEE"
+        mock_tx.location = MagicMock()
+        mock_tx.location.city = "San Francisco"
+        mock_tx.location.region = "CA"
+
+        # Call _store_transactions
+        result = service._store_transactions([mock_tx], user_id, account_id)
+
+        # Verify upsert was called
+        assert result == 1
+        mock_supabase.table.assert_any_call("transactions")
+        upsert_call = mock_supabase.table.return_value.upsert.call_args
+        upsert_data = upsert_call[0][0]
+        assert len(upsert_data) == 1
+        assert upsert_data[0]["plaid_transaction_id"] == "tx-123"
+        assert upsert_data[0]["merchant_name"] == "Blue Bottle Coffee"
+        assert upsert_data[0]["taste_category"] == "coffee"
 
 
 class TestPlaidServiceDeleteAccount:

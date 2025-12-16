@@ -7,7 +7,45 @@ from typing import Any, Optional
 
 from supabase import Client
 
+from app.mappings.plaid_categories import get_taste_category
 from app.services.plaid_client import sync_transactions
+
+
+def _get_time_bucket(dt: Optional[datetime]) -> str:
+    """Get time bucket from datetime.
+
+    Args:
+        dt: Transaction datetime (may be None)
+
+    Returns:
+        Time bucket: morning (6-12), afternoon (12-17), evening (17-21), night (21-6)
+    """
+    if dt is None:
+        return "unknown"
+    hour = dt.hour
+    if 6 <= hour < 12:
+        return "morning"
+    elif 12 <= hour < 17:
+        return "afternoon"
+    elif 17 <= hour < 21:
+        return "evening"
+    else:
+        return "night"
+
+
+def _get_day_type(dt: Optional[datetime]) -> str:
+    """Get day type from datetime.
+
+    Args:
+        dt: Transaction datetime or date
+
+    Returns:
+        "weekday" or "weekend"
+    """
+    if dt is None:
+        return "unknown"
+    # weekday() returns 0-4 for Mon-Fri, 5-6 for Sat-Sun
+    return "weekend" if dt.weekday() >= 5 else "weekday"
 
 
 class PlaidService:
@@ -98,6 +136,7 @@ class PlaidService:
         """Sync transactions for a linked account.
 
         Uses cursor-based sync for incremental updates.
+        Stores transactions to database and returns results.
 
         Args:
             account_id: The linked account's UUID
@@ -112,9 +151,23 @@ class PlaidService:
 
         access_token = account["plaid_access_token"]
         cursor = account.get("sync_cursor")
+        user_id = account["user_id"]
 
         # Sync transactions from Plaid
         sync_result = sync_transactions(access_token, cursor=cursor)
+
+        # Store added/modified transactions to database
+        added = sync_result["added"]
+        modified = sync_result["modified"]
+        self._store_transactions(added, user_id, account_id)
+        self._store_transactions(modified, user_id, account_id)
+
+        # Handle removed transactions
+        removed_ids = sync_result["removed"]
+        if removed_ids:
+            self._supabase.table("transactions").delete().in_(
+                "plaid_transaction_id", removed_ids
+            ).execute()
 
         # Update cursor and last_synced_at in database
         self._supabase.table("linked_accounts").update(
@@ -126,9 +179,9 @@ class PlaidService:
 
         # Return actual transaction data for mobile app display
         return {
-            "added": sync_result["added"],
-            "modified": sync_result["modified"],
-            "removed": sync_result["removed"],
+            "added": added,
+            "modified": modified,
+            "removed": removed_ids,
             "has_more": sync_result["has_more"],
         }
 
@@ -152,3 +205,69 @@ class PlaidService:
         ).execute()
 
         return True
+
+    def _store_transactions(
+        self,
+        transactions: list[Any],
+        user_id: str,
+        linked_account_id: str,
+    ) -> int:
+        """Store transactions to the database.
+
+        Args:
+            transactions: List of Plaid transaction objects
+            user_id: The user's ID
+            linked_account_id: The linked account's UUID
+
+        Returns:
+            Number of transactions stored
+        """
+        if not transactions:
+            return 0
+
+        records = []
+        for tx in transactions:
+            # Extract category info
+            pfc = tx.personal_finance_category
+            primary_cat = pfc.primary if pfc else None
+            detailed_cat = pfc.detailed if pfc else None
+            taste_cat = get_taste_category(detailed_cat) if detailed_cat else "other"
+
+            # Extract location
+            loc = tx.location
+            city = loc.city if loc else None
+            state = loc.region if loc else None
+
+            # Get time info from datetime or date
+            tx_datetime = tx.datetime
+            tx_date = tx.date
+
+            # Use datetime for time bucket, fall back to date for day type
+            time_bucket = _get_time_bucket(tx_datetime)
+            day_type = _get_day_type(tx_datetime or tx_date)
+
+            records.append({
+                "user_id": user_id,
+                "linked_account_id": linked_account_id,
+                "plaid_transaction_id": tx.transaction_id,
+                "amount": tx.amount,
+                "date": tx_date.isoformat() if tx_date else None,
+                "datetime": tx_datetime.isoformat() if tx_datetime else None,
+                "merchant_name": tx.merchant_name or tx.name,
+                "merchant_id": tx.merchant_entity_id,
+                "plaid_category_primary": primary_cat,
+                "plaid_category_detailed": detailed_cat,
+                "taste_category": taste_cat,
+                "time_bucket": time_bucket,
+                "day_type": day_type,
+                "location_city": city,
+                "location_state": state,
+            })
+
+        # Upsert to handle duplicates (based on plaid_transaction_id unique constraint)
+        self._supabase.table("transactions").upsert(
+            records,
+            on_conflict="plaid_transaction_id",
+        ).execute()
+
+        return len(records)
