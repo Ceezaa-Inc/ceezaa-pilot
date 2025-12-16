@@ -4,6 +4,7 @@
 > **Stack:** React Native (Expo) + Supabase + Python FastAPI + Google Places + OpenAI
 > **Goal:** Transaction + Quiz data → Taste Intelligence → Personalized Discovery + Group Planning
 > **Core Magic:** Declared preferences (quiz) + Observed behavior (transactions) = True taste profile
+> **Intelligence Philosophy:** Rules First, AI Last - minimize LLM usage, maximize deterministic logic
 
 ---
 
@@ -72,6 +73,23 @@
 ## Taste Intelligence Layer (TIL)
 
 The TIL is the core backend. It combines DECLARED preferences (quiz) with OBSERVED behavior (transactions) to build a unified taste profile.
+
+### Design Philosophy: Rules First, AI Last
+
+| Component | AI? | Rationale |
+|-----------|-----|-----------|
+| Quiz → Declared Taste | **NO** | Deterministic mapping table |
+| Transaction → Observed Taste | **NO** | Aggregation math |
+| Taste Fusion | **NO** | Weighted algorithm |
+| Profile Title | **NO** | Lookup table (~20 combinations) |
+| **Insights Generation** | **YES** | Natural language is LLM strength |
+| **Venue Tagging** | **YES** | One-time at import, cached forever |
+| Venue Matching | **NO** | Score calculation algorithm |
+| Feed Ranking | **NO** | Sort by score |
+
+**AI is used in exactly 2 places:**
+1. **Daily Insights** - 1 LLM call/user/day (cached by profile similarity)
+2. **Venue Tagging** - 1 LLM call/venue at import time (never again)
 
 ### Data Flow
 
@@ -153,11 +171,22 @@ The TIL is the core backend. It combines DECLARED preferences (quiz) with OBSERV
             └─────────────────────────┘
 ```
 
-### Quiz Processor
+### Quiz Processor (Rule-Based)
 
 ```python
 class QuizProcessor:
-    """Process quiz answers into declared taste preferences."""
+    """Process quiz answers into declared taste preferences using rule-based mapping."""
+
+    # Question → Answer → Taste attributes (deterministic mapping)
+    QUIZ_MAPPINGS = {
+        "ideal_friday": {
+            "cozy_dinner": {"vibes": ["chill", "intimate"], "social": "small_group"},
+            "lively_bar": {"vibes": ["social", "energetic"], "social": "big_group"},
+            "new_trendy": {"vibes": ["trendy", "adventurous"], "exploration": "adventurous"},
+            "cooking_home": {"vibes": ["chill"], "social": "solo"},
+        },
+        # ... more mappings
+    }
 
     def process(self, answers: List[QuizAnswer]) -> DeclaredTaste:
         return DeclaredTaste(
@@ -165,9 +194,31 @@ class QuizProcessor:
             cuisine_preferences=self._extract_cuisines(answers), # japanese, mexican, etc.
             dietary_restrictions=self._extract_dietary(answers), # vegan, gluten-free
             exploration_style=self._extract_exploration(answers), # adventurous vs routine
-            social_preference=self._extract_social(answers),     # solo, small group, big group
+            social_preference=self._extract_social(answers),     # solo, small_group, big_group
             coffee_preference=self._extract_coffee(answers),     # third-wave, any, none
+            price_tier=self._extract_price_tier(answers),        # budget, moderate, premium, luxury
         )
+```
+
+### Profile Title Mapper (Rule-Based)
+
+Instead of AI, use a deterministic lookup table:
+
+```python
+PROFILE_TITLES = {
+    # (exploration_style, dominant_vibe) → (title, tagline)
+    ("adventurous", "trendy"): ("Trend Hunter", "First to find the next big thing"),
+    ("adventurous", "social"): ("Social Explorer", "Where the party's at"),
+    ("adventurous", "upscale"): ("Refined Adventurer", "Luxury with a twist"),
+    ("routine", "chill"): ("Comfort Connoisseur", "Knows what they love"),
+    ("routine", "casual"): ("Neighborhood Regular", "Loyal to the locals"),
+    # ~20 combinations cover 95% of users
+}
+
+def get_profile_title(declared_taste, observed_taste):
+    exploration = declared_taste.exploration_style
+    dominant_vibe = get_dominant_vibe(declared_taste.vibe_preferences)
+    return PROFILE_TITLES.get((exploration, dominant_vibe), DEFAULT_TITLE)
 ```
 
 ### Transaction Processor
@@ -334,31 +385,34 @@ The venue catalog is **curated** for MVP - Manually selected 150-200 venues in S
 6. Location-based filtering (SF users see SF venues only)
 ```
 
-### GPT Tagging Service
+### GPT Tagging Service (AI - One-Time at Import)
+
+**IMPORTANT:** This is one of only 2 places AI is used. Tags are generated ONCE when a venue is imported and cached forever. No runtime AI calls for venue data.
 
 ```python
 class VenueTaggingService:
-    """Use GPT to generate secondary tags from venue data."""
+    """Use GPT to generate secondary tags from venue data. ONE-TIME at import."""
 
     TAGGING_PROMPT = """
-    Given this venue information, generate tags:
+    Analyze this venue and generate tags.
 
-    Name: {name}
-    Description: {description}
-    Reviews Summary: {reviews}
-    Price Level: {price_level}
-    Category: {category}
+    Venue: {name}
+    Category: {google_category}
+    Price: {price_level}
+    Reviews Summary: {top_reviews}
 
-    Return JSON with:
-    - energy: "chill" | "buzzy" | "lively"
-    - date_friendly: boolean
-    - group_friendly: boolean
-    - cozy: boolean
-    - vibe_tags: list of 2-4 tags from [romantic, trendy, hidden_gem, classic,
-                 instagrammable, low_key, upscale, casual, family_friendly]
+    Output Format:
+    {
+      "vibe_tags": ["trendy", "intimate", ...],  // max 5
+      "energy_level": "low" | "medium" | "high",
+      "best_for": ["date_night", "groups", ...],  // max 3
+      "cuisine_tags": ["italian", "pizza", ...],  // max 3
+      "crowd": "young_professional" | "families" | "mixed"
+    }
     """
 
     async def generate_tags(self, venue: VenueData) -> SecondaryTags:
+        """Called ONCE per venue at import time. Results stored in venues table."""
         response = await openai.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": self.TAGGING_PROMPT.format(...)}],
@@ -367,11 +421,56 @@ class VenueTaggingService:
         return SecondaryTags.model_validate_json(response.choices[0].message.content)
 ```
 
+### Insight Generator (AI - Cached Daily)
+
+**IMPORTANT:** This is the second of only 2 places AI is used. Insights are generated daily via batch job or on-demand with semantic caching.
+
+```python
+class InsightGenerator:
+    """Generate personalized insights using LLM. Cached by profile similarity."""
+
+    INSIGHT_PROMPT = """
+    Generate 2-3 personalized dining insights based on this user data.
+
+    User Data:
+    {user_data_json}
+
+    Rules:
+    - Each insight should be 1-2 sentences
+    - Be specific (mention actual numbers, merchants)
+    - Tone: friendly, slightly playful
+    - Focus on interesting patterns or streaks
+
+    Output Format:
+    {
+      "insights": [
+        {"type": "streak", "title": "Coffee Streak!", "body": "..."},
+        {"type": "discovery", "title": "New Favorite?", "body": "..."}
+      ]
+    }
+    """
+
+    async def generate(self, user_analysis: UserAnalysis) -> List[Insight]:
+        # Check semantic cache first (similar profiles get cached response)
+        cache_key = self._compute_profile_hash(user_analysis)
+        if cached := await self._check_cache(cache_key):
+            return cached
+
+        response = await openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": self.INSIGHT_PROMPT.format(...)}],
+            response_format={"type": "json_object"},
+        )
+        insights = self._parse_insights(response)
+        await self._cache_response(cache_key, insights)
+        return insights
+```
+
 ---
 
-## Matching Engine
+## Matching Engine (Rule-Based - No AI)
 
-Matches user taste profile to venues for personalized recommendations.
+Matches user taste profile to venues using a deterministic scoring algorithm. **No AI is used for matching.**
 
 ```python
 class MatchingEngine:
@@ -1021,14 +1120,20 @@ ceezaa-mvp/
 │   │   │
 │   │   ├── intelligence/            # TASTE INTELLIGENCE LAYER
 │   │   │   ├── __init__.py
-│   │   │   ├── quiz_processor.py
-│   │   │   ├── transaction_processor.py
-│   │   │   ├── aggregation_engine.py
-│   │   │   ├── taste_fusion.py
-│   │   │   ├── analysis_store.py
-│   │   │   ├── taste_interface.py
-│   │   │   ├── matching_engine.py
+│   │   │   ├── quiz_processor.py       # Rule-based (FS1)
+│   │   │   ├── transaction_processor.py # Rule-based (FS2)
+│   │   │   ├── aggregation_engine.py   # Rule-based O(1) (FS2)
+│   │   │   ├── taste_fusion.py         # Rule-based weighted (FS3)
+│   │   │   ├── profile_titles.py       # Rule-based lookup (FS1)
+│   │   │   ├── insight_generator.py    # AI - cached daily (FS5)
+│   │   │   ├── venue_tagger.py         # AI - one-time import (FS6)
+│   │   │   ├── matching_engine.py      # Rule-based scoring (FS7)
 │   │   │   └── models.py
+│   │   │
+│   │   ├── mappings/                   # Deterministic mapping tables
+│   │   │   ├── plaid_categories.py     # Plaid → taste category
+│   │   │   ├── quiz_mappings.py        # Quiz answer → taste attributes
+│   │   │   └── profile_title_mappings.py # (exploration, vibe) → title
 │   │   │
 │   │   ├── models/
 │   │   │   ├── user.py
@@ -1165,155 +1270,138 @@ class TestAggregationEngine:
 
 ---
 
-## Implementation Timeline (10 Weeks)
+## Implementation: Full-Stack Checkpoints (FS1-FS10)
 
-### Phase 1: Foundation (Week 1)
-**Goal:** Project setup + testing infrastructure
+Each checkpoint is **atomic**, **full-stack** (backend + frontend), and **testable in Expo**.
 
-**Frontend:**
-- [ ] Expo project with TypeScript strict mode
-- [ ] Jest + React Native Testing Library setup
-- [ ] UI primitives with tests (Button, Input, Card, Modal)
-- [ ] Navigation skeleton (4 tabs)
-- [ ] Mock data layer
+### FS1: Quiz → Taste Profile
+**Expo Test:** Take quiz → see real profile title based on YOUR answers
 
-**Backend:**
-- [ ] FastAPI project with pytest setup
-- [ ] Supabase project + initial schema
-- [ ] Health check endpoint
-- [ ] CI pipeline (lint + test)
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `quiz_mappings.py` with rule-based mappings |
+| 2 | Backend | Create `QuizProcessor` class (TDD) |
+| 3 | Backend | Add `price_tier` column to `declared_taste` |
+| 4 | Backend | Create `POST /api/onboarding/quiz` endpoint |
+| 5 | Backend | Create `GET /api/taste/profile` endpoint |
+| 6 | Backend | Create `ProfileTitleMapper` (rule-based titles) |
+| 7 | Frontend | Connect quiz.tsx to POST quiz answers |
+| 8 | Frontend | Update initial-taste.tsx to fetch real profile |
 
-### Phase 2: Auth + Onboarding (Week 2)
-**Goal:** User can sign up, complete quiz, link card
+### FS2: Transaction Sync → Observed Taste
+**Expo Test:** Link sandbox bank → see "45 coffee transactions, 23 dining" etc.
 
-**Frontend:**
-- [ ] Welcome/Splash screen
-- [ ] Phone/Email/Social auth screens
-- [ ] Taste Profile Quiz (5-7 questions)
-- [ ] Initial Taste Card (quiz-based profile, shown before card link)
-- [ ] Card Link screen (Plaid modal, required - no skip)
-- [ ] Enhanced Reveal (quiz + transactions combined)
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `TransactionProcessor` class |
+| 2 | Backend | Create `AggregationEngine` - incremental O(1) |
+| 3 | Backend | Create `user_analysis` upsert logic |
+| 4 | Backend | Create `GET /api/taste/observed` endpoint |
+| 5 | Frontend | Update card-link.tsx to trigger sync |
+| 6 | Frontend | Show "Analyzing X transactions..." progress |
 
-**Backend:**
-- [ ] Supabase Auth configuration
-- [ ] `/api/auth/*` endpoints
-- [ ] `/api/onboarding/*` endpoints (including `/initial-taste` for quiz-based profile)
-- [ ] Quiz response storage
-- [ ] Quiz-to-taste-profile algorithm (for Initial Taste Card)
-- [ ] Plaid integration (create-link-token, exchange-token)
-- [ ] Initial transaction fetch
-- [ ] Tests
+### FS3: Taste Fusion → Unified Profile
+**Expo Test:** Finish onboarding → see unified taste ring with YOUR data
 
-### Phase 3: Taste Intelligence Layer (Week 3)
-**Goal:** Transaction + Quiz → Taste Profile
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `TasteFusion` class (weighted algorithm) |
+| 2 | Backend | Implement confidence scoring |
+| 3 | Backend | Create `fused_taste` upsert logic |
+| 4 | Backend | Update `GET /api/taste/profile` for fused data |
+| 5 | Frontend | Update enhanced-reveal.tsx to show fused profile |
+| 6 | Frontend | Update Pulse tab with real Taste Ring |
 
-**Backend (primary focus):**
-- [ ] Quiz Processor
-- [ ] Transaction Processor
-- [ ] Aggregation Engine (O(1) operations)
-- [ ] Taste Fusion (declared + observed)
-- [ ] Analysis Store (persistence)
-- [ ] Taste Interface APIs
-- [ ] Tests for each TIL component
+### FS4: Taste Ring Data
+**Expo Test:** Pulse tab → ring shows "40% coffee, 30% dining..."
 
-**Frontend (parallel):**
-- [ ] Pulse home screen (Taste Ring, Insights)
-- [ ] Connect to taste profile API
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `GET /api/taste/ring` endpoint |
+| 2 | Backend | Calculate ring segments from fused_taste |
+| 3 | Frontend | Connect TasteRing component to API |
+| 4 | Frontend | Animate ring with real percentages |
 
-### Phase 4: Discover + Venue Catalog (Week 4-5)
-**Goal:** Personalized venue discovery
+### FS5: AI Insights (First LLM Usage)
+**Expo Test:** Pulse tab shows "You've had coffee 5 days straight!"
 
-**Backend:**
-- [ ] Google Places integration
-- [ ] Venue import scripts
-- [ ] GPT tagging service
-- [ ] Matching Engine
-- [ ] Discover endpoints
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `InsightGenerator` class |
+| 2 | Backend | Implement insight prompt template |
+| 3 | Backend | Add semantic caching |
+| 4 | Backend | Create `POST /api/taste/generate-insights` |
+| 5 | Backend | Store insights in `daily_insights` table |
+| 6 | Backend | Create `GET /api/taste/insights` |
+| 7 | Frontend | Connect InsightCard to API |
 
-**Frontend:**
-- [ ] Mood Grid
-- [ ] Filtered Feed
-- [ ] Venue Detail
-- [ ] Filter components
-- [ ] Connect to APIs
-- [ ] Tests
+### FS6: Venue Catalog Import (Second LLM Usage)
+**Expo Test:** Discover tab shows real venues with AI-generated vibes
 
-### Phase 5: Group Sessions (Week 5-6)
-**Goal:** Full group planning flow
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create Google Places import script |
+| 2 | Backend | Create `VenueTaggingService` (LLM batch) |
+| 3 | Backend | Import CEO's curated venue list |
+| 4 | Backend | Store tagged venues in `venues` table |
+| 5 | Backend | Create `GET /api/venues` endpoint |
+| 6 | Frontend | Connect Discover tab to real venues |
 
-**Backend:**
-- [ ] Session CRUD
-- [ ] Invite code generation
-- [ ] Voting logic
-- [ ] Supabase Realtime setup
-- [ ] Winner calculation
-- [ ] Tests
+### FS7: Taste-Based Matching
+**Expo Test:** Discover shows "92% match" on venues that fit YOUR taste
 
-**Frontend:**
-- [ ] Create Session screen
-- [ ] Voting screen (real-time)
-- [ ] Participant list
-- [ ] Confirmed plan view
-- [ ] Deep linking for invites
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create `MatchingEngine` class (rule-based) |
+| 2 | Backend | Implement taste-to-venue scoring |
+| 3 | Backend | Create `GET /api/discover/feed` with personalization |
+| 4 | Frontend | Connect Discover feed to API |
+| 5 | Frontend | Show match percentage on VenueCard |
 
-### Phase 6: Vault + Profile (Week 6-7)
-**Goal:** Complete remaining tabs
+### FS8: Mood-Based Discovery
+**Expo Test:** Tap "Date Night" → see romantic venues
 
-**Backend:**
-- [ ] Place visits CRUD
-- [ ] Auto-create visits from transactions
-- [ ] Reactions system
-- [ ] Profile endpoints
-- [ ] Notification preferences
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Add mood parameter to `/api/discover/feed` |
+| 2 | Backend | Filter venues by vibe_tags matching mood |
+| 3 | Frontend | Connect MoodGrid tiles to filtered API |
 
-**Frontend:**
-- [ ] Vault main screen
-- [ ] Place detail with history
-- [ ] Reaction picker
-- [ ] Profile screens
-- [ ] Linked cards management
-- [ ] Tests
+### FS9: Sessions (Group Planning)
+**Expo Test:** Create session → share code → vote together in real-time
 
-### Phase 7: Notifications + Polish (Week 7-8)
-**Goal:** Push notifications, polish
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create session CRUD endpoints |
+| 2 | Backend | Create join by code endpoint |
+| 3 | Backend | Create voting endpoints |
+| 4 | Backend | Set up Supabase Realtime |
+| 5 | Frontend | Connect Create Session to API |
+| 6 | Frontend | Connect Voting screen to Realtime |
 
-**Backend:**
-- [ ] Push notification service
-- [ ] Daily insight generation job
-- [ ] Streak notification triggers
-- [ ] Tests
+### FS10: Vault (Visit History)
+**Expo Test:** Vault shows "You visited Blue Bottle 3x this month"
 
-**Frontend:**
-- [ ] Notification permission flow
-- [ ] Settings screens
-- [ ] Loading/error states
-- [ ] Animation polish
-- [ ] Tests
+| Step | Type | Task |
+|------|------|------|
+| 1 | Backend | Create auto-visit detection from transactions |
+| 2 | Backend | Match transactions to venues by merchant |
+| 3 | Backend | Create vault CRUD endpoints |
+| 4 | Frontend | Connect Vault tab to real visit data |
+| 5 | Frontend | Add reaction to visit |
 
-### Phase 8: Integration + Testing (Week 8-9)
-**Goal:** E2E testing, bug fixes
+---
 
-- [ ] End-to-end testing (all user journeys)
-- [ ] Error handling review
-- [ ] Offline state handling
-- [ ] Performance profiling
-- [ ] Bug fixes
+### AI Usage Summary
 
-### Phase 9: Production Prep (Week 9-10)
-**Goal:** Ready to ship
+| Checkpoint | AI Calls | When |
+|------------|----------|------|
+| FS1-FS4 | 0 | Rule-based only |
+| FS5 | 1 per user | Daily batch OR cached |
+| FS6 | 1 per venue | Import time only |
+| FS7-FS10 | 0 | Rule-based only |
 
-- [ ] Plaid production credentials
-- [ ] Google Places production setup
-- [ ] Environment configuration
-- [ ] App Store / Play Store submission prep
-- [ ] TestFlight / Internal testing
-- [ ] Final bug fixes
-- [ ] Documentation
+**Total AI in production:** ~1 call/user/day for insights + 0 for matching
 
 ---
 
@@ -1369,4 +1457,4 @@ EXPO_ACCESS_TOKEN=
 ---
 
 *Last updated: Dec 2024*
-*Version: v1.0 - Full MVP Architecture*
+*Version: v2.0 - Full-Stack Checkpoints + Rules First AI Last*

@@ -1,13 +1,12 @@
 # Ceezaa MVP - Development Plan
 
-> **Timeline:** 10 weeks
-> **Approach:** Frontend-first with mock data, then backend, then integration
+> **Approach:** Full-stack atomic checkpoints - each testable in Expo
 > **Testing:** TDD throughout - tests before implementation
-> **Tracking:** Each task maps to a Linear issue
+> **AI Philosophy:** Rules First, AI Last (minimize LLM usage)
 
 ---
 
-## 📊 CURRENT PROGRESS
+## CURRENT PROGRESS
 
 | Phase | Status | Progress |
 |-------|--------|----------|
@@ -18,15 +17,16 @@
 | **B1: Plaid Exploration** | ✅ Complete | 100% |
 | **B2: Plaid Integration** | ✅ Complete | 100% |
 | **BA: Authentication** | 🔄 Partial | 70% |
-| **B3: TIL - Quiz Processor** | ⬜ Not Started | 0% |
-| **B4: TIL - Transaction Processor** | ⬜ Not Started | 0% |
-| **B5: TIL - Aggregation Engine** | ⬜ Not Started | 0% |
-| **B6: TIL - Taste Fusion** | ⬜ Not Started | 0% |
-| **B7: TIL - Taste Interface** | ⬜ Not Started | 0% |
-| **B8: Venue Catalog & Matching** | ⬜ Not Started | 0% |
-| **B9: Sessions API** | ⬜ Not Started | 0% |
-| **B10: Vault API** | ⬜ Not Started | 0% |
-| **Phase 7: Integration** | ⬜ Not Started | 0% |
+| **FS1: Quiz → Taste Profile** | ⬜ Not Started | 0% |
+| **FS2: Transaction Sync** | ⬜ Not Started | 0% |
+| **FS3: Taste Fusion** | ⬜ Not Started | 0% |
+| **FS4: Taste Ring Data** | ⬜ Not Started | 0% |
+| **FS5: AI Insights** | ⬜ Not Started | 0% |
+| **FS6: Venue Catalog** | ⬜ Not Started | 0% |
+| **FS7: Taste Matching** | ⬜ Not Started | 0% |
+| **FS8: Mood Discovery** | ⬜ Not Started | 0% |
+| **FS9: Sessions** | ⬜ Not Started | 0% |
+| **FS10: Vault** | ⬜ Not Started | 0% |
 | **Phase 8: Polish** | ⬜ Not Started | 0% |
 | **Phase 9: Launch** | ⬜ Not Started | 0% |
 
@@ -34,7 +34,73 @@
 
 ---
 
-## 🎯 BACKEND CHECKPOINTS (B0-B10)
+## INTELLIGENCE LAYER DESIGN
+
+### Core Principle: Rules First, AI Last
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CEEZAA INTELLIGENCE LAYER                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
+│  │   DECLARED   │    │   OBSERVED   │    │    FUSED     │      │
+│  │    TASTE     │    │    TASTE     │    │    TASTE     │      │
+│  │  (from quiz) │    │(transactions)│    │  (combined)  │      │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘      │
+│         │                   │                   │               │
+│    RULE-BASED          RULE-BASED          RULE-BASED          │
+│   (quiz mapping)      (aggregation)       (weighted avg)       │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
+│  │   PROFILE    │    │   INSIGHTS   │    │    VENUE     │      │
+│  │    TITLE     │    │  GENERATION  │    │   MATCHING   │      │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘      │
+│         │                   │                   │               │
+│    RULE-BASED           AI (LLM)           RULE-BASED          │
+│  (lookup table)      (natural lang)      (score algorithm)     │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                    VENUE TAGGING                          │  │
+│  │            AI (LLM) - ONE TIME AT IMPORT                  │  │
+│  │  Input: Google Places data + reviews                      │  │
+│  │  Output: vibe_tags, energy_level, best_for (cached)       │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Where AI Is Used (Only 2 Places)
+
+| Component | AI? | Rationale |
+|-----------|-----|-----------|
+| Quiz → Declared Taste | NO | Deterministic mapping |
+| Transaction → Observed Taste | NO | Aggregation math |
+| Taste Fusion | NO | Weighted algorithm |
+| Profile Title | NO | Lookup table (~20 combinations) |
+| **Insights Generation** | **YES** | Natural language is LLM strength |
+| **Venue Tagging** | **YES** | One-time at import, cached forever |
+| Venue Matching | NO | Score calculation |
+| Feed Ranking | NO | Sort by score |
+
+### AI Usage Summary
+
+| Checkpoint | AI Calls | When |
+|------------|----------|------|
+| FS1-FS4 | 0 | Rule-based |
+| FS5 | 1 per user | Daily batch OR cached |
+| FS6 | 1 per venue | Import time only |
+| FS7-FS10 | 0 | Rule-based |
+
+**Production cost**: ~$5-10/month for thousands of users
+
+---
+
+## COMPLETED CHECKPOINTS
 
 ### ✅ B0: Project Setup (Complete)
 FastAPI app, Supabase, migrations, GitHub Actions CI
@@ -50,806 +116,508 @@ FastAPI app, Supabase, migrations, GitHub Actions CI
 | 5 | Create category mapping config | `backend/app/mappings/plaid_categories.py` | ✅ |
 | 6 | Run exploration tests & verify | 8/8 tests passing | ✅ |
 
-**Key Findings:**
-- Link token → public_token → access_token flow works ✅
-- transactions/sync endpoint returns cursor-based pagination ✅
-- Fresh sandbox items have 0 transactions (need to wait or use sandbox test endpoints)
-- Transaction schema: `transaction_id`, `amount`, `date`, `datetime`, `merchant_name`, `personal_finance_category`
-
 ### ✅ B2: Plaid Integration (Complete)
 
-| # | Task | TDD Step | Status |
-|---|------|----------|--------|
-| 1 | Write test: create_link_token | RED | ✅ |
-| 2 | Implement `/api/plaid/create-link-token` | GREEN | ✅ |
-| 3 | Write test: exchange_token | RED | ✅ |
-| 4 | Implement `/api/plaid/exchange-token` | GREEN | ✅ |
-| 5 | Create `linked_accounts` table | Migration | ✅ |
-| 6 | Write test: initial transaction fetch | RED | ✅ |
-| 7 | Implement transaction fetch + store | GREEN | ✅ |
-| 8 | Write test: sync with cursor | RED | ✅ |
-| 9 | Implement `/api/plaid/sync` | GREEN | ✅ |
-
-**Completed:**
-- All endpoints working and tested in sandbox
-- Mobile app can open Plaid Link
-- Transactions synced and stored to database with category mapping
-- See [PLAID_INTEGRATION.md](backend/PLAID_INTEGRATION.md) for production setup
+| # | Task | Status |
+|---|------|--------|
+| 1 | Implement `/api/plaid/create-link-token` | ✅ |
+| 2 | Implement `/api/plaid/exchange-token` | ✅ |
+| 3 | Create `linked_accounts` table | ✅ |
+| 4 | Implement transaction fetch + store | ✅ |
+| 5 | Implement `/api/plaid/sync` | ✅ |
 
 ### 🔄 BA: Authentication (Partial - DEV Mode Active)
 
 | # | Task | Status |
 |---|------|--------|
 | 1 | Create backend auth router (`/api/auth/*`) | ✅ |
-| 2 | Set up Supabase client in mobile with secure storage | ✅ |
+| 2 | Set up Supabase client in mobile | ✅ |
 | 3 | Create useAuthStore with all auth methods | ✅ |
 | 4 | Connect login/verify screens to Supabase | ✅ |
 | 5 | Add DEV mode skip auth for testing | ✅ |
 | 6 | Create Supabase trigger for profiles table | ✅ |
-| 7 | Configure Twilio for Phone OTP | ⏳ Deferred (needs paid number) |
-| 8 | Implement Sign in with Apple | ⏳ Deferred (needs Xcode dev build) |
-| 9 | Implement Sign in with Google | ⏳ Deferred (needs Xcode dev build) |
-
-**Note:** Using DEV skip auth for development. Full auth to be completed pre-launch.
-
-**Files created/modified:**
-- `backend/app/routers/auth.py` (NEW)
-- `mobile/src/services/supabase.ts` (NEW)
-- `mobile/src/stores/useAuthStore.ts` (NEW)
-- `mobile/app/(auth)/login.tsx`, `verify.tsx` (connected to real auth)
-- `mobile/babel.config.js` (removed nativewind jsxImportSource)
-
-### 🔲 B3: TIL - Quiz Processor
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create QuizProcessor class | RED → GREEN |
-| 2 | Implement vibe preference extraction | RED → GREEN |
-| 3 | Implement cuisine preference extraction | RED → GREEN |
-| 4 | Implement exploration style extraction | RED → GREEN |
-| 5 | Create `declared_taste` table | Migration |
-
-### 🔲 B4: TIL - Transaction Processor
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create TransactionProcessor class | RED → GREEN |
-| 2 | Implement Plaid category mapping | RED → GREEN |
-| 3 | Implement time bucket extraction | RED → GREEN |
-| 4 | Implement day type extraction | RED → GREEN |
-
-### 🔲 B5: TIL - Aggregation Engine
-
-**Critical:** All operations must be O(1) - no loops over all transactions!
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create AggregationEngine class | RED → GREEN |
-| 2 | Implement category breakdown (O(1)) | RED → GREEN |
-| 3 | Implement time pattern tracking (O(1)) | RED → GREEN |
-| 4 | Implement merchant loyalty tracking (O(1)) | RED → GREEN |
-| 5 | Implement streak tracking (O(1)) | RED → GREEN |
-| 6 | Create `user_analysis` table | Migration |
-
-### 🔲 B6: TIL - Taste Fusion
-
-**Key Algorithm:** Weighted fusion (quiz vs transactions based on data volume)
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create TasteFusion class | RED → GREEN |
-| 2 | Implement weighted fusion | RED → GREEN |
-| 3 | Implement mismatch detection | RED → GREEN |
-| 4 | Create `fused_taste` table | Migration |
-
-### 🔲 B7: TIL - Taste Interface
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create TasteInterface class | RED → GREEN |
-| 2 | Create `/api/taste/profile` endpoint | RED → GREEN |
-| 3 | Create `/api/taste/ring` endpoint | RED → GREEN |
-| 4 | Create `/api/taste/insights` endpoint | RED → GREEN |
-
-### 🔲 B8: Venue Catalog & Matching
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create `venues` table | Migration |
-| 2 | Set up Google Places API integration | RED → GREEN |
-| 3 | Create GPT tagging service | RED → GREEN |
-| 4 | Create MatchingEngine class | RED → GREEN |
-| 5 | Create `/api/discover/feed` endpoint | RED → GREEN |
-
-### 🔲 B9: Sessions API
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create session tables | Migration |
-| 2 | Create `/api/sessions` POST endpoint | RED → GREEN |
-| 3 | Create `/api/sessions/{code}/join` endpoint | RED → GREEN |
-| 4 | Create `/api/sessions/{id}/vote` endpoint | RED → GREEN |
-| 5 | Set up Supabase Realtime | Configuration |
-
-### 🔲 B10: Vault API
-
-| # | Task | TDD Step |
-|---|------|----------|
-| 1 | Create `place_visits` table | Migration |
-| 2 | Implement auto-create visits from transactions | RED → GREEN |
-| 3 | Create `/api/vault/visits` endpoints | RED → GREEN |
-| 4 | Create `/api/vault/places/{venue_id}` endpoint | RED → GREEN |
+| 7 | Configure Twilio for Phone OTP | ⏳ Deferred |
+| 8 | Implement Sign in with Apple | ⏳ Deferred |
+| 9 | Implement Sign in with Google | ⏳ Deferred |
 
 ---
 
-## Overview
+## FULL-STACK CHECKPOINTS (FS1-FS10)
 
+Each checkpoint is:
+- **Full-stack** (backend + frontend)
+- **Testable in Expo** with real user interaction
+- **Atomic** (single feature focus)
+- **Progressive** (builds on previous)
+
+---
+
+### ⬜ FS1: Quiz → Taste Profile
+
+**Goal**: Complete quiz in app → see your taste profile with real data
+
+**Expo Test**: Take quiz → see "Social Explorer" title based on YOUR answers
+
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `backend/app/mappings/quiz_mappings.py` | - |
+| 2 | Backend | Create `backend/app/mappings/profile_title_mappings.py` | - |
+| 3 | Backend | Add `price_tier` column to `declared_taste` | Migration |
+| 4 | Backend | Write QuizProcessor tests | RED |
+| 5 | Backend | Create `backend/app/intelligence/quiz_processor.py` | GREEN |
+| 6 | Backend | Write ProfileTitleMapper tests | RED |
+| 7 | Backend | Create `backend/app/intelligence/profile_titles.py` | GREEN |
+| 8 | Backend | Create `POST /api/onboarding/quiz` endpoint | - |
+| 9 | Backend | Create `GET /api/taste/profile` endpoint | - |
+| 10 | Frontend | Connect `quiz.tsx` to POST quiz answers | - |
+| 11 | Frontend | Update `initial-taste.tsx` to fetch real profile | - |
+| 12 | Test | Complete quiz in Expo → see real profile title | E2E |
+
+**Key Files:**
 ```
-Week 1      Week 2      Week 3-4       Week 5-6       Week 7-8       Week 9       Week 10
-┌──────┐   ┌──────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────┐   ┌──────────┐
-│Found-│   │Onbrd │   │ Core UI  │   │ Backend  │   │Integration│  │Polish│   │  Launch  │
-│ation │──▶│  UI  │──▶│  (Tabs)  │──▶│  Core    │──▶│           │──▶│      │──▶│   Prep   │
-└──────┘   └──────┘   └──────────┘   └──────────┘   └──────────┘   └──────┘   └──────────┘
-   │           │            │              │              │            │            │
-   │           │            │              │              │            │            │
- Expo       6 screens    Pulse         Auth          Connect       E2E         App Store
- Jest       with mocks   Discover      Plaid         frontend      Animations  TestFlight
- Nav                     Vault         TIL           to APIs       Error       Production
- UI Kit                  Profile       Sessions                    states      credentials
+backend/app/
+├── mappings/
+│   ├── quiz_mappings.py         # Question → answer → preference mapping
+│   └── profile_title_mappings.py # (exploration, vibe) → title lookup
+├── intelligence/
+│   ├── quiz_processor.py        # Process quiz, store declared_taste
+│   └── profile_titles.py        # Get title from declared taste
+└── routers/
+    └── onboarding.py            # /api/onboarding/quiz endpoint
+
+mobile/app/(onboarding)/
+├── quiz.tsx                     # POST answers to backend
+└── initial-taste.tsx            # GET profile from backend
 ```
 
 ---
 
-## Task Legend
+### ⬜ FS2: Transaction Sync → Observed Taste
 
-| Field | Values |
-|-------|--------|
-| **Priority** | `P0` (blocker), `P1` (must-have), `P2` (should-have) |
-| **Size** | `XS` (<2h), `S` (2-4h), `M` (4-8h), `L` (1-2d), `XL` (2-3d) |
-| **Label** | `frontend`, `backend`, `test`, `integration`, `infra`, `design` |
+**Goal**: Link bank → see transaction-based taste data
 
----
+**Expo Test**: Link sandbox bank → see "45 coffee transactions, 23 dining" etc.
 
-## Phase 1: Foundation (Week 1)
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Write AggregationEngine tests | RED |
+| 2 | Backend | Create `backend/app/intelligence/aggregation_engine.py` | GREEN |
+| 3 | Backend | Implement incremental O(1) category updates | GREEN |
+| 4 | Backend | Implement time pattern tracking | GREEN |
+| 5 | Backend | Implement merchant loyalty tracking | GREEN |
+| 6 | Backend | Create `user_analysis` upsert logic | - |
+| 7 | Backend | Create `GET /api/taste/observed` endpoint | - |
+| 8 | Frontend | Update `card-link.tsx` to trigger sync after link | - |
+| 9 | Frontend | Show "Analyzing X transactions..." progress | - |
+| 10 | Test | Link Plaid → see category breakdown | E2E |
 
-**Goal:** Project setup, testing infrastructure, UI primitives, navigation shell
-
-### Infra & Setup
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F1-01 | Initialize Expo project with TypeScript strict mode | `infra` | P0 | S | - | ✅ |
-| F1-02 | Configure ESLint + Prettier | `infra` | P1 | XS | F1-01 | ✅ |
-| F1-03 | Set up Jest + React Native Testing Library | `test` | P0 | S | F1-01 | ✅ |
-| F1-04 | Configure NativeWind (Tailwind for RN) | `infra` | P0 | S | F1-01 | ✅ |
-| F1-05 | Set up Expo Router file-based navigation | `frontend` | P0 | M | F1-01 | ✅ |
-| F1-06 | Configure Zustand store boilerplate | `frontend` | P1 | S | F1-01 | ✅ |
-| F1-07 | Set up react-native-reanimated + moti | `frontend` | P1 | S | F1-01 | ✅ |
-| F1-08 | Create mock data layer structure | `frontend` | P0 | M | F1-01 | ✅ |
-| F1-09 | Set up CI pipeline (lint + test on PR) | `infra` | P1 | M | F1-03 | |
-
-### Design System (see DESIGN_SYSTEM.md)
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F1-09a | Create design tokens (colors, typography, spacing, shadows, animations) | `design` | P0 | S | F1-04 | ✅ |
-| F1-09b | Configure NativeWind theme with design tokens | `design` | P0 | S | F1-09a | ✅ |
-| F1-09c | Set up Manrope font (all weights) | `design` | P0 | S | F1-01 | ✅ |
-
-### UI Primitives (Dark-First + Brand Accents)
-
-> **Design Language:** Black-first (#0A0A0A bg) with gold (#D3B481) + navy (#0A1A2F) as accents. Like Spotify/Booking.com.
-> Light "Trust Mode" ONLY for card linking. See DESIGN_SYSTEM.md for full specs.
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F1-10 | Create Button component (pill-shaped primary, secondary with border, ghost) | `frontend` | P0 | M | F1-09b | ✅ |
-| F1-11 | Write Button component tests | `test` | P0 | S | F1-10 | ✅ |
-| F1-12 | Create Input component (dark surface bg #1A1A1A, gold focus border) | `frontend` | P0 | M | F1-09b | ✅ |
-| F1-13 | Write Input component tests | `test` | P0 | S | F1-12 | ✅ |
-| F1-14 | Create Card component (dark surface #141414, info/venue/trust variants) | `frontend` | P0 | S | F1-09b | ✅ |
-| F1-15 | Write Card component tests | `test` | P0 | XS | F1-14 | ✅ |
-| F1-16 | Create Modal/BottomSheet component (dark bg, rounded-t-2xl) | `frontend` | P1 | M | F1-09b | ✅ |
-| F1-17 | Write Modal component tests | `test` | P1 | S | F1-16 | ✅ |
-| F1-18 | Create Typography components (Manrope all weights) | `frontend` | P1 | S | F1-09c | ✅ |
-| F1-19 | Create Icon component with expo-icons | `frontend` | P1 | S | F1-09b | |
-| F1-20 | Create LoadingSpinner component (gold accent) | `frontend` | P1 | XS | F1-09b | ✅ |
-| F1-20a | Create MoodTile component (gradient backgrounds for Discover) | `frontend` | P0 | M | F1-09b | ✅ |
-| F1-20b | Create OTPInput component (6-digit dark boxes) | `frontend` | P0 | M | F1-12 | ✅ |
-
-### Navigation Shell
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F1-21 | Create tab bar layout (4 tabs: Pulse, Discover, Vault, Profile) | `frontend` | P0 | M | F1-05 | ✅ |
-| F1-22 | Create auth stack (welcome, login, verify) | `frontend` | P0 | S | F1-05 | ✅ |
-| F1-23 | Create onboarding stack (quiz, initial-taste, card-link, reveal) | `frontend` | P0 | S | F1-05 | ✅ |
-| F1-24 | Implement navigation guard (auth state check) | `frontend` | P1 | M | F1-22, F1-06 | |
-
-**Phase 1 Deliverable:** App runs, has navigation shell, passes lint/test CI ✅
+**Key Algorithm**: O(1) incremental updates (no loops over all transactions)
+```python
+# On each new transaction, update aggregates incrementally:
+user_analysis.categories[category].count += 1
+user_analysis.categories[category].spend += amount
+# NOT: for tx in all_transactions: aggregate()
+```
 
 ---
 
-## Phase 2: Onboarding UI (Week 2)
+### ⬜ FS3: Taste Fusion → Unified Profile
 
-**Goal:** Complete onboarding flow with mock data - user can tap through entire flow
+**Goal**: Quiz + Transactions merged into single taste profile
 
-### Auth Screens
+**Expo Test**: Finish onboarding → Pulse tab shows real Taste Ring with YOUR data
 
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-01 | Build Welcome/Splash screen with branding | `frontend` | P0 | M | F1-22 | ✅ |
-| F2-02 | Build Login screen (phone input + social buttons) | `frontend` | P0 | M | F1-12 | ✅ |
-| F2-03 | Build OTP Verification screen | `frontend` | P0 | M | F1-12 | ✅ |
-| F2-04 | Write auth screen tests | `test` | P0 | M | F2-01, F2-02, F2-03 | |
-| F2-05 | Create mock auth service | `frontend` | P0 | S | F1-08 | |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Write TasteFusion tests | RED |
+| 2 | Backend | Create `backend/app/intelligence/taste_fusion.py` | GREEN |
+| 3 | Backend | Implement weighted fusion algorithm | GREEN |
+| 4 | Backend | Implement confidence scoring | GREEN |
+| 5 | Backend | Create `fused_taste` upsert logic | - |
+| 6 | Backend | Update `GET /api/taste/profile` to return fused data | - |
+| 7 | Frontend | Update `enhanced-reveal.tsx` to show fused profile | - |
+| 8 | Frontend | Update Pulse tab to use fused profile | - |
+| 9 | Test | Complete onboarding → see unified taste ring | E2E |
 
-### Quiz Screens
+**Fusion Algorithm**:
+```python
+# Weight based on transaction volume
+tx_weight = min(transaction_count / 50, 0.7)  # Max 70% transaction weight
+quiz_weight = 1 - tx_weight
 
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-06 | Design quiz question data structure | `frontend` | P0 | S | - | ✅ |
-| F2-07 | Build Quiz screen with swipeable questions | `frontend` | P0 | L | F1-07 | ✅ |
-| F2-08 | Add progress bar to quiz | `frontend` | P1 | S | F2-07 | ✅ |
-| F2-09 | Create quiz answer animations | `frontend` | P2 | M | F2-07 | 🔄 |
-| F2-10 | Write quiz screen tests | `test` | P0 | M | F2-07 | |
-| F2-11 | Create mock quiz response storage | `frontend` | P0 | S | F1-06 | |
-
-### Initial Taste Card
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-12 | Build Initial Taste Card screen | `frontend` | P0 | M | F1-14 | ✅ |
-| F2-13 | Create taste card component (shareable design) | `frontend` | P0 | L | F2-12 | ✅ |
-| F2-14 | Add card reveal animation | `frontend` | P1 | M | F2-13 | ✅ |
-| F2-15 | Write Initial Taste Card tests | `test` | P0 | S | F2-12 | |
-
-### Card Linking
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-16 | Build Card Link screen (value prop + CTA) | `frontend` | P0 | M | F1-14 | ✅ |
-| F2-17 | Add Plaid Link placeholder (mock modal) | `frontend` | P0 | S | F2-16 | ✅ |
-| F2-18 | Build processing state (analyzing transactions) | `frontend` | P0 | M | F2-17 | ✅ |
-| F2-19 | Write Card Link screen tests | `test` | P0 | S | F2-16 | |
-
-### Enhanced Reveal
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-20 | Build Enhanced Reveal screen | `frontend` | P0 | M | F1-14 | ✅ |
-| F2-21 | Create Taste Ring preview component | `frontend` | P0 | L | F2-20 | ✅ |
-| F2-22 | Add confetti/celebration animation | `frontend` | P1 | M | F2-20 | |
-| F2-23 | Write Enhanced Reveal tests | `test` | P0 | S | F2-20 | |
-
-### Onboarding Flow
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F2-24 | Wire complete onboarding flow end-to-end | `frontend` | P0 | M | F2-01 to F2-23 | ✅ |
-| F2-25 | Create onboarding state store | `frontend` | P0 | S | F1-06 | |
-| F2-26 | Write onboarding flow integration test | `test` | P0 | M | F2-24 | |
-
-**Phase 2 Deliverable:** User can complete full onboarding with mock data ✅
-
-> **Additional work completed:** Updated onboarding taste cards (initial-taste.tsx, enhanced-reveal.tsx) to use redesigned TasteRing component with `diningStyle` instead of numeric score.
+fused_categories = {
+    cat: quiz_weight * declared[cat] + tx_weight * observed[cat]
+    for cat in categories
+}
+```
 
 ---
 
-## Phase 3: Core Tabs UI (Week 3-4)
+### ⬜ FS4: Taste Ring Data
 
-**Goal:** All 4 tabs functional with mock data
+**Goal**: Real data in Taste Ring visualization
 
-### Pulse Tab
+**Expo Test**: Pulse tab → ring shows "40% coffee, 30% dining, 20% nightlife..."
 
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F3-01 | Build Pulse home screen layout | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-02 | Create Taste Ring component (animated donut chart) | `frontend` | P0 | XL | F3-01 | ✅ |
-| F3-03 | Write Taste Ring tests | `test` | P0 | M | F3-02 | |
-| F3-04 | Create Insight Card component | `frontend` | P0 | M | F3-01 | ✅ |
-| F3-05 | Write Insight Card tests | `test` | P0 | S | F3-04 | |
-| F3-06 | ~~Create Quick Actions component~~ | `frontend` | P1 | M | F3-01 | REMOVED (PRD: replaced with Playlists) |
-| F3-07 | Build Taste Detail screen (tappable from ring) | `frontend` | P1 | M | F3-02 | ✅ |
-| F3-08 | Create mock taste profile data | `frontend` | P0 | S | F1-08 | ✅ |
-| F3-09 | Write Pulse screen tests | `test` | P0 | M | F3-01 | |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `GET /api/taste/ring` endpoint | - |
+| 2 | Backend | Calculate ring segments from fused_taste | - |
+| 3 | Frontend | Create `useTasteRing` hook to fetch data | - |
+| 4 | Frontend | Connect TasteRing component to API | - |
+| 5 | Frontend | Animate ring based on real percentages | - |
+| 6 | Test | Pulse tab shows YOUR spending breakdown | E2E |
 
-### Discover Tab
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F3-10 | Build Discover home screen (Mood Grid) | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-11 | Create MoodGrid component (6 mood tiles) | `frontend` | P0 | L | F3-10 | ✅ |
-| F3-12 | Write MoodGrid tests | `test` | P0 | S | F3-11 | |
-| F3-13 | Create VenueCard component | `frontend` | P0 | M | F3-10 | ✅ |
-| F3-14 | Write VenueCard tests | `test` | P0 | S | F3-13 | |
-| F3-15 | Build Filtered Feed screen | `frontend` | P0 | L | F3-11 | ✅ |
-| F3-16 | Create FilterBar component | `frontend` | P0 | M | F3-15 | ✅ |
-| F3-17 | Write FilterBar tests | `test` | P0 | S | F3-16 | |
-| F3-18 | Build Venue Detail screen | `frontend` | P0 | L | F3-13 | ✅ |
-| F3-19 | Write Venue Detail tests | `test` | P0 | M | F3-18 | |
-| F3-20 | Create mock venue data (20+ venues) | `frontend` | P0 | M | F1-08 | ✅ |
-
-### Group Sessions
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F3-21 | Build Create Session screen | `frontend` | P0 | M | F3-10 | ✅ |
-| F3-22 | Build Voting screen | `frontend` | P0 | L | F3-21 | ✅ |
-| F3-23 | Create VotingCard component | `frontend` | P0 | M | F3-22 | ✅ |
-| F3-24 | Write VotingCard tests | `test` | P0 | S | F3-23 | |
-| F3-25 | Create ParticipantList component | `frontend` | P1 | S | F3-22 | ✅ |
-| F3-26 | Build Confirmed Plan screen | `frontend` | P0 | M | F3-22 | ✅ |
-| F3-27 | Write session flow tests | `test` | P0 | M | F3-21 to F3-26 | |
-| F3-28 | Create mock session data | `frontend` | P0 | S | F1-08 | ✅ |
-| F3-29a | Create VenuePickerModal component | `frontend` | P0 | M | F3-21 | ✅ |
-| F3-29b | Create JoinSessionModal component | `frontend` | P0 | M | F3-21 | ✅ |
-| F3-29c | Create SessionCard component | `frontend` | P0 | S | F3-21 | ✅ |
-| F3-29d | Add "My Sessions" to Discover | `frontend` | P0 | S | F3-29c | ✅ |
-
-### Vault Tab
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F3-29 | Build Vault main screen | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-30 | Create PlaceCard component (with visit history) | `frontend` | P0 | M | F3-29 | ✅ |
-| F3-31 | Write PlaceCard tests | `test` | P0 | S | F3-30 | |
-| F3-32 | Create ReactionPicker component | `frontend` | P0 | M | F3-29 | ✅ |
-| F3-33 | Write ReactionPicker tests | `test` | P0 | S | F3-32 | |
-| F3-34 | Build Place Detail screen | `frontend` | P0 | L | F3-30 | ✅ |
-| F3-35 | Write Place Detail tests | `test` | P0 | M | F3-34 | |
-| F3-36 | Create mock vault/visit data | `frontend` | P0 | S | F1-08 | ✅ |
-
-### Profile Tab
-
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| F3-37 | Build Profile home screen | `frontend` | P0 | M | F1-21 | ✅ |
-| F3-38 | Build Linked Cards screen | `frontend` | P0 | M | F3-37 | ✅ |
-| F3-39 | Build Notifications Settings screen | `frontend` | P1 | M | F3-37 | ✅ |
-| F3-40 | Build Privacy screen | `frontend` | P1 | M | F3-37 | ✅ |
-| F3-41 | Write Profile screen tests | `test` | P0 | M | F3-37 to F3-40 | |
-
-**Phase 3 Deliverable:** Complete app UI with mock data - full clickable prototype ✅
-
-> **Progress Notes:**
-> - Pulse Tab: ✅ Complete (TasteRing with SVG segments + moti animation, horizontal scrolling Insights/Playlists, Saved Plans section)
-> - Discover Tab: ✅ Complete (MoodTile + VenueCard components, nested routes, FilterBar with mood chips, Venue Detail with day-by-day hours)
-> - Group Sessions: ✅ **CHECKPOINT 4 COMPLETE** (Create Session → Voting → Confirmed screens, VotingCard + ParticipantList + VenuePickerModal + JoinSessionModal + SessionCard components, venue selection during creation, propose/remove during voting, "My Sessions" list on Discover)
-> - Vault Tab: ✅ **CHECKPOINT 5 COMPLETE** (PlaceCard + ReactionPicker components, nested route structure, Place Detail screen with visit timeline and reaction picker, updated Vault index using store)
-> - Profile Tab: ✅ **CHECKPOINT 6 COMPLETE** (Nested route structure, Linked Cards screen, Notifications screen with toggles, Privacy screen with data controls and delete account)
-> - 52 Zustand store tests written and passing (useTasteStore, useVenueStore, useVaultStore, useSessionStore)
-> - TasteRing shows `diningStyle` ("Experience Seeker") instead of numeric score per PRD
-> - Added `playlists.ts` and `plans.ts` mock data
-> - Added DEV skip button on welcome screen for faster testing
-> - Store actions added: `addVenueToSession()`, `removeVenueFromSession()`, `getUserSessions()`
+**Ring Data Format**:
+```json
+{
+  "segments": [
+    { "category": "coffee", "percentage": 40, "color": "#8B4513" },
+    { "category": "dining", "percentage": 30, "color": "#D4AF37" },
+    { "category": "nightlife", "percentage": 20, "color": "#4B0082" }
+  ],
+  "profile_title": "Social Explorer",
+  "tagline": "Where the party's at"
+}
+```
 
 ---
 
-## Phase 4: Backend Foundation (Week 4-5)
+### ⬜ FS5: AI Insights (First LLM Usage)
 
-**Goal:** Auth working, Plaid integrated, basic API structure
+**Goal**: Personalized insights generated from your data
 
-### Project Setup (B0) ✅ COMPLETE
+**Expo Test**: Pulse tab shows "You've had coffee 5 days straight! Your go-to is Blue Bottle."
 
-| ID | Task | Label | Priority | Size | Depends | Status |
-|----|------|-------|----------|------|---------|--------|
-| B4-01 | Initialize FastAPI project with pytest | `backend` | P0 | S | - | ✅ |
-| B4-02 | Set up Supabase project | `infra` | P0 | S | - | ✅ |
-| B4-03 | Create initial database schema (migrations) | `backend` | P0 | L | B4-02 | ✅ |
-| B4-04 | Configure environment variables | `infra` | P0 | XS | B4-01 | ✅ |
-| B4-05 | Set up backend CI (lint + test) | `infra` | P1 | M | B4-01 | ✅ |
-| B4-06 | Create health check endpoint | `backend` | P0 | XS | B4-01 | ✅ |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `backend/app/intelligence/insight_generator.py` | - |
+| 2 | Backend | Implement insight prompt template (JSON structured) | - |
+| 3 | Backend | Add semantic caching for similar profiles | - |
+| 4 | Backend | Create `POST /api/taste/generate-insights` | - |
+| 5 | Backend | Store insights in `daily_insights` table | - |
+| 6 | Backend | Create `GET /api/taste/insights` | - |
+| 7 | Frontend | Create `useInsights` hook | - |
+| 8 | Frontend | Connect Pulse tab InsightCard to API | - |
+| 9 | Test | See AI-generated insights about YOUR habits | E2E |
 
-> **B0 Complete:** FastAPI app running, Supabase connected, 5 migrations applied (profiles, taste tables, venues, sessions, vault), GitHub Actions CI configured, 4 tests passing.
+**Insight Prompt Template**:
+```python
+INSIGHT_PROMPT = """
+Generate 2-3 personalized dining insights.
 
-### Auth
+User Data:
+{user_data_json}
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B4-07 | Configure Supabase Auth (Phone OTP) | `backend` | P0 | M | B4-02 |
-| B4-08 | Configure Supabase Auth (Apple/Google OAuth) | `backend` | P0 | M | B4-02 |
-| B4-09 | Create `/api/auth/signup` endpoint | `backend` | P0 | S | B4-07 |
-| B4-10 | Create `/api/auth/verify-otp` endpoint | `backend` | P0 | S | B4-07 |
-| B4-11 | Create `/api/auth/social/{provider}` endpoint | `backend` | P0 | S | B4-08 |
-| B4-12 | Write auth endpoint tests | `test` | P0 | M | B4-09 to B4-11 |
+Rules:
+- Each insight: 1-2 sentences
+- Be specific (mention numbers, merchant names)
+- Tone: friendly, slightly playful
+- Focus on patterns or streaks
 
-### Onboarding
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B4-13 | Create onboarding_state table | `backend` | P0 | S | B4-03 |
-| B4-14 | Create `/api/onboarding/state` GET endpoint | `backend` | P0 | S | B4-13 |
-| B4-15 | Create `/api/onboarding/state` PATCH endpoint | `backend` | P0 | S | B4-13 |
-| B4-16 | Create `/api/onboarding/quiz` POST endpoint | `backend` | P0 | M | B4-13 |
-| B4-17 | Create `/api/onboarding/initial-taste` GET endpoint | `backend` | P0 | M | B4-16 |
-| B4-18 | Create quiz-to-taste-profile algorithm | `backend` | P0 | L | B4-16 |
-| B4-19 | Write onboarding endpoint tests | `test` | P0 | M | B4-14 to B4-18 |
-
-### Plaid Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B4-20 | Set up Plaid sandbox account | `infra` | P0 | S | - |
-| B4-21 | Create `/api/plaid/create-link-token` endpoint | `backend` | P0 | M | B4-20 |
-| B4-22 | Create `/api/plaid/exchange-token` endpoint | `backend` | P0 | M | B4-20 |
-| B4-23 | Create linked_accounts table | `backend` | P0 | S | B4-03 |
-| B4-24 | Create transactions table | `backend` | P0 | S | B4-03 |
-| B4-25 | Implement initial transaction fetch | `backend` | P0 | L | B4-22, B4-24 |
-| B4-26 | Create `/api/plaid/sync` endpoint | `backend` | P1 | M | B4-25 |
-| B4-27 | Write Plaid integration tests | `test` | P0 | M | B4-21 to B4-26 |
-
-**Phase 4 Deliverable:** Auth flow works end-to-end, Plaid linking works in sandbox
+Output (JSON):
+{
+  "insights": [
+    {"type": "streak", "title": "Coffee Streak!", "body": "..."},
+    {"type": "discovery", "title": "New Favorite?", "body": "..."}
+  ]
+}
+"""
+```
 
 ---
 
-## Phase 5: Taste Intelligence Layer (Week 5-6)
+### ⬜ FS6: Venue Catalog Import (Second LLM Usage)
 
-**Goal:** Transaction + Quiz data → Unified taste profile
+**Goal**: Import venues with AI-generated tags
 
-### Quiz Processor
+**Expo Test**: Discover tab shows real SF/NYC venues with vibe tags
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B5-01 | Create QuizProcessor class | `backend` | P0 | M | B4-18 |
-| B5-02 | Implement vibe preference extraction | `backend` | P0 | S | B5-01 |
-| B5-03 | Implement cuisine preference extraction | `backend` | P0 | S | B5-01 |
-| B5-04 | Implement exploration style extraction | `backend` | P0 | S | B5-01 |
-| B5-05 | Create declared_taste table | `backend` | P0 | S | B4-03 |
-| B5-06 | Write QuizProcessor tests | `test` | P0 | M | B5-01 to B5-04 |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create Google Places import script | - |
+| 2 | Backend | Create `backend/app/intelligence/venue_tagger.py` | - |
+| 3 | Backend | Implement venue tagging prompt (JSON structured) | - |
+| 4 | Backend | Import CEO's curated venue list (150-200) | Batch |
+| 5 | Backend | Store tagged venues in `venues` table | - |
+| 6 | Backend | Create `GET /api/venues` endpoint | - |
+| 7 | Backend | Create `GET /api/venues/{id}` endpoint | - |
+| 8 | Frontend | Connect Discover tab to real venue data | - |
+| 9 | Test | Browse real venues with AI-generated vibes | E2E |
 
-### Transaction Processor
+**Venue Tagging Prompt**:
+```python
+VENUE_TAG_PROMPT = """
+Analyze this venue and generate tags.
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B5-07 | Create TransactionProcessor class | `backend` | P0 | M | B4-25 |
-| B5-08 | Implement Plaid category mapping | `backend` | P0 | M | B5-07 |
-| B5-09 | Implement time bucket extraction | `backend` | P0 | S | B5-07 |
-| B5-10 | Implement day type extraction | `backend` | P0 | S | B5-07 |
-| B5-11 | Write TransactionProcessor tests | `test` | P0 | M | B5-07 to B5-10 |
+Venue: {name}
+Category: {google_category}
+Price: {price_level}
+Reviews: {top_reviews}
 
-### Aggregation Engine
+Output (JSON):
+{
+  "vibe_tags": ["trendy", "intimate"],
+  "energy_level": "medium",
+  "best_for": ["date_night", "groups"],
+  "cuisine_tags": ["italian", "pizza"],
+  "crowd": "young_professional"
+}
+"""
+```
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B5-12 | Create AggregationEngine class | `backend` | P0 | L | B5-07 |
-| B5-13 | Implement category breakdown (O(1)) | `backend` | P0 | M | B5-12 |
-| B5-14 | Implement time pattern tracking (O(1)) | `backend` | P0 | M | B5-12 |
-| B5-15 | Implement merchant loyalty tracking (O(1)) | `backend` | P0 | M | B5-12 |
-| B5-16 | Implement streak tracking (O(1)) | `backend` | P0 | M | B5-12 |
-| B5-17 | Implement exploration ratio (O(1)) | `backend` | P0 | M | B5-12 |
-| B5-18 | Create user_analysis table | `backend` | P0 | S | B4-03 |
-| B5-19 | Write AggregationEngine tests | `test` | P0 | L | B5-12 to B5-17 |
-
-### Taste Fusion
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B5-20 | Create TasteFusion class | `backend` | P0 | L | B5-01, B5-12 |
-| B5-21 | Implement weighted fusion (quiz + transactions) | `backend` | P0 | M | B5-20 |
-| B5-22 | Implement mismatch detection | `backend` | P1 | M | B5-20 |
-| B5-23 | Create fused_taste table | `backend` | P0 | S | B4-03 |
-| B5-24 | Write TasteFusion tests | `test` | P0 | M | B5-20 to B5-22 |
-
-### Taste Interface
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B5-25 | Create TasteInterface class | `backend` | P0 | M | B5-20 |
-| B5-26 | Create `/api/taste/profile` endpoint | `backend` | P0 | S | B5-25 |
-| B5-27 | Create `/api/taste/ring` endpoint | `backend` | P0 | S | B5-25 |
-| B5-28 | Create `/api/taste/insights` endpoint | `backend` | P1 | M | B5-25 |
-| B5-29 | Write TasteInterface tests | `test` | P0 | M | B5-25 to B5-28 |
-
-**Phase 5 Deliverable:** TIL processes real data, taste profile API works
+**Key**: This runs ONCE per venue at import. Results cached forever.
 
 ---
 
-## Phase 6: Backend Features (Week 6-7)
+### ⬜ FS7: Taste-Based Matching
 
-**Goal:** Sessions, Vault, Venue catalog fully functional
+**Goal**: Venues ranked by YOUR taste profile
 
-### Venue Catalog
+**Expo Test**: Discover shows "92% match" on venues that fit YOUR taste
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B6-01 | Create venues table | `backend` | P0 | S | B4-03 |
-| B6-02 | Set up Google Places API integration | `backend` | P0 | M | - |
-| B6-03 | Create venue import script | `backend` | P0 | L | B6-01, B6-02 |
-| B6-04 | Create GPT tagging service | `backend` | P0 | L | B6-01 |
-| B6-05 | Import CEO's curated venue list (150-200) | `backend` | P0 | M | B6-03, B6-04 |
-| B6-06 | Create MatchingEngine class | `backend` | P0 | L | B5-25 |
-| B6-07 | Implement taste-based venue ranking | `backend` | P0 | M | B6-06 |
-| B6-08 | Create `/api/discover/feed` endpoint | `backend` | P0 | M | B6-06 |
-| B6-09 | Create `/api/venues/{id}` endpoint | `backend` | P0 | S | B6-01 |
-| B6-10 | Write venue/discover tests | `test` | P0 | M | B6-01 to B6-09 |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Write MatchingEngine tests | RED |
+| 2 | Backend | Create `backend/app/intelligence/matching_engine.py` | GREEN |
+| 3 | Backend | Implement taste-to-venue scoring algorithm | GREEN |
+| 4 | Backend | Create `GET /api/discover/feed` with personalization | - |
+| 5 | Frontend | Connect Discover feed to personalized API | - |
+| 6 | Frontend | Show match percentage on VenueCard | - |
+| 7 | Test | See venues ranked by YOUR preferences | E2E |
 
-### Sessions (Group Planning)
+**Matching Algorithm** (Rule-based, no AI):
+```python
+def calculate_match(user_taste, venue):
+    score = 0
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B6-11 | Create sessions table | `backend` | P0 | S | B4-03 |
-| B6-12 | Create session_participants table | `backend` | P0 | S | B4-03 |
-| B6-13 | Create session_venues table | `backend` | P0 | S | B4-03 |
-| B6-14 | Create session_votes table | `backend` | P0 | S | B4-03 |
-| B6-15 | Create `/api/sessions` POST endpoint | `backend` | P0 | M | B6-11 |
-| B6-16 | Create `/api/sessions/{id}` GET endpoint | `backend` | P0 | S | B6-11 |
-| B6-17 | Create `/api/sessions/{code}/join` endpoint | `backend` | P0 | M | B6-11 |
-| B6-18 | Create `/api/sessions/{id}/venues` endpoints | `backend` | P0 | M | B6-13 |
-| B6-19 | Create `/api/sessions/{id}/vote` endpoint | `backend` | P0 | M | B6-14 |
-| B6-20 | Create `/api/sessions/{id}/close` endpoint | `backend` | P0 | M | B6-11 |
-| B6-21 | Set up Supabase Realtime for sessions | `backend` | P0 | L | B6-11 |
-| B6-22 | Write session endpoint tests | `test` | P0 | L | B6-15 to B6-21 |
+    # Vibe match (40%)
+    vibe_overlap = len(set(user_taste.vibes) & set(venue.vibe_tags))
+    score += 0.4 * (vibe_overlap / max(len(user_taste.vibes), 1))
 
-### Vault
+    # Cuisine match (30%)
+    if venue.cuisine_type in user_taste.cuisine_preferences:
+        score += 0.3
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B6-23 | Create place_visits table | `backend` | P0 | S | B4-03 |
-| B6-24 | Implement auto-create visits from transactions | `backend` | P0 | M | B6-23, B4-25 |
-| B6-25 | Create `/api/vault/visits` GET endpoint | `backend` | P0 | M | B6-23 |
-| B6-26 | Create `/api/vault/visits` POST endpoint (manual add) | `backend` | P0 | S | B6-23 |
-| B6-27 | Create `/api/vault/visits/{id}` PATCH endpoint | `backend` | P0 | S | B6-23 |
-| B6-28 | Create `/api/vault/places/{venue_id}` endpoint | `backend` | P1 | M | B6-23 |
-| B6-29 | Write vault endpoint tests | `test` | P0 | M | B6-23 to B6-28 |
+    # Price match (20%)
+    if venue.price_tier == user_taste.price_tier:
+        score += 0.2
 
-### Bookmarks & Profile
+    # Category affinity (10%)
+    score += 0.1 * user_taste.category_weights.get(venue.taste_cluster, 0)
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| B6-30 | Create bookmarks table | `backend` | P0 | S | B4-03 |
-| B6-31 | Create `/api/bookmarks` endpoints | `backend` | P0 | S | B6-30 |
-| B6-32 | Create `/api/profile` endpoints | `backend` | P0 | S | B4-03 |
-| B6-33 | Create notification_preferences table | `backend` | P1 | S | B4-03 |
-| B6-34 | Create `/api/notifications/preferences` endpoints | `backend` | P1 | S | B6-33 |
-| B6-35 | Write profile/bookmark tests | `test` | P0 | S | B6-30 to B6-34 |
-
-**Phase 6 Deliverable:** All backend APIs functional, Realtime working
+    return round(score * 100)  # Return as percentage
+```
 
 ---
 
-## Phase 7: Integration (Week 7-8)
+### ⬜ FS8: Mood-Based Discovery
 
-**Goal:** Connect frontend to real backend APIs
+**Goal**: Filter venues by mood
 
-### Auth Integration
+**Expo Test**: Tap "Date Night" → see romantic venues
 
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-01 | Set up Supabase client in mobile app | `integration` | P0 | S | B4-07 |
-| I7-02 | Connect auth screens to real Supabase Auth | `integration` | P0 | M | I7-01 |
-| I7-03 | Implement auth state persistence | `integration` | P0 | S | I7-02 |
-| I7-04 | Write auth integration tests | `test` | P0 | M | I7-02 |
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Add `mood` parameter to `/api/discover/feed` | - |
+| 2 | Backend | Define mood → vibe_tags mapping | - |
+| 3 | Backend | Filter venues by vibe_tags matching mood | - |
+| 4 | Frontend | Connect MoodGrid tiles to filtered API | - |
+| 5 | Frontend | Show filtered results on mood selection | - |
+| 6 | Test | Tap mood tile → see filtered venues | E2E |
 
-### Onboarding Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-05 | Connect quiz to `/api/onboarding/quiz` | `integration` | P0 | M | B4-16 |
-| I7-06 | Connect Initial Taste Card to `/api/onboarding/initial-taste` | `integration` | P0 | M | B4-17 |
-| I7-07 | Integrate react-native-plaid-link-sdk | `integration` | P0 | L | B4-21 |
-| I7-08 | Connect Card Link flow to Plaid endpoints | `integration` | P0 | M | I7-07 |
-| I7-09 | Connect Enhanced Reveal to `/api/taste/profile` | `integration` | P0 | M | B5-26 |
-| I7-10 | Write onboarding integration tests | `test` | P0 | M | I7-05 to I7-09 |
-
-### Pulse Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-11 | Connect Taste Ring to `/api/taste/ring` | `integration` | P0 | M | B5-27 |
-| I7-12 | Connect Insight Card to `/api/taste/insights` | `integration` | P0 | M | B5-28 |
-| I7-13 | Write Pulse integration tests | `test` | P0 | S | I7-11, I7-12 |
-
-### Discover Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-14 | Connect Mood Grid to `/api/discover/feed` | `integration` | P0 | M | B6-08 |
-| I7-15 | Connect Venue Detail to `/api/venues/{id}` | `integration` | P0 | M | B6-09 |
-| I7-16 | Connect bookmark button to `/api/bookmarks` | `integration` | P0 | S | B6-31 |
-| I7-17 | Write Discover integration tests | `test` | P0 | M | I7-14 to I7-16 |
-
-### Sessions Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-18 | Connect Create Session to `/api/sessions` | `integration` | P0 | M | B6-15 |
-| I7-19 | Integrate Supabase Realtime for voting | `integration` | P0 | L | B6-21 |
-| I7-20 | Connect voting UI to session endpoints | `integration` | P0 | M | I7-19 |
-| I7-21 | Implement invite link deep linking | `integration` | P1 | M | B6-17 |
-| I7-22 | Write session integration tests | `test` | P0 | M | I7-18 to I7-21 |
-
-### Vault Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-23 | Connect Vault main to `/api/vault/visits` | `integration` | P0 | M | B6-25 |
-| I7-24 | Connect reaction picker to PATCH endpoint | `integration` | P0 | S | B6-27 |
-| I7-25 | Connect manual add to POST endpoint | `integration` | P0 | S | B6-26 |
-| I7-26 | Write Vault integration tests | `test` | P0 | M | I7-23 to I7-25 |
-
-### Profile Integration
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| I7-27 | Connect Profile to `/api/profile` | `integration` | P0 | S | B6-32 |
-| I7-28 | Connect Linked Cards to Plaid accounts | `integration` | P0 | M | B4-22 |
-| I7-29 | Connect Notification settings | `integration` | P1 | S | B6-34 |
-| I7-30 | Write Profile integration tests | `test` | P0 | S | I7-27 to I7-29 |
-
-**Phase 7 Deliverable:** Frontend talks to real backend, all flows work E2E
+**Mood Mapping**:
+```python
+MOOD_TO_VIBES = {
+    "date_night": ["romantic", "intimate", "upscale"],
+    "group_hangout": ["social", "energetic", "fun"],
+    "solo_treat": ["chill", "cozy", "quiet"],
+    "quick_bite": ["casual", "fast", "convenient"],
+    "special_occasion": ["upscale", "elegant", "trendy"],
+    "late_night": ["nightlife", "energetic", "late"],
+}
+```
 
 ---
 
-## Phase 8: Polish + Testing (Week 9)
+### ⬜ FS9: Sessions (Group Planning)
+
+**Goal**: Real-time group voting
+
+**Expo Test**: Create session on one device, join on another, see real-time votes
+
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `POST /api/sessions` endpoint | - |
+| 2 | Backend | Create `GET /api/sessions/{id}` endpoint | - |
+| 3 | Backend | Create `POST /api/sessions/{code}/join` endpoint | - |
+| 4 | Backend | Create `POST /api/sessions/{id}/vote` endpoint | - |
+| 5 | Backend | Create `POST /api/sessions/{id}/close` endpoint | - |
+| 6 | Backend | Set up Supabase Realtime for sessions | Config |
+| 7 | Frontend | Connect Create Session to API | - |
+| 8 | Frontend | Implement Realtime subscription for votes | - |
+| 9 | Frontend | Connect Voting screen to live updates | - |
+| 10 | Test | Multi-device session with real-time votes | E2E |
+
+---
+
+### ⬜ FS10: Vault (Visit History)
+
+**Goal**: Auto-populated visit history from transactions
+
+**Expo Test**: Vault shows "You visited Blue Bottle 3x this month" from Plaid data
+
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create auto-visit detection from transactions | - |
+| 2 | Backend | Match transactions to venues by merchant name | - |
+| 3 | Backend | Create `GET /api/vault/visits` endpoint | - |
+| 4 | Backend | Create `POST /api/vault/visits` (manual add) | - |
+| 5 | Backend | Create `PATCH /api/vault/visits/{id}` (add reaction) | - |
+| 6 | Frontend | Connect Vault tab to real visit data | - |
+| 7 | Frontend | Connect reaction picker to PATCH endpoint | - |
+| 8 | Test | See auto-detected visits from transactions | E2E |
+
+**Visit Detection**:
+```python
+def detect_visits(transactions, venues):
+    visits = []
+    for tx in transactions:
+        if tx.taste_category in ['dining', 'coffee', 'nightlife']:
+            # Fuzzy match merchant name to venue
+            matched_venue = fuzzy_match(tx.merchant_name, venues)
+            if matched_venue:
+                visits.append({
+                    "venue_id": matched_venue.id,
+                    "transaction_id": tx.id,
+                    "date": tx.date,
+                    "amount": tx.amount
+                })
+    return visits
+```
+
+---
+
+## EXAMPLE USER JOURNEY
+
+### Sarah's Onboarding (FS1-FS3)
+1. Takes quiz: loves trendy spots, adventurous eater, Asian cuisine, $$$ budget
+2. **Rule-based**: Maps to `exploration_style: adventurous`, `vibes: [trendy, social]`
+3. **Rule-based**: Profile title = "Trend Hunter"
+4. Links Chase card → syncs 6 months of transactions
+5. **Rule-based**: Aggregates 47 coffee, 32 dining, 18 nightlife transactions
+6. **Rule-based**: Fuses quiz + transactions (70% tx weight after 50+ transactions)
+7. Sees Taste Ring: 45% coffee, 35% dining, 20% nightlife
+
+### Sarah's Daily Use (FS5, FS7)
+1. Opens Pulse tab
+2. **AI (cached)**: "You've discovered 3 new coffee spots this week! Your explorer side is showing."
+3. Opens Discover tab
+4. **Rule-based**: Venues scored by taste match
+5. Sees "Tartine Bakery - 94% match" (trendy, coffee, her price range)
+
+### Venue Import (FS6 - Admin/Batch)
+1. Import "Blue Bottle Coffee" from Google Places
+2. **AI (one-time)**: Tags with `["trendy", "third-wave"]`, `energy: medium`, `best_for: ["work", "date"]`
+3. Store in venues table
+4. Never call AI again for this venue
+
+---
+
+## FILES STRUCTURE
+
+```
+backend/app/
+├── intelligence/
+│   ├── __init__.py
+│   ├── quiz_processor.py        # FS1 - Rule-based
+│   ├── profile_titles.py        # FS1 - Rule-based lookup
+│   ├── aggregation_engine.py    # FS2 - Rule-based O(1)
+│   ├── taste_fusion.py          # FS3 - Rule-based
+│   ├── insight_generator.py     # FS5 - LLM (cached)
+│   ├── venue_tagger.py          # FS6 - LLM (batch import)
+│   └── matching_engine.py       # FS7 - Rule-based
+├── mappings/
+│   ├── plaid_categories.py      # Existing
+│   ├── quiz_mappings.py         # FS1
+│   └── profile_title_mappings.py # FS1
+└── routers/
+    ├── auth.py                  # Existing
+    ├── plaid.py                 # Existing
+    ├── onboarding.py            # FS1
+    ├── taste.py                 # FS1-FS5
+    ├── discover.py              # FS7-FS8
+    ├── venues.py                # FS6
+    ├── sessions.py              # FS9
+    └── vault.py                 # FS10
+```
+
+---
+
+## Phase 8: Polish + Testing
 
 **Goal:** E2E tests pass, animations polished, error states handled
 
-### End-to-End Testing
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| P8-01 | Write E2E test: New user onboarding flow | `test` | P0 | L | I7-10 |
-| P8-02 | Write E2E test: Returning user Pulse view | `test` | P0 | M | I7-13 |
-| P8-03 | Write E2E test: Discover and bookmark flow | `test` | P0 | M | I7-17 |
-| P8-04 | Write E2E test: Create and complete session | `test` | P0 | L | I7-22 |
-| P8-05 | Write E2E test: Vault interaction flow | `test` | P0 | M | I7-26 |
-
-### Error States
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| P8-06 | Implement network error handling | `frontend` | P0 | M | - |
-| P8-07 | Create error boundary component | `frontend` | P0 | S | - |
-| P8-08 | Add retry logic for failed requests | `frontend` | P1 | M | P8-06 |
-| P8-09 | Implement offline state detection | `frontend` | P1 | M | - |
-| P8-10 | Add empty state components | `frontend` | P1 | M | - |
-
-### Animation Polish
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| P8-11 | Polish Taste Ring animations | `frontend` | P1 | M | F3-02 |
-| P8-12 | Polish card transitions | `frontend` | P1 | M | - |
-| P8-13 | Add haptic feedback | `frontend` | P2 | S | - |
-| P8-14 | Polish loading states | `frontend` | P1 | M | - |
-
-### Performance
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| P8-15 | Profile and optimize list rendering | `frontend` | P1 | M | - |
-| P8-16 | Implement image caching | `frontend` | P1 | M | - |
-| P8-17 | Optimize API call batching | `frontend` | P2 | M | - |
-
-**Phase 8 Deliverable:** App is polished, all E2E tests pass
+| ID | Task | Priority |
+|----|------|----------|
+| P8-01 | Write E2E test: New user onboarding flow | P0 |
+| P8-02 | Write E2E test: Returning user Pulse view | P0 |
+| P8-03 | Write E2E test: Discover and bookmark flow | P0 |
+| P8-04 | Write E2E test: Create and complete session | P0 |
+| P8-05 | Write E2E test: Vault interaction flow | P0 |
+| P8-06 | Implement network error handling | P0 |
+| P8-07 | Create error boundary component | P0 |
+| P8-08 | Add retry logic for failed requests | P1 |
+| P8-09 | Implement offline state detection | P1 |
+| P8-10 | Add empty state components | P1 |
+| P8-11 | Polish Taste Ring animations | P1 |
+| P8-12 | Polish card transitions | P1 |
+| P8-13 | Add haptic feedback | P2 |
+| P8-14 | Polish loading states | P1 |
 
 ---
 
-## Phase 9: Launch Prep (Week 10)
+## Phase 9: Launch Prep
 
 **Goal:** Production ready, app store submission
 
-### Production Setup
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| L9-01 | Obtain Plaid production credentials | `infra` | P0 | S | - |
-| L9-02 | Set up Google Places production API key | `infra` | P0 | S | - |
-| L9-03 | Configure production environment variables | `infra` | P0 | S | - |
-| L9-04 | Set up production Supabase project | `infra` | P0 | M | - |
-| L9-05 | Deploy backend to production (Render/Railway) | `infra` | P0 | M | L9-03 |
-| L9-06 | Run production migration scripts | `backend` | P0 | S | L9-04 |
-
-### App Store Prep
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| L9-07 | Create App Store Connect account | `infra` | P0 | S | - |
-| L9-08 | Create Google Play Console account | `infra` | P0 | S | - |
-| L9-09 | Generate iOS certificates and provisioning | `infra` | P0 | M | L9-07 |
-| L9-10 | Generate Android keystore | `infra` | P0 | S | L9-08 |
-| L9-11 | Prepare app store screenshots | `design` | P0 | M | - |
-| L9-12 | Write app store description/metadata | `design` | P0 | S | - |
-| L9-13 | Create privacy policy page | `infra` | P0 | S | - |
-
-### Testing & Release
-
-| ID | Task | Label | Priority | Size | Depends |
-|----|------|-------|----------|------|---------|
-| L9-14 | Build and deploy to TestFlight | `infra` | P0 | M | L9-09 |
-| L9-15 | Build and deploy to Internal Testing (Android) | `infra` | P0 | M | L9-10 |
-| L9-16 | Conduct internal testing round | `test` | P0 | L | L9-14, L9-15 |
-| L9-17 | Fix critical bugs from testing | `frontend` | P0 | L | L9-16 |
-| L9-18 | Submit to App Store review | `infra` | P0 | S | L9-17 |
-| L9-19 | Submit to Google Play review | `infra` | P0 | S | L9-17 |
-
-**Phase 9 Deliverable:** App submitted to stores, awaiting review
+| ID | Task | Priority |
+|----|------|----------|
+| L9-01 | Obtain Plaid production credentials | P0 |
+| L9-02 | Set up Google Places production API key | P0 |
+| L9-03 | Configure production environment variables | P0 |
+| L9-04 | Set up production Supabase project | P0 |
+| L9-05 | Deploy backend to production | P0 |
+| L9-06 | Run production migration scripts | P0 |
+| L9-07 | Create App Store Connect account | P0 |
+| L9-08 | Create Google Play Console account | P0 |
+| L9-09 | Generate iOS certificates and provisioning | P0 |
+| L9-10 | Generate Android keystore | P0 |
+| L9-11 | Prepare app store screenshots | P0 |
+| L9-12 | Write app store description/metadata | P0 |
+| L9-13 | Create privacy policy page | P0 |
+| L9-14 | Build and deploy to TestFlight | P0 |
+| L9-15 | Build and deploy to Internal Testing (Android) | P0 |
+| L9-16 | Conduct internal testing round | P0 |
+| L9-17 | Fix critical bugs from testing | P0 |
+| L9-18 | Submit to App Store review | P0 |
+| L9-19 | Submit to Google Play review | P0 |
 
 ---
 
-## Summary Stats
+## COMPLETED UI PHASES (Reference)
 
-| Phase | Tasks | Priority Breakdown |
-|-------|-------|-------------------|
-| Phase 1: Foundation | 26 | P0: 17, P1: 8, P2: 1 |
-| Phase 2: Onboarding UI | 26 | P0: 22, P1: 3, P2: 1 |
-| Phase 3: Core Tabs UI | 41 | P0: 35, P1: 5, P2: 1 |
-| Phase 4: Backend Foundation | 27 | P0: 24, P1: 3, P2: 0 |
-| Phase 5: TIL | 29 | P0: 26, P1: 3, P2: 0 |
-| Phase 6: Backend Features | 35 | P0: 31, P1: 4, P2: 0 |
-| Phase 7: Integration | 30 | P0: 27, P1: 3, P2: 0 |
-| Phase 8: Polish | 17 | P0: 8, P1: 7, P2: 2 |
-| Phase 9: Launch | 19 | P0: 19, P1: 0, P2: 0 |
-| **Total** | **250** | **P0: 209, P1: 36, P2: 5** |
+### Phase 1-3: Frontend Complete ✅
 
----
+All UI components built with mock data:
+- **Pulse Tab**: TasteRing, InsightCard, Playlists
+- **Discover Tab**: MoodGrid, VenueCard, FilterBar, VenueDetail
+- **Sessions**: Create, Voting, Confirmed screens
+- **Vault Tab**: PlaceCard, ReactionPicker, PlaceDetail
+- **Profile Tab**: LinkedCards, Notifications, Privacy
+- **Onboarding**: Welcome, Login, Verify, Quiz, InitialTaste, CardLink, EnhancedReveal
 
-## Linear Import Guide
-
-### Setting Up Linear
-
-1. **Create Project**: "Ceezaa MVP"
-2. **Create Cycles** (map to phases):
-   - Cycle 1: Foundation (Week 1)
-   - Cycle 2: Onboarding UI (Week 2)
-   - Cycle 3: Core Tabs UI (Week 3-4)
-   - Cycle 4: Backend Foundation (Week 4-5)
-   - Cycle 5: TIL (Week 5-6)
-   - Cycle 6: Backend Features (Week 6-7)
-   - Cycle 7: Integration (Week 7-8)
-   - Cycle 8: Polish (Week 9)
-   - Cycle 9: Launch (Week 10)
-
-3. **Create Labels**:
-   - `frontend` (blue)
-   - `backend` (green)
-   - `test` (yellow)
-   - `integration` (purple)
-   - `infra` (gray)
-   - `design` (pink)
-
-4. **Link GitHub**:
-   - Settings → Integrations → GitHub
-   - Enable auto-close issues via PR keywords
-
-5. **Import Tasks**:
-   - Use Linear API or CSV import
-   - Each row in tables above = 1 issue
-   - Set dependencies using "Depends on" column
-
-### Claude Code + Linear MCP
-
-To enable me to update Linear automatically:
-
-1. Install Linear MCP server:
-   ```bash
-   # In your Claude Code settings
-   # Add Linear MCP server configuration
-   ```
-
-2. Get Linear API key:
-   - Linear → Settings → API → Personal API keys
-   - Create key with read/write access
-
-3. Configure MCP:
-   ```json
-   {
-     "mcpServers": {
-       "linear": {
-         "command": "npx",
-         "args": ["-y", "@linear/mcp-server"],
-         "env": {
-           "LINEAR_API_KEY": "your-api-key"
-         }
-       }
-     }
-   }
-   ```
-
-4. Usage:
-   - I can then create/update issues during our sessions
-   - PRs will auto-link via GitHub integration
+52 Zustand store tests passing.
 
 ---
 
