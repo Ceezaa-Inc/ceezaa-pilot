@@ -9,6 +9,8 @@ from supabase import Client
 
 from app.mappings.plaid_categories import get_taste_category
 from app.services.plaid_client import sync_transactions
+from app.intelligence.aggregation_engine import AggregationEngine, UserAnalysis
+from app.models.plaid import ProcessedTransaction
 
 
 def _get_time_bucket(dt: Optional[datetime]) -> str:
@@ -177,6 +179,11 @@ class PlaidService:
             }
         ).eq("id", account_id).execute()
 
+        # Aggregate transactions after sync
+        if added or modified or removed_ids:
+            print(f"[PlaidService] Running aggregation for user {user_id}")
+            self.aggregate_transactions(user_id)
+
         # Return actual transaction data for mobile app display
         return {
             "added": added,
@@ -271,3 +278,83 @@ class PlaidService:
         ).execute()
 
         return len(records)
+
+    def aggregate_transactions(self, user_id: str) -> dict[str, Any]:
+        """Aggregate all transactions for a user into user_analysis.
+
+        Fetches transactions from DB and runs through AggregationEngine.
+        Uses O(1) incremental updates per transaction.
+
+        Args:
+            user_id: The user's ID
+
+        Returns:
+            The updated user_analysis record
+        """
+        # Fetch all transactions for user
+        result = (
+            self._supabase.table("transactions")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("date", desc=False)
+            .execute()
+        )
+        transactions = result.data or []
+
+        if not transactions:
+            return {}
+
+        # Initialize aggregation
+        engine = AggregationEngine()
+        analysis = UserAnalysis(user_id=user_id)
+
+        # Process each transaction incrementally
+        for tx in transactions:
+            # Convert DB record to ProcessedTransaction
+            tx_datetime = None
+            if tx.get("datetime"):
+                tx_datetime = datetime.fromisoformat(tx["datetime"].replace("Z", "+00:00"))
+            elif tx.get("date"):
+                from datetime import date as date_type
+                d = date_type.fromisoformat(tx["date"])
+                tx_datetime = datetime(d.year, d.month, d.day, 12, 0)  # Noon default
+
+            processed = ProcessedTransaction(
+                id=tx["plaid_transaction_id"],
+                amount=abs(float(tx["amount"])),  # Ensure positive
+                timestamp=tx_datetime,
+                merchant_name=tx.get("merchant_name") or "Unknown",
+                merchant_id=tx.get("merchant_id"),
+                taste_category=tx.get("taste_category") or "other",
+                time_bucket=tx.get("time_bucket") or "unknown",
+                day_type=tx.get("day_type") or "unknown",
+                payment_channel="unknown",
+                pending=False,
+            )
+
+            analysis = engine.ingest(processed, analysis)
+
+        # Convert to dict for DB storage
+        analysis_dict = analysis.to_dict()
+
+        # Upsert to user_analysis table
+        self._supabase.table("user_analysis").upsert(
+            {
+                "user_id": user_id,
+                "categories": analysis_dict["categories"],
+                "time_buckets": analysis_dict["time_buckets"],
+                "day_types": analysis_dict["day_types"],
+                "merchant_visits": analysis_dict["merchant_visits"],
+                "top_merchants": analysis_dict["top_merchants"],
+                "streaks": analysis_dict["streaks"],
+                "exploration": analysis_dict["exploration"],
+                "total_transactions": analysis_dict["total_transactions"],
+                "first_transaction_at": analysis_dict["first_transaction_at"],
+                "last_transaction_at": analysis_dict["last_transaction_at"],
+                "last_updated_at": datetime.utcnow().isoformat(),
+                "version": analysis_dict["version"] + 1,
+            },
+            on_conflict="user_id",
+        ).execute()
+
+        return analysis_dict

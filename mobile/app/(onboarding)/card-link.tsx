@@ -12,7 +12,7 @@ import {
 } from 'react-native-plaid-link-sdk';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
-import { Button, Typography, Card } from '@/components/ui';
+import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
 import { plaidService } from '@/services/plaid';
 import { useAuthStore } from '@/stores';
 
@@ -36,6 +36,8 @@ const BENEFITS = [
 
 export default function CardLinkScreen() {
   const [isLinking, setIsLinking] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
   const { user } = useAuthStore();
 
   // Get the authenticated user's ID
@@ -59,24 +61,41 @@ export default function CardLinkScreen() {
       const linkOpenProps: LinkOpenProps = {
         onSuccess: async (success: LinkSuccess) => {
           console.log('[Plaid] Link success:', success.metadata.institution?.name);
+          dismissLink();
 
           try {
             // Step 3: Exchange public token for access token
-            await plaidService.exchangeToken(
+            setSyncMessage('Linking account...');
+            setIsSyncing(true);
+
+            const { account_id } = await plaidService.exchangeToken(
               success.publicToken,
               userId,
               success.metadata.institution?.id,
               success.metadata.institution?.name
             );
 
-            console.log('[Plaid] Token exchanged successfully');
-            dismissLink();
+            console.log('[Plaid] Token exchanged, account_id:', account_id);
+
+            // Step 4: Sync transactions (triggers aggregation on backend)
+            setSyncMessage('Fetching transactions...');
+            const syncResult = await plaidService.syncTransactions(account_id);
+            const totalTxns = syncResult.added.length + syncResult.modified.length;
+
+            console.log(`[Plaid] Synced ${totalTxns} transactions`);
+            setSyncMessage(`Analyzing ${totalTxns} transactions...`);
+
+            // Brief delay to show the analysis message
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            setIsSyncing(false);
 
             // Navigate to next screen
             router.push('/(onboarding)/enhanced-reveal');
           } catch (error) {
-            console.error('[Plaid] Token exchange failed:', error);
-            Alert.alert('Error', 'Failed to link your bank account. Please try again.');
+            console.error('[Plaid] Sync failed:', error);
+            setIsSyncing(false);
+            Alert.alert('Error', 'Failed to sync transactions. Please try again.');
           }
         },
         onExit: (exit: LinkExit) => {
@@ -101,6 +120,23 @@ export default function CardLinkScreen() {
   const handleSkip = () => {
     router.replace('/(tabs)/pulse');
   };
+
+  // Show syncing progress overlay
+  if (isSyncing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.syncingContainer}>
+          <LoadingSpinner size="large" />
+          <Typography variant="h3" style={styles.darkText}>
+            {syncMessage}
+          </Typography>
+          <Typography variant="body" style={styles.mutedText}>
+            This may take a moment
+          </Typography>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -164,6 +200,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.trust.background,
+  },
+  syncingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: layoutSpacing.md,
+    paddingHorizontal: layoutSpacing.xl,
   },
   content: {
     flex: 1,
