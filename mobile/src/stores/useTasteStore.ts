@@ -11,7 +11,7 @@ import {
   MOOD_DATA,
   MoodType,
 } from '@/mocks/taste';
-import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait } from '@/services/api';
+import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait, FusedTasteProfile } from '@/services/api';
 
 interface TasteState {
   profile: TasteProfile;
@@ -29,6 +29,7 @@ interface TasteState {
   getMoodData: (mood: MoodType) => (typeof MOOD_DATA)[MoodType];
   refreshProfile: () => void;
   fetchProfile: (userId: string) => Promise<void>;
+  fetchFusedProfile: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -113,6 +114,49 @@ export const useTasteStore = create<TasteState>((set, get) => ({
       const message = error instanceof Error ? error.message : 'Failed to fetch profile';
 
       // On error, keep mock data but set error state
+      set({
+        isLoading: false,
+        error: message,
+        hasFetched: true,
+      });
+    }
+  },
+
+  fetchFusedProfile: async (userId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      console.log('[TasteStore] Fetching fused profile for user:', userId);
+      const fusedProfile = await tasteApi.getFused(userId);
+      console.log('[TasteStore] Fused profile fetched:', fusedProfile.profile_title);
+
+      // Convert fused categories to TasteCategory format
+      const fusedCategories: TasteCategory[] = fusedProfile.categories.map((cat) => ({
+        name: cat.name,
+        score: cat.percentage,
+        color: cat.color,
+      }));
+
+      // Update profile with fused data
+      const currentProfile = get().profile;
+      set({
+        profile: {
+          ...currentProfile,
+          title: fusedProfile.profile_title,
+          tagline: fusedProfile.profile_tagline,
+          explorationRatio: fusedProfile.exploration_ratio,
+        },
+        categories: fusedCategories.length > 0 ? fusedCategories : TASTE_CATEGORIES,
+        isLoading: false,
+        hasFetched: true,
+      });
+
+      console.log('[TasteStore] Categories updated:', fusedCategories.length);
+    } catch (error) {
+      console.error('[TasteStore] Fused fetch error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to fetch fused profile';
+
+      // On error, keep existing data but set error state
       set({
         isLoading: false,
         error: message,

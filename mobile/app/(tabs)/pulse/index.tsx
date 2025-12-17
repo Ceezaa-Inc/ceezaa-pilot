@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -7,14 +7,23 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Logo } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
-import { useTasteStore } from '@/stores';
+import { useTasteStore, useAuthStore } from '@/stores';
 import { PLAYLISTS, Playlist } from '@/mocks/playlists';
 import { SAVED_PLANS, SavedPlan, getUpcomingPlans } from '@/mocks/plans';
 import { MOOD_DATA } from '@/mocks/taste';
 
 export default function PulseScreen() {
-  const { insights } = useTasteStore();
+  const { insights, fetchFusedProfile, hasFetched } = useTasteStore();
+  const { user } = useAuthStore();
   const upcomingPlans = getUpcomingPlans(3);
+
+  // Fetch fused profile on mount if not already fetched
+  useEffect(() => {
+    if (user?.id && !hasFetched) {
+      console.log('[PulseScreen] Fetching fused profile for:', user.id);
+      fetchFusedProfile(user.id);
+    }
+  }, [user?.id, hasFetched]);
 
   const renderInsightCard = ({ item }: { item: (typeof insights)[0] }) => (
     <Card variant="default" padding="md" style={styles.insightCard}>

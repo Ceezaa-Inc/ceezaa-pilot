@@ -8,6 +8,9 @@ from supabase import Client
 
 from app.dependencies import get_supabase_client
 from app.intelligence import DeclaredTaste, ProfileTitleMapper
+from app.intelligence.taste_fusion import TasteFusion
+from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
+from decimal import Decimal
 
 router = APIRouter(prefix="/api/taste", tags=["taste"])
 
@@ -227,4 +230,128 @@ async def get_observed_taste(
         first_transaction_at=data.get("first_transaction_at"),
         last_transaction_at=data.get("last_transaction_at"),
         confidence=calculate_confidence(total_txns),
+    )
+
+
+class FusedCategoryResponse(BaseModel):
+    """Response model for a fused category score."""
+
+    name: str
+    percentage: int
+    color: str
+    count: int
+    total_spend: float
+
+
+class FusedTasteResponse(BaseModel):
+    """Response model for fused taste profile."""
+
+    user_id: str
+    profile_title: str
+    profile_tagline: str
+    categories: list[FusedCategoryResponse]
+    vibes: list[str]
+    exploration_ratio: float
+    confidence: float
+    quiz_weight: float
+    tx_weight: float
+
+
+@router.get("/fused/{user_id}", response_model=FusedTasteResponse)
+async def get_fused_taste(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+    profile_mapper: ProfileTitleMapper = Depends(get_profile_mapper),
+) -> FusedTasteResponse:
+    """Get fused taste profile combining quiz + transaction data.
+
+    Merges declared taste (from quiz) with observed taste (from transactions)
+    using a weighted algorithm based on transaction volume.
+    """
+    print(f"[Taste] Fetching fused taste for user: {user_id}")
+
+    # Fetch declared_taste
+    declared_result = (
+        supabase.table("declared_taste")
+        .select("*")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    # Fetch user_analysis (observed)
+    observed_result = (
+        supabase.table("user_analysis")
+        .select("*")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    # Build DeclaredTaste
+    declared_data = declared_result.data or {}
+    declared_taste = DeclaredTaste(
+        vibe_preferences=declared_data.get("vibe_preferences") or [],
+        cuisine_preferences=declared_data.get("cuisine_preferences") or [],
+        exploration_style=declared_data.get("exploration_style"),
+        social_preference=declared_data.get("social_preference"),
+        price_tier=declared_data.get("price_tier"),
+    )
+
+    # Build UserAnalysis from DB data
+    observed_data = observed_result.data or {}
+    user_analysis = UserAnalysis(user_id=user_id)
+    user_analysis.total_transactions = observed_data.get("total_transactions", 0)
+
+    # Parse categories from JSONB
+    for cat_name, cat_data in observed_data.get("categories", {}).items():
+        user_analysis.categories[cat_name] = CategoryStats(
+            count=cat_data.get("count", 0),
+            total_spend=Decimal(str(cat_data.get("total_spend", 0))),
+            merchants=set(cat_data.get("merchants", [])),
+        )
+
+    # Parse merchant visits
+    user_analysis.merchant_visits = observed_data.get("merchant_visits", {})
+
+    # Run fusion algorithm
+    fusion = TasteFusion()
+    fused = fusion.fuse(declared_taste, user_analysis)
+
+    # Get profile title based on declared taste
+    title, tagline = profile_mapper.get_title(declared_taste)
+
+    # Store fused result in database
+    fused_dict = fused.to_dict()
+    supabase.table("fused_taste").upsert(
+        {
+            "user_id": user_id,
+            "categories": fused_dict["categories"],
+            "vibes": fused_dict["vibes"],
+            "exploration_ratio": fused_dict["exploration_ratio"],
+            "confidence": fused_dict["confidence"],
+            "mismatches": fused_dict["mismatches"],
+        },
+        on_conflict="user_id",
+    ).execute()
+
+    return FusedTasteResponse(
+        user_id=user_id,
+        profile_title=title,
+        profile_tagline=tagline,
+        categories=[
+            FusedCategoryResponse(
+                name=c.name,
+                percentage=c.percentage,
+                color=c.color,
+                count=c.count,
+                total_spend=c.total_spend,
+            )
+            for c in fused.categories
+        ],
+        vibes=fused.vibes,
+        exploration_ratio=fused.exploration_ratio,
+        confidence=fused.confidence,
+        quiz_weight=fused.quiz_weight,
+        tx_weight=fused.tx_weight,
     )

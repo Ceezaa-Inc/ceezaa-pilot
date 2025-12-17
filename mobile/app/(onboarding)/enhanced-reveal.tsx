@@ -6,16 +6,27 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
-import { useTasteStore } from '@/stores';
+import { useTasteStore, useAuthStore } from '@/stores';
 
 export default function EnhancedRevealScreen() {
-  const { traits, insights } = useTasteStore();
+  const { traits, insights, categories, fetchFusedProfile } = useTasteStore();
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.9));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const loadFusedProfile = async () => {
+      if (user?.id) {
+        try {
+          console.log('[EnhancedReveal] Fetching fused profile for:', user.id);
+          await fetchFusedProfile(user.id);
+        } catch (error) {
+          console.error('[EnhancedReveal] Failed to fetch fused profile:', error);
+        }
+      }
+
+      // Show reveal animation after loading
       setIsLoading(false);
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -29,10 +40,10 @@ export default function EnhancedRevealScreen() {
           useNativeDriver: true,
         }),
       ]).start();
-    }, 2500);
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    loadFusedProfile();
+  }, [user?.id]);
 
   const handleGetStarted = () => {
     router.replace('/(tabs)/pulse');

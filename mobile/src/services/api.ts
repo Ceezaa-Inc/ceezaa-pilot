@@ -94,6 +94,27 @@ export interface TasteProfile {
   price_tier: string | null;
 }
 
+// Fused taste types
+export interface FusedCategory {
+  name: string;
+  percentage: number;
+  color: string;
+  count: number;
+  total_spend: number;
+}
+
+export interface FusedTasteProfile {
+  user_id: string;
+  profile_title: string;
+  profile_tagline: string;
+  categories: FusedCategory[];
+  vibes: string[];
+  exploration_ratio: number;
+  confidence: number;
+  quiz_weight: number;
+  tx_weight: number;
+}
+
 // Onboarding API
 export const onboardingApi = {
   submitQuiz: (userId: string, answers: QuizAnswer[]): Promise<SubmitQuizResponse> =>
@@ -104,6 +125,9 @@ export const onboardingApi = {
 export const tasteApi = {
   getProfile: (userId: string): Promise<TasteProfile> =>
     api.get(`/api/taste/profile/${userId}`),
+
+  getFused: (userId: string): Promise<FusedTasteProfile> =>
+    api.get(`/api/taste/fused/${userId}`),
 };
 
 export { ApiError };
