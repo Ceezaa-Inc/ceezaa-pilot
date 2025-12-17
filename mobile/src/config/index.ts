@@ -6,7 +6,7 @@
 // For local development on iOS simulator, use localhost
 // For physical device, use your computer's IP address
 export const API_BASE_URL = __DEV__
-  ? 'http://192.168.68.51:8000'
+  ? 'https://ceezaa-pilot.onrender.com'
   : 'https://api.ceezaa.com';
 
 // Supabase configuration
