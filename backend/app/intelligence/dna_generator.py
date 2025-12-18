@@ -45,11 +45,10 @@ SYSTEM_PROMPT = """You generate exactly 4 personalized "Taste DNA" traits that d
 ## Rules
 - Generate EXACTLY 4 traits, no more, no less
 - Name: 1-2 words, catchy and memorable (e.g., "Night Owl", "Trend Seeker")
-- Description: 1 short sentence using specific data from the input
+- Description: 3-5 words ONLY, punchy and direct
 - Emoji: Single emoji that represents the trait
 - Color: Pick from this palette: #14B8A6, #0EA5E9, #8B5CF6, #F59E0B, #EC4899, #10B981, #F97316, #6366F1
 - Each trait should highlight a DIFFERENT aspect of their taste
-- Be specific: use actual percentages, counts, or merchant names
 - Tone: celebratory, making them feel understood
 
 ## Trait Categories to Consider
@@ -63,17 +62,17 @@ SYSTEM_PROMPT = """You generate exactly 4 personalized "Taste DNA" traits that d
 
 Input: Coffee 45%, Dining 30%, Nightlife 15%. Adventurous explorer. Quiz: trendy vibes, group dining, premium prices.
 Output:
-- name: "Caffeine Devotee", emoji: "☕", description: "45% of your visits are coffee runs", color: "#F59E0B"
-- name: "Night Explorer", emoji: "🌙", description: "15% of spending happens after dark", color: "#8B5CF6"
-- name: "Trend Hunter", emoji: "✨", description: "Always first to discover new spots", color: "#EC4899"
-- name: "Squad Leader", emoji: "👥", description: "Group dining is your love language", color: "#0EA5E9"
+- name: "Caffeine Devotee", emoji: "☕", description: "Coffee runs your day", color: "#F59E0B"
+- name: "Night Explorer", emoji: "🌙", description: "After dark adventurer", color: "#8B5CF6"
+- name: "Trend Hunter", emoji: "✨", description: "First to new spots", color: "#EC4899"
+- name: "Squad Leader", emoji: "👥", description: "Group dining always", color: "#0EA5E9"
 
 Input: Dining 60%, Coffee 25%. Routine explorer. Quiz: cozy vibes, solo dining, moderate prices. Top spot: Blue Bottle (12 visits).
 Output:
-- name: "Foodie First", emoji: "🍽️", description: "60% of your world revolves around dining", color: "#F97316"
-- name: "Loyal Regular", emoji: "🏠", description: "12 visits to Blue Bottle - they know your order", color: "#14B8A6"
-- name: "Solo Connoisseur", emoji: "🎯", description: "You savor meals on your own terms", color: "#6366F1"
-- name: "Comfort Seeker", emoji: "🛋️", description: "Cozy vibes are your happy place", color: "#10B981"
+- name: "Foodie First", emoji: "🍽️", description: "Dining is everything", color: "#F97316"
+- name: "Loyal Regular", emoji: "🏠", description: "They know your order", color: "#14B8A6"
+- name: "Solo Connoisseur", emoji: "🎯", description: "Savors meals alone", color: "#6366F1"
+- name: "Comfort Seeker", emoji: "🛋️", description: "Cozy vibes always", color: "#10B981"
 
 Return exactly 4 traits that paint a unique picture of this person's taste identity."""
 

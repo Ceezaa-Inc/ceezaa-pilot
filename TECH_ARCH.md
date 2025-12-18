@@ -82,14 +82,16 @@ The TIL is the core backend. It combines DECLARED preferences (quiz) with OBSERV
 | Transaction → Observed Taste | **NO** | Aggregation math |
 | Taste Fusion | **NO** | Weighted algorithm |
 | Profile Title | **NO** | Lookup table (~20 combinations) |
+| **Taste DNA Generation** | **YES** | Personalized trait descriptions from data |
 | **Insights Generation** | **YES** | Natural language is LLM strength |
 | **Venue Tagging** | **YES** | One-time at import, cached forever |
 | Venue Matching | **NO** | Score calculation algorithm |
 | Feed Ranking | **NO** | Sort by score |
 
-**AI is used in exactly 2 places:**
-1. **Daily Insights** - 1 LLM call/user/day (cached by profile similarity)
-2. **Venue Tagging** - 1 LLM call/venue at import time (never again)
+**AI is used in exactly 3 places:**
+1. **Taste DNA** - 4 personalized DNA traits/user/day (cached daily)
+2. **Daily Insights** - 2-3 insights/user/day (cached daily)
+3. **Venue Tagging** - 1 LLM call/venue at import time (never again)
 
 ### Data Flow
 
