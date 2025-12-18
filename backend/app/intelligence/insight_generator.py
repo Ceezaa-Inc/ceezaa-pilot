@@ -6,7 +6,6 @@ insights based on user transaction data.
 
 from __future__ import annotations
 
-import json
 from typing import Literal, Any
 
 import anthropic
@@ -72,7 +71,7 @@ class InsightGenerator:
 
         # Call Claude with structured outputs
         response = self._client.beta.messages.parse(
-            model="claude-3-5-haiku-20241022",
+            model="claude-haiku-4-5-20241022",
             max_tokens=500,
             betas=["structured-outputs-2025-11-13"],
             system=[
