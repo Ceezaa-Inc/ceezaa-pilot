@@ -40,12 +40,20 @@ export default function VaultScreen() {
                 Every place tells a story
               </Typography>
             </View>
-            <Button
-              label="+ Add"
-              variant="secondary"
-              size="sm"
-              onPress={() => setShowAddModal(true)}
-            />
+            <View style={styles.headerButtons}>
+              <Button
+                label="DB Venues"
+                variant="ghost"
+                size="sm"
+                onPress={() => router.push('/(tabs)/vault/temp-venues')}
+              />
+              <Button
+                label="+ Add"
+                variant="secondary"
+                size="sm"
+                onPress={() => setShowAddModal(true)}
+              />
+            </View>
           </View>
         </View>
 
@@ -141,6 +149,10 @@ const styles = StyleSheet.create({
   titleInfo: {
     flex: 1,
     gap: layoutSpacing.xs,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: layoutSpacing.sm,
   },
   stats: {
     flexDirection: 'row',

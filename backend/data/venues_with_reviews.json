@@ -1,0 +1,2636 @@
+{
+  "discovered_at": "2025-12-18T14:44:23.268446",
+  "location": "USC Los Angeles",
+  "queries": [
+    "best restaurants near usc",
+    "cafes coffee shops near usc",
+    "pubs bars near usc",
+    "nightclubs clubs near usc"
+  ],
+  "total_venues": 138,
+  "total_reviews": 0,
+  "venues": [
+    {
+      "place_id": "0x80c2c80a8e7ecf31:0x30276566df8456bc",
+      "url": "https://www.google.com/maps/place/Holbox/data=!4m7!3m6!1s0x80c2c80a8e7ecf31:0x30276566df8456bc!8m2!3d34.017356!4d-118.278405!16s%2Fg%2F11c6q7vgjs!19sChIJMc9-jgrIwoARvFaE32ZlJzA?authuser=0&hl=en&rclk=1",
+      "name": "Holbox",
+      "category": "Seafood restaurant",
+      "categories": [
+        "Seafood restaurant"
+      ],
+      "rating": 4.8,
+      "price": "$$",
+      "address": "\ue0c8 3655 S Grand Ave c9, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.017356,
+      "lng": -118.278405,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw5C4Pj-_V9D7687388OdQctUbmuwIir4fc0jKZ834UAVlF8KwmWs2B8mHwAls7qmRP7yHYDAvIU0PiZgOTKYY7KN8KBQ-V1ICnE_aJEkhVdJys2BBQ-zSHVZH8IHTbhK8e6Mv4BlDw_j1o=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e5bd221ad7:0x6975adb8d798ea0b",
+      "url": "https://www.google.com/maps/place/CAVA/data=!4m7!3m6!1s0x80c2c7e5bd221ad7:0x6975adb8d798ea0b!8m2!3d34.0251334!4d-118.284599!16s%2Fg%2F11f00k4_vt!19sChIJ1xoiveXHwoARC-qY17itdWk?authuser=0&hl=en&rclk=1",
+      "name": "CAVA",
+      "category": "Mediterranean restaurant",
+      "categories": [
+        "Mediterranean restaurant"
+      ],
+      "rating": 4.7,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3201 S Hoover St Suite 1840, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.0251334,
+      "lng": -118.284599,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzf6uE0QOtSqPP1yrJ-6yndgpzAMeatV6AoF_UJQzFwylS8q-tTfw8Am-nQCZaRNgKT27SQxJPln8mPgbncRqlBJP49NFJPKTUcLJN3dB9qEzVlr1I5ZoFUZpDg4xBieH101vgXsvNrXWU-=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7272cf9c555:0xee2511f23a5a4273",
+      "url": "https://www.google.com/maps/place/Bruxie/data=!4m7!3m6!1s0x80c2c7272cf9c555:0xee2511f23a5a4273!8m2!3d34.0251852!4d-118.2845365!16s%2Fg%2F11wqdbz3jv!19sChIJVcX5LCfHwoARc0JaOvIRJe4?authuser=0&hl=en&rclk=1",
+      "name": "Bruxie",
+      "category": "Chicken restaurant",
+      "categories": [
+        "Chicken restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3201 S Hoover St #1845, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.0251852,
+      "lng": -118.2845365,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipP0cVklaN0evXasKk8ZRNYw6yvXLpD6ilvT5ubD=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c80a9233261b:0xcf4fbc7fcf839c93",
+      "url": "https://www.google.com/maps/place/Chichen+Itza/data=!4m7!3m6!1s0x80c2c80a9233261b:0xcf4fbc7fcf839c93!8m2!3d34.0174088!4d-118.2781739!16s%2Fg%2F1tczkrj_!19sChIJGyYzkgrIwoARk5yDz3-8T88?authuser=0&hl=en&rclk=1",
+      "name": "Chichen Itza",
+      "category": "Mexican restaurant",
+      "categories": [
+        "Mexican restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3655 S Grand Ave c6, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0174088,
+      "lng": -118.2781739,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwV87k00xotC8F8O9H5qi1b0aIEllbQhDLlXV-7_yNamGV33k2nIz_NPUgpcMtTt0m6efrU77u17IfAUVetdKHnYrUfT8XQnMGgPm0m09WZIfO4ngRWNayOKOaHIg9Uvz3rxBeshGEFGrM=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b44ee125ff:0x189e483154a17e53",
+      "url": "https://www.google.com/maps/place/Bottega+Louie/data=!4m7!3m6!1s0x80c2c7b44ee125ff:0x189e483154a17e53!8m2!3d34.0470524!4d-118.2565439!16s%2Fm%2F010gq7hd!19sChIJ_yXhTrTHwoARU36hVDFInhg?authuser=0&hl=en&rclk=1",
+      "name": "Bottega Louie",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.5,
+      "price": "$$$",
+      "address": "\ue0c8 700 S Grand Ave, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0470524,
+      "lng": -118.2565439,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxU9ZR1ukq3LVA9oUVQLY41I-7MelfkYTcbFmy59jNLnYmaB5iXAb28R7UgqhXqhvxicuMT7F_CFg_LT7xXL19KRD3oLCmiGET-M6f7xGiKv8hVCgqXM6F0_Q9CZSS0R6c2Xy81Y-5nhWe_=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c756cf4f4b4d:0xc58af31b5e59f8c5",
+      "url": "https://www.google.com/maps/place/Rock+%26+Reilly%27s+USC+-+Restaurant+and+Bar/data=!4m7!3m6!1s0x80c2c756cf4f4b4d:0xc58af31b5e59f8c5!8m2!3d34.0242344!4d-118.2840919!16s%2Fg%2F11ffw5047b!19sChIJTUtPz1bHwoARxfhZXhvzisU?authuser=0&hl=en&rclk=1",
+      "name": "Rock & Reilly's USC - Restaurant and Bar",
+      "category": "American restaurant",
+      "categories": [
+        "American restaurant"
+      ],
+      "rating": 4.2,
+      "price": "$20\u201330",
+      "address": "\ue0c8 3201 S Hoover St, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.0242344,
+      "lng": -118.2840919,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOqwL-CsRhM5iCGnzUwI19Eeo-ROwhmZuVATZ28=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e19c55535f:0x33551a764be0e535",
+      "url": "https://www.google.com/maps/place/The+Lab+Gastropub/data=!4m7!3m6!1s0x80c2c7e19c55535f:0x33551a764be0e535!8m2!3d34.0199351!4d-118.2809083!16s%2Fg%2F1tgjlkj3!19sChIJX1NVnOHHwoARNeXgS3YaVTM?authuser=0&hl=en&rclk=1",
+      "name": "The Lab Gastropub",
+      "category": "Gastropub",
+      "categories": [
+        "Gastropub"
+      ],
+      "rating": 4.1,
+      "price": "$20\u201330",
+      "address": "\ue0c8 3500 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0199351,
+      "lng": -118.2809083,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzRUYXKLAL_TURgDOGB1RaO6rDeJR7dMv6qOujGVANy5YOJ08Xj3c7W0W3WWNNCR4K5Ij5vUwqsL-k8pOiSLv8AjuUMuG0UAochg0iH2rxxOrANJyPzEoNDa_eiYvBSOHYcjskg38cJgrVz=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c80a9233261b:0xf61c9468473317a0",
+      "url": "https://www.google.com/maps/place/Mercado+La+Paloma/data=!4m7!3m6!1s0x80c2c80a9233261b:0xf61c9468473317a0!8m2!3d34.0173555!4d-118.2784049!16s%2Fg%2F1tph1_pt!19sChIJGyYzkgrIwoARoBczR2iUHPY?authuser=0&hl=en&rclk=1",
+      "name": "Mercado La Paloma",
+      "category": "Food court",
+      "categories": [
+        "Food court"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3655 S Grand Ave # 280, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0173555,
+      "lng": -118.2784049,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxcd58xqftxenp3gdCGuwznyEYtG9fV8_0tyRUUEF6Had6lmAgQU9Kct0jIfwLIFs23KrKk0ec9S-Rs7ogVnKwNAVefcqfxdliJ252ItPlk7xNYAKtu9eRIWsDFOBP76P99p8g=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9e8c6e111fd:0xfe0368ddf2c4dd54",
+      "url": "https://www.google.com/maps/place/Fuegos+LA/data=!4m7!3m6!1s0x80c2b9e8c6e111fd:0xfe0368ddf2c4dd54!8m2!3d34.012612!4d-118.309216!16s%2Fg%2F11w8dmv4_6!19sChIJ_RHhxui5woARVN3E8t1oA_4?authuser=0&hl=en&rclk=1",
+      "name": "Fuegos LA",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.9,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3957 S Western Ave, Los Angeles, CA 90062",
+      "city": "Los Angeles",
+      "lat": 34.012612,
+      "lng": -118.309216,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMJYJNU3V82PPTAinRJ7qtJ36eVCmrfiaY3q9ia=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c9619c7e9c6f:0xc74fe826490ab1ca",
+      "url": "https://www.google.com/maps/place/Little+Pan+USC/data=!4m7!3m6!1s0x80c2c9619c7e9c6f:0xc74fe826490ab1ca!8m2!3d34.0170512!4d-118.2824448!16s%2Fg%2F11sw6p8zzy!19sChIJb5x-nGHJwoARyrEKSSboT8c?authuser=0&hl=en&rclk=1",
+      "name": "Little Pan USC",
+      "category": "Dumpling restaurant",
+      "categories": [
+        "Dumpling restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$$",
+      "address": "\ue0c8 3742 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0170512,
+      "lng": -118.2824448,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSziKL6hj_VWqkWi7YBLTeeiEZVlLyp5PA5ZUnAWUguSa0M_IWLjkyFTu_CrF4ZBoT6E5yQDRHXX2vO6jOnH6rT8X_DP2ZpZKxPlT_a8v2NM3j3Wkf3x8YiRp3o5zgWmz3ElheMD=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c76f844d9ad1:0x8fdb5e48093645ab",
+      "url": "https://www.google.com/maps/place/Softies+Burger+-+USC+Village/data=!4m7!3m6!1s0x80c2c76f844d9ad1:0x8fdb5e48093645ab!8m2!3d34.0247564!4d-118.2846458!16s%2Fg%2F11vk5_m0q6!19sChIJ0ZpNhG_HwoARq0U2CUhe248?authuser=0&hl=en&rclk=1",
+      "name": "Softies Burger - USC Village",
+      "category": "Hamburger restaurant",
+      "categories": [
+        "Hamburger restaurant"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 835 W Jefferson Blvd Suite 1710, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.0247564,
+      "lng": -118.2846458,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwFmXlkoVZTqQceECVX-kX54L2w-TK3lTpD4Oz24InHMW4uTpXEsKC2n1D0SXtbKB5DgcaCscXAFqIMXvPkhBiXEn9PuEyDOsw0d6uw9-gI-eScidxf3-PP7H-JnFfp0AVDX6AQRCd72DNc=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2cf617f576e47:0x3d21eb53a68d49a8",
+      "url": "https://www.google.com/maps/place/Sunset+Hot+Chicken/data=!4m7!3m6!1s0x80c2cf617f576e47:0x3d21eb53a68d49a8!8m2!3d34.0245068!4d-118.283406!16s%2Fg%2F11xkp1db6n!19sChIJR25Xf2HPwoARqEmNplPrIT0?authuser=0&hl=en&rclk=1",
+      "name": "Sunset Hot Chicken",
+      "category": "Chicken shop",
+      "categories": [
+        "Chicken shop"
+      ],
+      "rating": 4.9,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3300 S Hoover St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0245068,
+      "lng": -118.283406,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwKqCAxhPYk6bIGyyTu-AnfiXmYtsPVyehOxlXi2UKfksmqlueoWvht2YXSpdsT_T86N4w5YvzXWVR2KAjbuIMroKCzvgab9Zoyn8uMYwgHzMtWpvGqC6oY3g1PdAS0WhiZWjQtbmJhawHl=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c9004b636637:0xe4a8d6e197ead28",
+      "url": "https://www.google.com/maps/place/KOMAL/data=!4m7!3m6!1s0x80c2c9004b636637:0xe4a8d6e197ead28!8m2!3d34.0173113!4d-118.2781477!16s%2Fg%2F11w48xy26w!19sChIJN2ZjSwDJwoARKK1-GW6NSg4?authuser=0&hl=en&rclk=1",
+      "name": "KOMAL",
+      "category": "Mexican restaurant",
+      "categories": [
+        "Mexican restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3655 S Grand Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0173113,
+      "lng": -118.2781477,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOcOcTg9ydr6duSO24kWyXaBxHJ4BvOUbdpeziS=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7ec5d711435:0xc4e5b8e93183c6c9",
+      "url": "https://www.google.com/maps/place/Bacari+W.+Adams/data=!4m7!3m6!1s0x80c2c7ec5d711435:0xc4e5b8e93183c6c9!8m2!3d34.0345014!4d-118.2834681!16s%2Fg%2F1thtddgn!19sChIJNRRxXezHwoARycaDMem45cQ?authuser=0&hl=en&rclk=1",
+      "name": "Bacari W. Adams",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$30\u201350",
+      "address": "\ue0c8 2308 S Union Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0345014,
+      "lng": -118.2834681,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyXW7vB-rzh-P-3jkJLX-9jxTaR1b8ldcBgGqdOcgjedvf_ln5nfWB9LYmXJd8rTTCMzRufBx19LpITlPmdlknLPWEMh3xOIBxIj8_flYh1CRysyk108W_psoVih07Hh9JdJNBj=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c752565eef29:0xf831badaf4bc134b",
+      "url": "https://www.google.com/maps/place/Robowok+Mini+Bowls+-+USC/data=!4m7!3m6!1s0x80c2c752565eef29:0xf831badaf4bc134b!8m2!3d34.0224468!4d-118.2921729!16s%2Fg%2F11xp3967gv!19sChIJKe9eVlLHwoARSxO89Nq6Mfg?authuser=0&hl=en&rclk=1",
+      "name": "Robowok Mini Bowls - USC",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.9,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3619 S Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0224468,
+      "lng": -118.2921729,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipP9xyCo_8HtZoW-88r1ZrSO3UgtnRsPLUGgi50C=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7f310a8a1f7:0x452674dd988867d0",
+      "url": "https://www.google.com/maps/place/La+Barca+Restaurant/data=!4m7!3m6!1s0x80c2c7f310a8a1f7:0x452674dd988867d0!8m2!3d34.0339278!4d-118.2913087!16s%2Fg%2F1tgnmbkd!19sChIJ96GoEPPHwoAR0GeImN10JkU?authuser=0&hl=en&rclk=1",
+      "name": "La Barca Restaurant",
+      "category": "Mexican restaurant",
+      "categories": [
+        "Mexican restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$20\u201330",
+      "address": "\ue0c8 2414 S Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0339278,
+      "lng": -118.2913087,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx6hYQJ9zDI9I6AGpWF9-jY34vSEEoD-_RCEXov5n6SqI6sj2l68khB7BY20MxjteMk7GttwQc84ux1-i2ZiFEacvAqUhPjk-ta8fn9XCQN39P4HiCYzGVNX4EYAI9v0754us9X=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78187103269:0xd53194395917722",
+      "url": "https://www.google.com/maps/place/Tirebiter+Brewery/data=!4m7!3m6!1s0x80c2c78187103269:0xd53194395917722!8m2!3d34.028717!4d-118.2750244!16s%2Fg%2F11h3sw1jyv!19sChIJaTIQh4HHwoARIneRlUMZUw0?authuser=0&hl=en&rclk=1",
+      "name": "Tirebiter Brewery",
+      "category": "Brewery",
+      "categories": [
+        "Brewery"
+      ],
+      "rating": 4.8,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2502 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.028717,
+      "lng": -118.2750244,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyym4mDNTkiZiwoI4HnUHqgCfs8xBQdk7AAkCBQX885c5Ev_lU8czmFLbBCIigzSK2yGUHnRzoNE7YaIHnP-vREfTy4SwZKokcC055Y_L7WWuadx9E82AqNK7gN18qT2f0dbqVx=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7f3dacff03b:0xf5765f17b1fa2031",
+      "url": "https://www.google.com/maps/place/Monarca+Pasta+%26+Grill/data=!4m7!3m6!1s0x80c2c7f3dacff03b:0xf5765f17b1fa2031!8m2!3d34.0302377!4d-118.2920771!16s%2Fg%2F1hdzyg8zy!19sChIJO_DP2vPHwoARMSD6sRdfdvU?authuser=0&hl=en&rclk=1",
+      "name": "Monarca Pasta & Grill",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2703 S Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0302377,
+      "lng": -118.2920771,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSz3QEQm7ycqF4hUlRmhnVlDiohDbxn3NZi27Q8P-zIND8ZELf7o9Xg4gpbKz3SX2pVYh6kOjbX49PBvgDRExjv-jFSpu7-54sKGEfokiksxfhwLjgf_QVqYspZV8XHLt-Rr_-rXyg=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e76d5c4b79:0x2a04c5f55a14b5e0",
+      "url": "https://www.google.com/maps/place/Northern+Cafe/data=!4m7!3m6!1s0x80c2c7e76d5c4b79:0x2a04c5f55a14b5e0!8m2!3d34.0255056!4d-118.2773722!16s%2Fg%2F11gbf6hnjm!19sChIJeUtcbefHwoAR4LUUWvXFBCo?authuser=0&hl=en&rclk=1",
+      "name": "Northern Cafe",
+      "category": "Chinese restaurant",
+      "categories": [
+        "Chinese restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2904 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0255056,
+      "lng": -118.2773722,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyyDKwywpwuB5KZm_wx6oUQajnAenGilgIrPnIIQSJdsM6d9U08kVmZek0YFbGkU01Yd8OisLkBKi4fhqfw5cKvG233f_LLGzIxHp0o69PiaeFsbJABa2Uq19cDLM8YA0gTxfA=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7864f32ac79:0x938093b67a1da436",
+      "url": "https://www.google.com/maps/place/USC+Village/data=!4m7!3m6!1s0x80c2c7864f32ac79:0x938093b67a1da436!8m2!3d34.0248391!4d-118.2841348!16s%2Fg%2F11vdvstny1!19sChIJeawyT4bHwoARNqQderaTgJM?authuser=0&hl=en&rclk=1",
+      "name": "USC Village",
+      "category": "Shopping mall",
+      "categories": [
+        "Shopping mall"
+      ],
+      "rating": 4.7,
+      "price": "$$",
+      "address": "\ue0c8 3201 S Hoover St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0248391,
+      "lng": -118.2841348,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzuMRT3hm4a4vD2aQDwilaB86IhZsyTO4R5sfjdbeFFSsbJ0bAG6Rb9m44Q02AOBVKg0Z49rDbVHXYl8sD-6dIjqXczQEIIk7ywygH1d_u6TiL3Pi62VuZ_zYBWyb7D_DCdmFxN4A=w397-h298-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e717fd89df:0x703e8fc210901272",
+      "url": "https://www.google.com/maps/place/Viztango+Cafe/data=!4m7!3m6!1s0x80c2c7e717fd89df:0x703e8fc210901272!8m2!3d34.0249113!4d-118.278587!16s%2Fg%2F1v8y492z!19sChIJ34n9F-fHwoARchKQEMKPPnA?authuser=0&hl=en&rclk=1",
+      "name": "Viztango Cafe",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.2,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3017 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0249113,
+      "lng": -118.278587,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipPm-eJ6YgN5ShGIWUvtsASi-usWMfnw8rxBmG6d=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7dd006bfc4f:0xa0f1c5a499cbcb63",
+      "url": "https://www.google.com/maps/place/Central+Kitchen+at+The+Lorenzo/data=!4m7!3m6!1s0x80c2c7dd006bfc4f:0xa0f1c5a499cbcb63!8m2!3d34.0289247!4d-118.2726205!16s%2Fg%2F1z44c4hx7!19sChIJT_xrAN3HwoARY8vLmaTF8aA?authuser=0&hl=en&rclk=1",
+      "name": "Central Kitchen at The Lorenzo",
+      "category": "American restaurant",
+      "categories": [
+        "American restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 325 W Adams Blvd, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0289247,
+      "lng": -118.2726205,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxt9y4QzzRfbielQiCp7P7RUuC2NTVeoDfDl7PrsTZN1LCoUuvj5wHb0d-mbymrK_E_JLdgA2jmMkdzhGN8LrMNMsv9WrwTueuW5RCPpmPuikZsRzUt9erQUFPBiqJhl5OdCRzK=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78465f106f1:0xaead9539720313f5",
+      "url": "https://www.google.com/maps/place/JOEY+DTLA/data=!4m7!3m6!1s0x80c2c78465f106f1:0xaead9539720313f5!8m2!3d34.048017!4d-118.2580506!16s%2Fg%2F11flbdzjp1!19sChIJ8QbxZYTHwoAR9RMDcjmVra4?authuser=0&hl=en&rclk=1",
+      "name": "JOEY DTLA",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.7,
+      "price": "$50\u2013100",
+      "address": "\ue0c8 700 W 7th St Ste S430, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.048017,
+      "lng": -118.2580506,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxXKbovDvcwod6O8UyVNvFzHF3jsCkaUkNjVkRDxAoHH6pOxECC9Y77dtTUkfoHQyE2y8zwh95bA_vghtHJDti1nUxT-MI0OaGLp9JYWGxUmdv5tolTe4L_mKDr7fY6WAYdS6bc2dcAGXU=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7cb8403e51d:0x640c43bdeeda3988",
+      "url": "https://www.google.com/maps/place/Pine+and+Crane+DTLA/data=!4m7!3m6!1s0x80c2c7cb8403e51d:0x640c43bdeeda3988!8m2!3d34.0408828!4d-118.2623985!16s%2Fg%2F11tclq8cpw!19sChIJHeUDhMvHwoARiDna7r1DDGQ?authuser=0&hl=en&rclk=1",
+      "name": "Pine and Crane DTLA",
+      "category": "Taiwanese restaurant",
+      "categories": [
+        "Taiwanese restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1120 S Grand Ave Unit 101, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0408828,
+      "lng": -118.2623985,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw7MvcrUposgKJMSoj2SCkpSOFMSuKfR1Tgts1rQBzdAGiDoq12A0D79K3u2xXa6hUVfzTsMC2oeBkflneZBjC3Rm2FgT4cjR-vxY-VTNzAOw3xuqlmNJMFxvu9DzQho6ObVUNsRxeQEbYk=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c71dd225b8fb:0x6012dc098a6c6c93",
+      "url": "https://www.google.com/maps/place/Sol+Agave+LA+LIVE/data=!4m7!3m6!1s0x80c2c71dd225b8fb:0x6012dc098a6c6c93!8m2!3d34.0449976!4d-118.2649805!16s%2Fg%2F11rn0zm1d7!19sChIJ-7gl0h3HwoARk2xsigncEmA?authuser=0&hl=en&rclk=1",
+      "name": "Sol Agave LA LIVE",
+      "category": "Mexican restaurant",
+      "categories": [
+        "Mexican restaurant"
+      ],
+      "rating": 4.5,
+      "price": "$30\u201350",
+      "address": "\ue0c8 800 W Olympic Blvd, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0449976,
+      "lng": -118.2649805,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwtEps3TpynXRSjPwL1jxKMKZZfMfJPmaA8Utd0oOA--kmsZnyd3c-zrF_bLu7EISDlIXXgtT2Gtn2Hio6_KwxYFViDaat97WkhqibCtVZFcxzJ2huj5vpaZhi2ktyQrMCoCQ5-jEl1zS_0=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c64bbde85bbd:0x94aeb79d4a8cb362",
+      "url": "https://www.google.com/maps/place/Maccheroni+Republic/data=!4m7!3m6!1s0x80c2c64bbde85bbd:0x94aeb79d4a8cb362!8m2!3d34.0500306!4d-118.2485361!16s%2Fg%2F1232frw5j!19sChIJvVvovUvGwoARYrOMSp23rpQ?authuser=0&hl=en&rclk=1",
+      "name": "Maccheroni Republic",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$20\u201330",
+      "address": "\ue0c8 332 S Broadway, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.0500306,
+      "lng": -118.2485361,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyCbgQWt0lYbJDdWXLu_PtsgjO8xvnjdr6zh_juQw7R7QjVbfpw7rDt-WYgL8eNqa1dep-nBkauCb1j9_ZodByVQQhQFqr6mWyh8KpwE7BOfF-7rlZ1LrWwC0lIEY2GfSa2kXjSvaFy8t59=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c9ba38e7a4f3:0x54fd9d428e880e4",
+      "url": "https://www.google.com/maps/place/Grand+Food+Depot/data=!4m7!3m6!1s0x80c2c9ba38e7a4f3:0x54fd9d428e880e4!8m2!3d34.0147403!4d-118.2787736!16s%2Fg%2F11lq5cgmxz!19sChIJ86TnOLrJwoAR5IDoKNTZTwU?authuser=0&hl=en&rclk=1",
+      "name": "Grand Food Depot",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 358 W 38th St, Los Angeles, CA 90037",
+      "city": "Los Angeles",
+      "lat": 34.0147403,
+      "lng": -118.2787736,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzqVposvHF5turRctW64VsbOsCbxnDu1y6Xvs_Kf_bUlhWzcd-tnyyIv1LZRobzcgPXvsRZaCHccFq-b7lPGaU3HaWS71Sshc4hsoyFKcsyviE5wdhXE0Jk3NkdVJkaN6PbpSVxVA=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c76a9971f5a3:0xf4758a84c480f66d",
+      "url": "https://www.google.com/maps/place/Terra+Mia+Pizzeria+-+USC/data=!4m7!3m6!1s0x80c2c76a9971f5a3:0xf4758a84c480f66d!8m2!3d34.02425!4d-118.2847363!16s%2Fg%2F11y9rq9988!19sChIJo_VxmWrHwoARbfaAxISKdfQ?authuser=0&hl=en&rclk=1",
+      "name": "Terra Mia Pizzeria - USC",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 835 W Jefferson Blvd #1740, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.02425,
+      "lng": -118.2847363,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNdyRzyEvZB4dJQ1neDpo0B-Vm9aYYdVQaTTJkh=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7dd4461df67:0x6f2beecf0d8eafe5",
+      "url": "https://www.google.com/maps/place/Qin+West+Noodle/data=!4m7!3m6!1s0x80c2c7dd4461df67:0x6f2beecf0d8eafe5!8m2!3d34.028471!4d-118.2751366!16s%2Fg%2F11gdkpjjvj!19sChIJZ99hRN3HwoAR5a-ODc_uK28?authuser=0&hl=en&rclk=1",
+      "name": "Qin West Noodle",
+      "category": "Chinese noodle restaurant",
+      "categories": [
+        "Chinese noodle restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2520 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.028471,
+      "lng": -118.2751366,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSymzHnUlkY_Etvnhykjo8oZ1HUedrY4tHYLHHdb-I-IJ1TMb5C5-iI8bGf1b34DCd5p7OkhV7grT4j77wjyyBXXCAGFpyS81KoY5qf_1Abfhl7inPKJXvSJWDcPPNhHMVNb31Y2rQ=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c757501d5a5d:0x7652aeb4ecd9ad7b",
+      "url": "https://www.google.com/maps/place/Girl+%26+the+Goat+Los+Angeles/data=!4m7!3m6!1s0x80c2c757501d5a5d:0x7652aeb4ecd9ad7b!8m2!3d34.0402258!4d-118.2331693!16s%2Fg%2F11j7h8ppsl!19sChIJXVodUFfHwoARe63Z7LSuUnY?authuser=0&hl=en&rclk=1",
+      "name": "Girl & the Goat Los Angeles",
+      "category": "New American restaurant",
+      "categories": [
+        "New American restaurant"
+      ],
+      "rating": 4.8,
+      "price": "$50\u2013100",
+      "address": "\ue0c8 555-3 Mateo St, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.0402258,
+      "lng": -118.2331693,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzvQzIeHgSid-fevuUCA4EaJTK4mm2QeXJ0MRDY4KatfwVwzQLm0Nor-Ksz2nRbe4EiQAX-49__Klf67IDH7a9g4v_VJWLrRCEayKA1w0A8gcBA-PJhF-G5iGCRNYTwFoeOPUjvEevFRN-Z=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78ccf2d7a6b:0x1264d79ee407ab16",
+      "url": "https://www.google.com/maps/place/Caveman+Kitchen/data=!4m7!3m6!1s0x80c2c78ccf2d7a6b:0x1264d79ee407ab16!8m2!3d34.0358464!4d-118.2919906!16s%2Fg%2F1tf3p508!19sChIJa3otz4zHwoARFqsH5J7XZBI?authuser=0&hl=en&rclk=1",
+      "name": "Caveman Kitchen",
+      "category": "Peruvian restaurant",
+      "categories": [
+        "Peruvian restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2215 Vermont Ave #101, 102, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0358464,
+      "lng": -118.2919906,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyb9Riaet-elGAG---vRrMD5Dpi7CIQc-aPHukvxsbbnHiAbt9NJM2JxyYjgraXLDRz0aqDyEa6Go1YBiIJW90IPk9QShitv9P5Mdat02vy_RUPr7EI2wKsAxaLZ0EFhW3JFTeMCOxp9mr3=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e55a3b129b:0x13135814065eeb7a",
+      "url": "https://www.google.com/maps/place/Il+Giardino+Ristorante/data=!4m7!3m6!1s0x80c2c7e55a3b129b:0x13135814065eeb7a!8m2!3d34.0252154!4d-118.2843698!16s%2Fg%2F11gxtn2h0c!19sChIJmxI7WuXHwoAReuteBhRYExM?authuser=0&hl=en&rclk=1",
+      "name": "Il Giardino Ristorante",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 4.1,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3201 S Hoover St #1850, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.0252154,
+      "lng": -118.2843698,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxNsOs7Bior75U3lZL-EyIQfJcl4Jr5tVdqVn6rgzvyhCL5D08MnPBtecyciA8f_ADs6JiUJenStf1usg_srztKuNOLT2MXa7-vXELB7p-ey1DQzlSzPBGXTjxBpuabAlkxr2VK=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7944431a04b:0x78ebce02bd2106c2",
+      "url": "https://www.google.com/maps/place/Fixins+Soul+Kitchen/data=!4m7!3m6!1s0x80c2c7944431a04b:0x78ebce02bd2106c2!8m2!3d34.0444669!4d-118.2647425!16s%2Fg%2F11r_mskcs1!19sChIJS6AxRJTHwoARwgYhvQLO63g?authuser=0&hl=en&rclk=1",
+      "name": "Fixins Soul Kitchen",
+      "category": "Soul food restaurant",
+      "categories": [
+        "Soul food restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$20\u201330",
+      "address": "\ue0c8 800 W Olympic Blvd A150, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0444669,
+      "lng": -118.2647425,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNupPY4cQbRXidDA7KLy4RK7UDwFSeH8AwAcmg3=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c962b51183d5:0x811d305a1eef3216",
+      "url": "https://www.google.com/maps/place/Everytable/data=!4m7!3m6!1s0x80c2c962b51183d5:0x811d305a1eef3216!8m2!3d34.0105339!4d-118.2928415!16s%2Fg%2F11p_81wwr4!19sChIJ1YMRtWLJwoARFjLvHlowHYE?authuser=0&hl=en&rclk=1",
+      "name": "Everytable",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1030 W Martin Luther King Jr Blvd, Los Angeles, CA 90037",
+      "city": "Los Angeles",
+      "lat": 34.0105339,
+      "lng": -118.2928415,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxkG5jeu3uNwsaFH9WY6uoAeJ4L3gqtnfh9q6p3itDDWiafNwoXuHEOb1ygyOh7niN08t9EnKBN4OoqCiYTibPlRGEbNiIPALW4u1ITMObN4ZRUhMBdi24DaDqKd0D7fB9dUpBHag=w397-h298-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7ecf507750d:0x7490b43c04f83df3",
+      "url": "https://www.google.com/maps/place/Everytable/data=!4m7!3m6!1s0x80c2c7ecf507750d:0x7490b43c04f83df3!8m2!3d34.0350855!4d-118.2835359!16s%2Fg%2F11c0vnr978!19sChIJDXUH9ezHwoAR8z34BDy0kHQ?authuser=0&hl=en&rclk=1",
+      "name": "Everytable",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1101 W 23rd St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0350855,
+      "lng": -118.2835359,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwfhw2pl3KKBLEIboeTQmgLorCPZaC8QRyUZrU5awUrf3zPx9UBR78S58MjLTlsDetYXypjfU5RZWPaArTraKMWMj1qEPYKE02Co4bGYKoXPjhxfT3NwK2LyWmI_S7VkqLWhDdz=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c74dfc7cf8c7:0x4ff8939acd7fafb9",
+      "url": "https://www.google.com/maps/place/Trattoria+Daly/data=!4m7!3m6!1s0x80c2c74dfc7cf8c7:0x4ff8939acd7fafb9!8m2!3d34.0743882!4d-118.2158838!16s%2Fg%2F11vs8m1gjk!19sChIJx_h8_E3HwoARua9_zZqT-E8?authuser=0&hl=en&rclk=1",
+      "name": "Trattoria Daly",
+      "category": "Italian restaurant",
+      "categories": [
+        "Italian restaurant"
+      ],
+      "rating": 5,
+      "price": "$20\u201330",
+      "address": "\ue0c8 2423 Daly St, Los Angeles, CA 90031",
+      "city": "Los Angeles",
+      "lat": 34.0743882,
+      "lng": -118.2158838,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNC473Qt9AemhNI-u3_70VzJv1kBLKpZSBz4W15=w112-h112-p-k-no",
+      "query": "best restaurants near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c789407b7d9f:0xfffad3d71c9f0893",
+      "url": "https://www.google.com/maps/place/Ministry+of+Coffee+-+USC/data=!4m7!3m6!1s0x80c2c789407b7d9f:0xfffad3d71c9f0893!8m2!3d34.0250213!4d-118.2831033!16s%2Fg%2F11hrzcmg0v!19sChIJn317QInHwoARkwifHNfT-v8?authuser=0&hl=en&rclk=1",
+      "name": "Ministry of Coffee - USC",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.3,
+      "price": "$10\u201320",
+      "address": "\ue0c8 844 W 32nd St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0250213,
+      "lng": -118.2831033,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzrTXS7vUhjCe8pPUpba1cZcHNGgVKdVxFybw_Wvql7V8OcrexAclpeV0lWQD4T4XsI8kzw0ykXXHY18Lwda055o1jLW81n76Ocl5anEdwTtHPxwz9otIfYGD6ItW55_0M8tmZCqA=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e572b7e55b:0xc1b2ae9fcc94bbc9",
+      "url": "https://www.google.com/maps/place/Cafe+Dulce+%28USC+Village%29/data=!4m7!3m6!1s0x80c2c7e572b7e55b:0xc1b2ae9fcc94bbc9!8m2!3d34.0253658!4d-118.2853227!16s%2Fg%2F11g9qspp7j!19sChIJW-W3cuXHwoARybuUzJ-ussE?authuser=0&hl=en&rclk=1",
+      "name": "Cafe Dulce (USC Village)",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3096 McClintock Ave Ste 1420, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0253658,
+      "lng": -118.2853227,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxOk7QYY_lIP-JLqnSLwtesXpaDfnTAY_tf5jmNe8qHkTzAr4mTOYNGDFz0DDYOUAu2Mk4pWHl2Ocl6UQHJWMFbohIJIE3t5ORRoGdHeivHo1WnvoteG7_hvgLcHBhKS0eKdawEyHGy9Ja7=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c763046fd87d:0xcdee758f07998a12",
+      "url": "https://www.google.com/maps/place/Jetty+Coffee+Roasters/data=!4m7!3m6!1s0x80c2c763046fd87d:0xcdee758f07998a12!8m2!3d34.0205887!4d-118.2741266!16s%2Fg%2F11nxvgjqxj!19sChIJfdhvBGPHwoAREoqZB4917s0?authuser=0&hl=en&rclk=1",
+      "name": "Jetty Coffee Roasters",
+      "category": "Coffee roasters",
+      "categories": [
+        "Coffee roasters"
+      ],
+      "rating": 4.9,
+      "price": "$1\u201310",
+      "address": "\ue0c8 3220 S Hill St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0205887,
+      "lng": -118.2741266,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzL3xG0Ym82xafjlielUYT7HVPq2juKom_-ImR10w3WSIo-Yrw2HsQAL5sfxo-mLmd7Nx_iQTKOb0o5bBf43aYDavYq-dEx5205wcmAdR_VrSCkX9ZMF8Dq6ymf4hxbgAfqmr_XJA=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7ec5cff7e27:0xd1f86f0523b02b25",
+      "url": "https://www.google.com/maps/place/Nature%27s+Brew+by+Bacari/data=!4m7!3m6!1s0x80c2c7ec5cff7e27:0xd1f86f0523b02b25!8m2!3d34.0342996!4d-118.2836242!16s%2Fg%2F12m8z8yn8!19sChIJJ37_XOzHwoARJSuwIwVv-NE?authuser=0&hl=en&rclk=1",
+      "name": "Nature's Brew by Bacari",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2316 S Union Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0342996,
+      "lng": -118.2836242,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzIAllfYAl-c3x3mvl-jiGiMq_LFrxOdBfsgESfEdFyAI8ZFFfUHik8ShkgTyyJvTP9EeSWUhksQCSqMwLh0UCiC8WuPruNCOeI9yUH4SPy5X8riOOTO61E7yleMJLc81F2ysU1CQ=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9c794c0ef21:0x654d3d224b951f21",
+      "url": "https://www.google.com/maps/place/Cafe+Calle/data=!4m7!3m6!1s0x80c2b9c794c0ef21:0x654d3d224b951f21!8m2!3d34.0133356!4d-118.256267!16s%2Fg%2F11rg7979jw!19sChIJIe_AlMe5woARIR-VSyI9TWU?authuser=0&hl=en&rclk=1",
+      "name": "Cafe Calle",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3310 S Central Ave, Los Angeles, CA 90011",
+      "city": "Los Angeles",
+      "lat": 34.0133356,
+      "lng": -118.256267,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyNCRqRCq_OohqwQ6hcUFhd3oBRA7Nf0ZEbQ2Gy9GWLpUGJsIZ7byBaKeTvqKRUVslD-qAQ3n0dT9vJfo-RM4Sk0wDhUA-U_Mvt3OmWpXel5AJZz_CjP8swnyWNA-EmXnXlVlrno8E5DETX=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7de7e041155:0x7f39bbb0b212d4e8",
+      "url": "https://www.google.com/maps/place/Seree%27s+Coffee+Shop/data=!4m7!3m6!1s0x80c2c7de7e041155:0x7f39bbb0b212d4e8!8m2!3d34.0244996!4d-118.2731924!16s%2Fg%2F1tdvdvqb!19sChIJVREEft7HwoAR6NQSsrC7OX8?authuser=0&hl=en&rclk=1",
+      "name": "Seree's Coffee Shop",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2800 S Grand Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0244996,
+      "lng": -118.2731924,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxe7mRGPUwrvhJH3FJuqP4WwyHzO35LpfOaXW7TnLuo2wuClMegb1QynK3OyiwNQggzvGEK24y6vTlg8ZG3CKP2KjXOTO724AgGzCaDcQ_92r4Tu5iBSeFOnUKq9bF4vozT5_4=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9fc1e8e05dd:0x5bab94cc6172e155",
+      "url": "https://www.google.com/maps/place/South+LA+Cafe/data=!4m7!3m6!1s0x80c2b9fc1e8e05dd:0x5bab94cc6172e155!8m2!3d34.0117509!4d-118.3091487!16s%2Fg%2F11h70j208l!19sChIJ3QWOHvy5woARVeFyYcyUq1s?authuser=0&hl=en&rclk=1",
+      "name": "South LA Cafe",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.7,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1700 Browning Blvd, Los Angeles, CA 90062",
+      "city": "Los Angeles",
+      "lat": 34.0117509,
+      "lng": -118.3091487,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSy3_4e7TBWS8pK-_2VyOlDKd4DMSBl5XnRm4RV6Al2G5_9bpMjjaDhdWSNBHw_zFA1ZJpceUAm_R-cV4rIoa78V2tgcRV3Zkd0rlQxag5DGYUodkTHxYmrWc2671ddCYmuGLDQd=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b926d1cb3b5b:0xc645aa5863950ff5",
+      "url": "https://www.google.com/maps/place/3THYME+COFFEE/data=!4m7!3m6!1s0x80c2b926d1cb3b5b:0xc645aa5863950ff5!8m2!3d34.0631563!4d-118.3038041!16s%2Fg%2F11rr383bkb!19sChIJWzvL0Sa5woAR9Q-VY1iqRcY?authuser=0&hl=en&rclk=1",
+      "name": "3THYME COFFEE",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 600 S Harvard Blvd #100, Los Angeles, CA 90005",
+      "city": "Los Angeles",
+      "lat": 34.0631563,
+      "lng": -118.3038041,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzIC_Pw_pkSc1qyxqyySJO6oaMJMfgxZGH6ZIGHC2Le86ZRVeQBE3P7HMfifX9vsamyqiru4Hp8ziCcr52Osvapl9efVgtJk44P_BuYBVKwRWJ3KU_m2zucHn15ZFfykOj6EtxPo5yb9jiy=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78c5ad458fb:0xac61952781518a0f",
+      "url": "https://www.google.com/maps/place/With+Love+Market+%26+Cafe/data=!4m7!3m6!1s0x80c2c78c5ad458fb:0xac61952781518a0f!8m2!3d34.0385427!4d-118.2918193!16s%2Fg%2F11b70h1spq!19sChIJ-1jUWozHwoARD4pRgSeVYaw?authuser=0&hl=en&rclk=1",
+      "name": "With Love Market & Cafe",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.7,
+      "price": "$10\u201320",
+      "address": "\ue0c8 1969 S Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0385427,
+      "lng": -118.2918193,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSycdqWOF0emYA5OKC7LxcY1YjJDYFIk7eqKddrfXnAo_Roc9A2iHFKODTKWwLqJ3lLS_H9SWaRXjT-Xv4R4ezj9ISGNb_Kn9katAfNhrhZM0N8uGYFknOOCJeJ3bjDSNaxOUrBTvkZgxO8=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c5fd4213e315:0x8dd062f4c6916bb2",
+      "url": "https://www.google.com/maps/place/Acurr%C3%BAcame+Caf%C3%A9/data=!4m7!3m6!1s0x80c2c5fd4213e315:0x8dd062f4c6916bb2!8m2!3d34.045678!4d-118.204792!16s%2Fg%2F1tkrm1sh!19sChIJFeMTQv3FwoARsmuRxvRi0I0?authuser=0&hl=en&rclk=1",
+      "name": "Acurr\u00facame Caf\u00e9",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$1\u201310",
+      "address": "\ue0c8 2609 E Cesar E Chavez Ave, Los Angeles, CA 90033",
+      "city": "Los Angeles",
+      "lat": 34.045678,
+      "lng": -118.204792,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx-Qh46F1_8lsd0m3v-N9V2QvbO_UEwMZ1cukgJuU2vlrxw6wxjvrSGT56HpDLvkg5HNp_JFyAaeRTqD7JHpVQYlBBa1zGEja6YVYO1klZuamidI_BecdH-6WDywvz9I09sF4KuOM_P5sYZ=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e22058a73f:0x6dc9ef75e7be02d5",
+      "url": "https://www.google.com/maps/place/Fertitta+Cafe/data=!4m7!3m6!1s0x80c2c7e22058a73f:0x6dc9ef75e7be02d5!8m2!3d34.0187116!4d-118.2824525!16s%2Fg%2F11c6cd7fmq!19sChIJP6dYIOLHwoAR1QK-53XvyW0?authuser=0&hl=en&rclk=1",
+      "name": "Fertitta Cafe",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.3,
+      "price": "$$",
+      "address": "\ue0c8 3601 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0187116,
+      "lng": -118.2824525,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzAXtTfwnctF84eHTOttk-xZrwWKYkj-5BzdQ7uHjU7Ya7tGs_gK03k5DZaYWJvj8oeKPyCj831XBBbeoyBqXT9NBTMp-ujKRSz55cy5Ct6ym20r5R9whkLbG-KAG98-xvutQK68A=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e5bb6e8567:0x4a6faae0a379b399",
+      "url": "https://www.google.com/maps/place/Starbucks/data=!4m7!3m6!1s0x80c2c7e5bb6e8567:0x4a6faae0a379b399!8m2!3d34.02458!4d-118.28436!16s%2Fg%2F1tjyn_4c!19sChIJZ4Vuu-XHwoARmbN5o-Cqb0o?authuser=0&hl=en&rclk=1",
+      "name": "Starbucks",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.3,
+      "price": "$1\u201310",
+      "address": "\ue0c8 3201 S Hoover St, Los Angeles, CA 90089",
+      "city": "Los Angeles",
+      "lat": 34.02458,
+      "lng": -118.28436,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyDuqRR4_75p-2n9qN5i6rWKjWpEtGjacPuC7obw9du7fV5uYCUxJKeSY-5r9qImEEGzOb9frxcZYYPZOZ3nE9mZ8kjqVIEIgOqbQb2iOI4JZdulkJtJ3_eF1cwh4GoCYgZJE8r=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e3e7019c39:0xf5450d1507076f0f",
+      "url": "https://www.google.com/maps/place/Trojan+Grounds+%28illy%29/data=!4m7!3m6!1s0x80c2c7e3e7019c39:0xf5450d1507076f0f!8m2!3d34.0213252!4d-118.2824911!16s%2Fg%2F11ckvl6wqt!19sChIJOZwB5-PHwoARD28HBxUNRfU?authuser=0&hl=en&rclk=1",
+      "name": "Trojan Grounds (illy)",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 3.8,
+      "price": "$1\u201310",
+      "address": "\ue0c8 642 W 34th St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0213252,
+      "lng": -118.2824911,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwIKt1M5GhQ1TcbJMIViU34gYz1moohY1x5gds0-tVPf5P4OGJuOO_Hl7T53uOKba3yDHCphuR6lm_2m5h19wS36Km5fdPU38f8pcdH7STzjhhbEqpQTbDAfO2MAYM1DVdgyRLuXQ=w224-h298-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b93bbc1ccc05:0x291c3221468effd9",
+      "url": "https://www.google.com/maps/place/CAFE5/data=!4m7!3m6!1s0x80c2b93bbc1ccc05:0x291c3221468effd9!8m2!3d34.0256843!4d-118.3159594!16s%2Fg%2F11mv__rws4!19sChIJBcwcvDu5woAR2f-ORiEyHCk?authuser=0&hl=en&rclk=1",
+      "name": "CAFE5",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.7,
+      "price": "$1\u201310",
+      "address": "\ue0c8 2025 W Jefferson Blvd, Los Angeles, CA 90018",
+      "city": "Los Angeles",
+      "lat": 34.0256843,
+      "lng": -118.3159594,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSycGi8ZVk5cN47Qp8nm6CIgvD2YbYeSq2_Jxpug7Jt7kvZ_yypIV59cB-o6HL7KEvB_yIgL7sU0x2WxHdzI99KGzOZ-Jr9zQFUiJnNrFqRgjGaH7DjT-NtcXBro7eFBqgXX0vI=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c771c058982b:0x388f61926000975",
+      "url": "https://www.google.com/maps/place/Yeems+Coffee/data=!4m7!3m6!1s0x80c2c771c058982b:0x388f61926000975!8m2!3d34.0640166!4d-118.288274!16s%2Fg%2F11smvbdg3b!19sChIJK5hYwHHHwoARdQkAJhn2iAM?authuser=0&hl=en&rclk=1",
+      "name": "Yeems Coffee",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.7,
+      "price": "$1\u201310",
+      "address": "\ue0c8 3033 W 6th St #107, Los Angeles, CA 90020",
+      "city": "Los Angeles",
+      "lat": 34.0640166,
+      "lng": -118.288274,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipORblIWrbQUKMiXf6zVYiXE8gjGc1KHVfnn5ENY=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c9b8fde88e63:0x50e865ad625be3",
+      "url": "https://www.google.com/maps/place/Yanny%27s+Specialty+Coffee/data=!4m7!3m6!1s0x80c2c9b8fde88e63:0x50e865ad625be3!8m2!3d34.0030035!4d-118.2781816!16s%2Fg%2F11rg30wrxj!19sChIJY47o_bjJwoAR41tirWXoUAA?authuser=0&hl=en&rclk=1",
+      "name": "Yanny's Specialty Coffee",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.9,
+      "price": "$1\u201310",
+      "address": "\ue0c8 4428 1/2 S Broadway, Los Angeles, CA 90037",
+      "city": "Los Angeles",
+      "lat": 34.0030035,
+      "lng": -118.2781816,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipPiDl3EavFWpCnjUFfXiueTJjOeVdKZBEntWuTV=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7000f93cf75:0x92bdba73f0664e5",
+      "url": "https://www.google.com/maps/place/Dalian%27s+Caf%C3%A9/data=!4m7!3m6!1s0x80c2c7000f93cf75:0x92bdba73f0664e5!8m2!3d34.0493399!4d-118.2544607!16s%2Fg%2F11wfrf27ws!19sChIJdc-TDwDHwoAR5WQGP6fbKwk?authuser=0&hl=en&rclk=1",
+      "name": "Dalian's Caf\u00e9",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.9,
+      "price": "$10\u201320",
+      "address": "\ue0c8 530 S Grand Ave, Los Angeles, CA 90071",
+      "city": "Los Angeles",
+      "lat": 34.0493399,
+      "lng": -118.2544607,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOJ5D6wlUFbHDB8L6zFQk5ziF5giDW2BMZ7fX1H=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c779722c259d:0x5931d9a6137e5907",
+      "url": "https://www.google.com/maps/place/Alchemist+Coffee+Project/data=!4m7!3m6!1s0x80c2c779722c259d:0x5931d9a6137e5907!8m2!3d34.060227!4d-118.2914068!16s%2Fg%2F1tjcpq96!19sChIJnSUscnnHwoARB1l-E6bZMVk?authuser=0&hl=en&rclk=1",
+      "name": "Alchemist Coffee Project",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.5,
+      "price": "$1\u201310",
+      "address": "\ue0c8 698 S Vermont Ave Ste 103, Los Angeles, CA 90005",
+      "city": "Los Angeles",
+      "lat": 34.060227,
+      "lng": -118.2914068,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwawqlHomB6w9yjIEgDuavRN83WZscjFelQFZjerI7B6qvIa1t8DKFBGpCbiRrWYU818xmcZY18mFjncN3iuP3JLSmfWNJsunceHu8Hzc0CpIkA2Ln9eZzEsy3D8LykQAwyo3Cznw=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c63b819c5a17:0x560b879100a3bb9f",
+      "url": "https://www.google.com/maps/place/Urth+Caffe/data=!4m7!3m6!1s0x80c2c63b819c5a17:0x560b879100a3bb9f!8m2!3d34.0419892!4d-118.2354609!16s%2Fg%2F1tj52w6p!19sChIJF1qcgTvGwoARn7ujAJGHC1Y?authuser=0&hl=en&rclk=1",
+      "name": "Urth Caffe",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 459 S Hewitt St, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.0419892,
+      "lng": -118.2354609,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx1wn-H1g5BnFRu0HXK74L2J5WnVk6zQjD1EFI7dp6gxX5BKc47h02sPErkCtAOUDLB84VJXLFAGtiE60c99YBDtUFKRHKhYOi9Wcjnje4o6eT7vZOhM8TW0gCGSK1jcmBfgbNk4Q=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c728ea2df299:0xf85d34c4abe1a7f2",
+      "url": "https://www.google.com/maps/place/Cafe+Fig/data=!4m7!3m6!1s0x80c2c728ea2df299:0xf85d34c4abe1a7f2!8m2!3d34.0454417!4d-118.2637691!16s%2Fg%2F11nx1kldt3!19sChIJmfIt6ijHwoAR8qfhq8Q0Xfg?authuser=0&hl=en&rclk=1",
+      "name": "Cafe Fig",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.1,
+      "price": "$30\u201350",
+      "address": "\ue0c8 939 S Figueroa St UNIT 300, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0454417,
+      "lng": -118.2637691,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzEZxQ3sOd4MZ4TdLFdkTs0giCZbcuIuf10j7KZFhRttds9TUM2EBSB9cxunwC5ojS4KDyWgXy2xt1fiYLaxL4dgoeoIcMz3UKGvPniqBMWE0zrk34tk1a5AY_HUlhwOEjg-yo390O3SMMh=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9506215aeab:0xf6fe0f900a73fd73",
+      "url": "https://www.google.com/maps/place/Cafe+De+Mama/data=!4m7!3m6!1s0x80c2b9506215aeab:0xf6fe0f900a73fd73!8m2!3d34.050647!4d-118.3088363!16s%2Fg%2F11jmy2683l!19sChIJq64VYlC5woARc_1zCpAP_vY?authuser=0&hl=en&rclk=1",
+      "name": "Cafe De Mama",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.7,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1102 S Western Ave, Los Angeles, CA 90006",
+      "city": "Los Angeles",
+      "lat": 34.050647,
+      "lng": -118.3088363,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwH4ezME_o_yI1cYwqCzIrw50GVy0dbEUIYGqTBHJ0qH_KOuRmoBQAOLYwLNcQQS6EICfEiQtFgOvFHIFgXeh46_s6LWRL_pajajLW3dVnMrRKXeUy7z7ywyhEFPBFlKm0Led_sePH5R1DS=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b90049fc8d99:0x470ef39e9cef356a",
+      "url": "https://www.google.com/maps/place/South+LA+Cafe/data=!4m7!3m6!1s0x80c2b90049fc8d99:0x470ef39e9cef356a!8m2!3d34.0258641!4d-118.3215435!16s%2Fg%2F11y29wvjg1!19sChIJmY38SQC5woARajXvnJ7zDkc?authuser=0&hl=en&rclk=1",
+      "name": "South LA Cafe",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 2401 W Jefferson Blvd, Los Angeles, CA 90018",
+      "city": "Los Angeles",
+      "lat": 34.0258641,
+      "lng": -118.3215435,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSySwqih16Q9S9FGAiQSRbFtG4Klb2flD0VWIggEcUC1rXHqpXjYZ0_ulpfLrrC2dAPpusODkuGP5dtQ_agUemih-OKBvyXt5-DnppZ0xwiyXj-tM2PzkhydahnP8HcZEyzhjwS_=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c77012f8c47d:0x2ab939de93a59542",
+      "url": "https://www.google.com/maps/place/Coffee+MCO/data=!4m7!3m6!1s0x80c2c77012f8c47d:0x2ab939de93a59542!8m2!3d34.0521867!4d-118.2873747!16s%2Fg%2F11fn4x390h!19sChIJfcT4EnDHwoARQpWlk945uSo?authuser=0&hl=en&rclk=1",
+      "name": "Coffee MCO",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.4,
+      "price": "$1\u201310",
+      "address": "\ue0c8 2580 W Olympic Blvd Unit #2, Los Angeles, CA 90006",
+      "city": "Los Angeles",
+      "lat": 34.0521867,
+      "lng": -118.2873747,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxN3WUi3MuJWRAHMMwNTOSrbYSatyORzj3wamToyFKRXGQwWMKbsY5cxEy5ns3hk0GVsD4QkM-AgRbCVgMQ1Av8kpbbRrM2fWWkA-p64PITgvUTLzQcAY6CV1UwwOefqfCAcMB2UDv7BdaZ=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b87af7a41327:0xb5870c5d738cb07f",
+      "url": "https://www.google.com/maps/place/Alibi+Coffee+Co./data=!4m7!3m6!1s0x80c2b87af7a41327:0xb5870c5d738cb07f!8m2!3d34.0397999!4d-118.2972914!16s%2Fg%2F11gg741b2c!19sChIJJxOk93q4woARf7CMc10Mh7U?authuser=0&hl=en&rclk=1",
+      "name": "Alibi Coffee Co.",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1798 W Washington Blvd, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0397999,
+      "lng": -118.2972914,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzodq4J-IwNnzYTjceol_GmipdgUtklAmRpwWx5KcvViq2n4_mPiHD-E2xnWblmd5Ebq2t50av-O2pZsfRMSGzBv6hyq8lMdgFiyRmCIGE8XNN5FecleXrt4qnZSN4sXEy6HiZi_IVn-Wk=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c1fc82f13c21:0x8c9b43ea658625e1",
+      "url": "https://www.google.com/maps/place/CAFE+NIDO:+Coffee+%26+Books/data=!4m7!3m6!1s0x80c2c1fc82f13c21:0x8c9b43ea658625e1!8m2!3d34.0952751!4d-118.2950166!16s%2Fg%2F11svqwh5qb!19sChIJITzxgvzBwoAR4SWGZepDm4w?authuser=0&hl=en&rclk=1",
+      "name": "CAFE NIDO: Coffee & Books",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.3,
+      "price": "$10\u201320",
+      "address": "\ue0c8 4854 Fountain Ave, Los Angeles, CA 90029",
+      "city": "Los Angeles",
+      "lat": 34.0952751,
+      "lng": -118.2950166,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxIkckSJJrQEUigecAK6e2j5rCzK66jWFYySMC0ha2T63pqfFXvkDT0DtjVqDAIcoJ2_F4C7cJddJm9Vmn7WQ-4MPz5s65tid8DRbxdPySjxkjFXDCWp27pFOm6xkgMgUNlZbRO9MiHY8Et=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7c3da613971:0x73125e1d6ceb81a6",
+      "url": "https://www.google.com/maps/place/Ideology+Coffee/data=!4m7!3m6!1s0x80c2c7c3da613971:0x73125e1d6ceb81a6!8m2!3d34.0420608!4d-118.2637172!16s%2Fg%2F11stvlgwx3!19sChIJcTlh2sPHwoARpoHrbB1eEnM?authuser=0&hl=en&rclk=1",
+      "name": "Ideology Coffee",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.3,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1115 S Hope St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0420608,
+      "lng": -118.2637172,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyXMcx4lVks8TdieX39O6IIXGkkiCZyk1cspt6XPoQI7gWTB6XsEQcQ-QaOfk5rr16Jr36J0GRMNaTRSckJjhL_YFSuekeGolG6mMbNgSeJASrNEolwSM_qn8XqiV7Cjh3-vA0=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c93d5d08bc6d:0x14c8ea9651f37c44",
+      "url": "https://www.google.com/maps/place/Mornings+LA/data=!4m7!3m6!1s0x80c2c93d5d08bc6d:0x14c8ea9651f37c44!8m2!3d34.0135061!4d-118.2791851!16s%2Fg%2F11w1n_sy1k!19sChIJbbwIXT3JwoARRHzzUZbqyBQ?authuser=0&hl=en&rclk=1",
+      "name": "Mornings LA",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$1\u201310",
+      "address": "\ue0c8 3855 S Hill St, Los Angeles, CA 90037",
+      "city": "Los Angeles",
+      "lat": 34.0135061,
+      "lng": -118.2791851,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMJqryUUAWzE4U4VLx9KxCkVwk_gUDtzPuQ8NVR=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9792445fa3b:0xd0c1b573f430d9af",
+      "url": "https://www.google.com/maps/place/THE+HISTORY+COFFEE/data=!4m7!3m6!1s0x80c2b9792445fa3b:0xd0c1b573f430d9af!8m2!3d34.0473102!4d-118.3190126!16s%2Fg%2F11sfgq5j3b!19sChIJO_pFJHm5woARr9kw9HO1wdA?authuser=0&hl=en&rclk=1",
+      "name": "THE HISTORY COFFEE",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$1\u201310",
+      "address": "\ue0c8 3501 W Pico Blvd, Los Angeles, CA 90019",
+      "city": "Los Angeles",
+      "lat": 34.0473102,
+      "lng": -118.3190126,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyF3PdsbM3_uztgjUdLxCtIq5a68G3k_ime1btCXyvBtPULItXuUTbxBsGoBBJQWAvMF978syEa-75oxj8h5Myh--vhSIo06elvW9XfqvGJL6mHY9OX7ZLMkog2_-w5Mn5HKySe=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b92f7f3199d3:0xdafc300c924ef93d",
+      "url": "https://www.google.com/maps/place/FUEGOS+-+Coffee+Shop/data=!4m7!3m6!1s0x80c2b92f7f3199d3:0xdafc300c924ef93d!8m2!3d34.0126038!4d-118.3091605!16s%2Fg%2F11m5sjzdyg!19sChIJ05kxfy-5woARPflOkgww_No?authuser=0&hl=en&rclk=1",
+      "name": "FUEGOS - Coffee Shop",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3957 1/4 S Western Ave, Los Angeles, CA 90062",
+      "city": "Los Angeles",
+      "lat": 34.0126038,
+      "lng": -118.3091605,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMQFYv4JhXiFFdF7BG8m7bRxscF1eSUo--9g4sl=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c768a6035655:0xa32b782f3425bc00",
+      "url": "https://www.google.com/maps/place/Bluestone+Lane+Downtown+LA/data=!4m7!3m6!1s0x80c2c768a6035655:0xa32b782f3425bc00!8m2!3d34.040716!4d-118.2675023!16s%2Fg%2F11t_h4w41m!19sChIJVVYDpmjHwoARALwlNC94K6M?authuser=0&hl=en&rclk=1",
+      "name": "Bluestone Lane Downtown LA",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 3.7,
+      "price": "$10\u201320",
+      "address": "\ue0c8 1260 S Figueroa St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.040716,
+      "lng": -118.2675023,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzw5Ns2spKciawF75YgfeVI4D_4fAGhMicXCQqNPqMt5jkyAcWvqQLjrSqdzMY7FRG3Tsw3WQARUs7QTBfzhMvsI_iqD-cr0_ccRfCjDUTHJdVFmAct2Mfn_49avkaZAruy8fE=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c72db31afd11:0xfb8da24d92ba4072",
+      "url": "https://www.google.com/maps/place/Fleur+Caf%C3%A9/data=!4m7!3m6!1s0x80c2c72db31afd11:0xfb8da24d92ba4072!8m2!3d34.0473253!4d-118.2704208!16s%2Fg%2F11l87xj4gz!19sChIJEf0asy3HwoARckC6kk2ijfs?authuser=0&hl=en&rclk=1",
+      "name": "Fleur Caf\u00e9",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 1300 W Olympic Blvd #102a, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0473253,
+      "lng": -118.2704208,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwdF1xsAoTIV3equFNfFKbIyE9_WGArKqkEGurh-3tnSRC6VIuxg1vJVB8d1m_mhS7e5bjhrSA4HZX4GN3OrgoaHAEt72QQOZaK-ZI01QYOpmGWWWBuMGnouteNoZvPtMmVcDCsPBS9ugHi=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c720dee02077:0x4d1074231f582402",
+      "url": "https://www.google.com/maps/place/Amino+Avenue+Boba+%26+Coffee/data=!4m7!3m6!1s0x80c2c720dee02077:0x4d1074231f582402!8m2!3d34.0270874!4d-118.2763855!16s%2Fg%2F11m5l6_rx5!19sChIJdyDg3iDHwoARAiRYHyN0EE0?authuser=0&hl=en&rclk=1",
+      "name": "Amino Avenue Boba & Coffee",
+      "category": "Bubble tea store",
+      "categories": [
+        "Bubble tea store"
+      ],
+      "rating": 4.8,
+      "price": "$$$",
+      "address": "\ue0c8 2700 S Figueroa St #105, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0270874,
+      "lng": -118.2763855,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMfwadrds6g8bOwPRA7Pdq5VVmYq5Sp8FN4_pUo=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7569e076def:0xc003104a249206a4",
+      "url": "https://www.google.com/maps/place/Onescape+Coffee/data=!4m7!3m6!1s0x80c2c7569e076def:0xc003104a249206a4!8m2!3d34.0669702!4d-118.2921458!16s%2Fg%2F11xh2s8ssw!19sChIJ720HnlbHwoARpAaSJEoQA8A?authuser=0&hl=en&rclk=1",
+      "name": "Onescape Coffee",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$1\u201310",
+      "address": "\ue0c8 401 S Vermont Ave #6, Los Angeles, CA 90020",
+      "city": "Los Angeles",
+      "lat": 34.0669702,
+      "lng": -118.2921458,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw3h0MyO0zovQl9AIepRDKOlg1Y-sD2zSZeLCeUZAXDlzKzhugt0meSlmuJdjLYQMZ514LVjorGl_c3O10kjCbIRy_pchoOcDF0YFbEu_5Dpr_YeBgJ-fBxFejW2z8uxKuVHlMEad-x-IrB=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c73b5dfb796f:0xd4951ccb993aeb8d",
+      "url": "https://www.google.com/maps/place/De+La+Tierra+Caf%C3%A9/data=!4m7!3m6!1s0x80c2c73b5dfb796f:0xd4951ccb993aeb8d!8m2!3d34.0921405!4d-118.2915613!16s%2Fg%2F11tsmh74hc!19sChIJb3n7XTvHwoARjes6mcscldQ?authuser=0&hl=en&rclk=1",
+      "name": "De La Tierra Caf\u00e9",
+      "category": "Coffee shop",
+      "categories": [
+        "Coffee shop"
+      ],
+      "rating": 4.8,
+      "price": "$10\u201320",
+      "address": "\ue0c8 1144 N Vermont Ave, Los Angeles, CA 90029",
+      "city": "Los Angeles",
+      "lat": 34.0921405,
+      "lng": -118.2915613,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzGCzzOvP8Hiw2-n1gR_6ZLW46ogEp1KSMI9pTbbtJkhe8eg4io4DdTjL6_j0xcpk4vx5aYqBdFY_f7QSIhWwnbGuhmrSy4nV5Bbl2SAZQQtb6T82kv6XpjaIzTS_XgZJszDbhz1OHB9XIf=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b5473519c5:0x557740ad9cc6bc40",
+      "url": "https://www.google.com/maps/place/Le+Cafe+Bonjour/data=!4m7!3m6!1s0x80c2c7b5473519c5:0x557740ad9cc6bc40!8m2!3d34.046106!4d-118.2535429!16s%2Fg%2F1v7tln84!19sChIJxRk1R7XHwoARQLzGnK1Ad1U?authuser=0&hl=en&rclk=1",
+      "name": "Le Cafe Bonjour",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.6,
+      "price": "$1\u201310",
+      "address": "\ue0c8 640 S Hill St s4, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.046106,
+      "lng": -118.2535429,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSz1doBa0ZkxzJyzt2Vk--xy0gqwVBLP4GKDl2fI-9TGNbXTVkXNRPHg_oa6lrPvmnR3Gpcoo6lloMCLTqjreekrQK2Ci5L_TdemS7mb1MKBMnKg8Fsmc509K11oIdu63Z6iVU8DRw=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e72463d46f:0x8139ad22772c714d",
+      "url": "https://www.google.com/maps/place/Cup+O%27+Joy/data=!4m7!3m6!1s0x80c2c7e72463d46f:0x8139ad22772c714d!8m2!3d34.0244636!4d-118.277825!16s%2Fg%2F1tfkfvs6!19sChIJb9RjJOfHwoARTXEsdyKtOYE?authuser=0&hl=en&rclk=1",
+      "name": "Cup O' Joy",
+      "category": "Cafe",
+      "categories": [
+        "Cafe"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3016 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0244636,
+      "lng": -118.277825,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSySJEl_bcB5S5eXR2RJV5ZPPnjSwzhIe_iY0euSj_kO6c9048BVNM7QOwUNJlbPTP-Rc1VnqCnmIj6q4Z47vuK4WJUMaZwT5p1sk_znBPgbZgb4EKmCZGn1zJNJRrUUoO4i31s2=w112-h112-p-k-no",
+      "query": "cafes coffee shops near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7db8365598f:0xed09d09bcc4841da",
+      "url": "https://www.google.com/maps/place/Mal%27s+Bar/data=!4m7!3m6!1s0x80c2c7db8365598f:0xed09d09bcc4841da!8m2!3d34.0279016!4d-118.2697369!16s%2Fg%2F1hc61cjvr!19sChIJj1llg9vHwoAR2kFIzJvQCe0?authuser=0&hl=en&rclk=1",
+      "name": "Mal's Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2331 S Hill St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0279016,
+      "lng": -118.2697369,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOim1MTOl6FJ9zXdBUZu6r5yU-XiP_j5O92Cfq6=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c76e2efcdb6f:0x13d69927b76a892b",
+      "url": "https://www.google.com/maps/place/33+Taps+DTLA/data=!4m7!3m6!1s0x80c2c76e2efcdb6f:0x13d69927b76a892b!8m2!3d34.0410796!4d-118.2670979!16s%2Fg%2F11y2k0v005!19sChIJb9v8Lm7HwoARK4lqtyeZ1hM?authuser=0&hl=en&rclk=1",
+      "name": "33 Taps DTLA",
+      "category": "Sports bar",
+      "categories": [
+        "Sports bar"
+      ],
+      "rating": 4.6,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1240 S Figueroa St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0410796,
+      "lng": -118.2670979,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOeACo1jWiJHO7gzOuUizcPMUdQYJQcmRgp5CYN=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c740958fc477:0x937dc04450238d38",
+      "url": "https://www.google.com/maps/place/The+Liberties+DTLA/data=!4m7!3m6!1s0x80c2c740958fc477:0x937dc04450238d38!8m2!3d34.0528158!4d-118.2637628!16s%2Fg%2F11khmgxbsz!19sChIJd8SPlUDHwoAROI0jUETAfZM?authuser=0&hl=en&rclk=1",
+      "name": "The Liberties DTLA",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.7,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1111 Wilshire Blvd, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0528158,
+      "lng": -118.2637628,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxzmAfLZjlF7Llx_LJ5VDSZ5UPc-cHmbP01G6bfD-vXs1kc5znT4iAl4yg-ZBftOFkwmCV2k3VZPmP5ZRlodznLmDhA2oOaBxS1za-eIg2hzmvWVQo2WCPAsaV3dPBVECDCLDaCmIfT9p1K=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7e772be006b:0x2bf7d2de0f67fd10",
+      "url": "https://www.google.com/maps/place/901+Bar+and+Grill/data=!4m7!3m6!1s0x80c2c7e772be006b:0x2bf7d2de0f67fd10!8m2!3d34.025583!4d-118.2773206!16s%2Fg%2F1tg4lnjn!19sChIJawC-cufHwoAREP1nD97S9ys?authuser=0&hl=en&rclk=1",
+      "name": "901 Bar and Grill",
+      "category": "Bar & grill",
+      "categories": [
+        "Bar & grill"
+      ],
+      "rating": 4.3,
+      "price": "$$$",
+      "address": "\ue0c8 2902 S Figueroa St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.025583,
+      "lng": -118.2773206,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzL5GMKG3Ex0WptMwFkiDtw1of57YBKkaIzjrfiYbnPX2-gxG4D8f1p-dJzLEbepr3bb0N3E3zVFnht8sXU7WDyIKNMb25sVab27aQmdu7qd295TGX6Eo3hGNlyropHDhDI9MvD=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b152008fff:0xd58dc44f467485ca",
+      "url": "https://www.google.com/maps/place/Dublin%27s+Irish+Whiskey+Pub/data=!4m7!3m6!1s0x80c2c7b152008fff:0xd58dc44f467485ca!8m2!3d34.0491141!4d-118.2590567!16s%2Fg%2F1v6p4khy!19sChIJ_48AUrHHwoARyoV0Rk_EjdU?authuser=0&hl=en&rclk=1",
+      "name": "Dublin's Irish Whiskey Pub",
+      "category": "Irish pub",
+      "categories": [
+        "Irish pub"
+      ],
+      "rating": 4.3,
+      "price": "$20\u201330",
+      "address": "\ue0c8 815 W 7th St, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0491141,
+      "lng": -118.2590567,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxt1CVUTbm1s3ISSOvnYDDvdGZ6_lLuQa_l7omvvupcW7ZJNb252ch3x8BYy66gNMDuZCjCbG6c0SnF9Bq0Mg1RGmqx0shUF3hCcBNNscjKU1GWB_GbzvbbpocE6GBM2Au_gQ8=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c637c07b1109:0xf9f993475dd1e897",
+      "url": "https://www.google.com/maps/place/The+Escondite/data=!4m7!3m6!1s0x80c2c637c07b1109:0xf9f993475dd1e897!8m2!3d34.0460944!4d-118.2421687!16s%2Fg%2F1tdk0vs0!19sChIJCRF7wDfGwoARl-jRXUeT-fk?authuser=0&hl=en&rclk=1",
+      "name": "The Escondite",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 410 Boyd St, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.0460944,
+      "lng": -118.2421687,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzfGc77ozj7Qap8mKdH2Fz-SqX7REFReaKn2hDStGHSj_pTA4nF6eF6eal_M7orLlMarEmyMWcqylgjXeg8ab3XLcm5YeueTwB_MIu-0jms7q1evgnGYr2gcA71J02K1hPYv_N_=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b9d7271cad0f:0x9408ea5d790764a5",
+      "url": "https://www.google.com/maps/place/The+Bar+at+Johnny%27s/data=!4m7!3m6!1s0x80c2b9d7271cad0f:0x9408ea5d790764a5!8m2!3d34.0328183!4d-118.3329959!16s%2Fg%2F11mw6qd2hs!19sChIJD60cJ9e5woARpWQHeV3qCJQ?authuser=0&hl=en&rclk=1",
+      "name": "The Bar at Johnny's",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.5,
+      "price": "$30\u201350",
+      "address": "\ue0c8 4327 W Adams Blvd, Los Angeles, CA 90018",
+      "city": "Los Angeles",
+      "lat": 34.0328183,
+      "lng": -118.3329959,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSy-JWiRlB4b2rI2huRzqNwaYhGrrSMzFx4dV65qL0mrG7P2a1LgduAH4UvLPovRVs-Rt6xaNczvvfko0ss5oUOVoKxH7tONO5x0CqWVADfFhAeTk49Ft_seWUkl4TOPQTG_11JWFg=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7cadbd5976b:0xfa889d903f3774d7",
+      "url": "https://www.google.com/maps/place/Crane%27s+Bar+Downtown/data=!4m7!3m6!1s0x80c2c7cadbd5976b:0xfa889d903f3774d7!8m2!3d34.0428017!4d-118.2537452!16s%2Fg%2F1pzthw9g0!19sChIJa5fV28rHwoAR13Q3P5CdiPo?authuser=0&hl=en&rclk=1",
+      "name": "Crane's Bar Downtown",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 810 S Spring St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0428017,
+      "lng": -118.2537452,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwflJw0IKJyiKRwl-vdrG21OJ4QUFieHEp2YeRBPqbWMVLKboPCdZpFNbORF-PumQ_obm9D15F5gKP6CSFR0Bqh-oYrs74HZFrgZ8CJObxPsx0BZuU7fXvDPX7MeA2t7ApIyIMN=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b9aab65591:0x4d4b722c1553f6b7",
+      "url": "https://www.google.com/maps/place/Tom%27s+Watch+Bar+-+Los+Angeles/data=!4m7!3m6!1s0x80c2c7b9aab65591:0x4d4b722c1553f6b7!8m2!3d34.0439289!4d-118.2652624!16s%2Fg%2F1ptw9k1g5!19sChIJkVW2qrnHwoARt_ZTFSxyS00?authuser=0&hl=en&rclk=1",
+      "name": "Tom's Watch Bar - Los Angeles",
+      "category": "Sports bar",
+      "categories": [
+        "Sports bar"
+      ],
+      "rating": 4.3,
+      "price": "$$",
+      "address": "\ue0c8 1011 S Figueroa St b101, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0439289,
+      "lng": -118.2652624,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipN5BG_fe_qbn3J47dJSYDkalJt8YibXkxeBuQiZ=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b454a9e377:0x3ec4bf9189c57727",
+      "url": "https://www.google.com/maps/place/Seven+Grand/data=!4m7!3m6!1s0x80c2c7b454a9e377:0x3ec4bf9189c57727!8m2!3d34.0470275!4d-118.2559336!16s%2Fg%2F1tf28z7f!19sChIJd-OpVLTHwoARJ3fFiZG_xD4?authuser=0&hl=en&rclk=1",
+      "name": "Seven Grand",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.6,
+      "price": "$20\u201330",
+      "address": "\ue0c8 515 W 7th St 2nd floor, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0470275,
+      "lng": -118.2559336,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSymy8oHdp3C7uR0hMX_dwJzqeool8T6-opoQK8WYHQMyQSlIs_Z720S_AtQWGyI3KVP6-bIDX_YVCos4OfBWWx-jf2DxiPQhTXF2gcuGYTczRu1sdQC2VOznFsTx_osLcDHSiPfp1QCdpaf=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b5855c1e37:0x8df30b830907d871",
+      "url": "https://www.google.com/maps/place/Golden+Gopher/data=!4m7!3m6!1s0x80c2c7b5855c1e37:0x8df30b830907d871!8m2!3d34.0450353!4d-118.2562027!16s%2Fg%2F1tgh37hv!19sChIJNx5chbXHwoARcdgHCYML840?authuser=0&hl=en&rclk=1",
+      "name": "Golden Gopher",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 417 W 8th St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0450353,
+      "lng": -118.2562027,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxmi52qRK-hoCSP1giDADc-3X7bwGCboeH282m0zvvUpU0wMj1hmG-mC-2MhUL9DJ3crv0Bk7vKHwxZRODOrBMs1e_A_xnV5o645VKutVKtnzWJ5Jd9jdzBV0e6BDE50eAJL2mRDxhc3FyW=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b462ae2325:0xf40bb3a7ce7dc74c",
+      "url": "https://www.google.com/maps/place/Library+Bar/data=!4m7!3m6!1s0x80c2c7b462ae2325:0xf40bb3a7ce7dc74c!8m2!3d34.0491361!4d-118.2564556!16s%2Fg%2F1tfl9y74!19sChIJJSOuYrTHwoARTMd9zqezC_Q?authuser=0&hl=en&rclk=1",
+      "name": "Library Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.3,
+      "price": "$20\u201330",
+      "address": "\ue0c8 630 W 6th St suite 116 a, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0491361,
+      "lng": -118.2564556,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxTU5QlhwFdQhym7_avJTyK_7vyfkF0G_tbYX8VuTzgDURldGjpxPZ70G57--th4mBdbUM4rboNsLOi-m4w5n6sU6u0ggoXdmtMoJTPPZaKPmi5Vza4k7uuOKCGCMyjlZZkXj9M=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b45b9f29c5:0x91cb8dea86d0f589",
+      "url": "https://www.google.com/maps/place/Casey%27s+Irish+Pub/data=!4m7!3m6!1s0x80c2c7b45b9f29c5:0x91cb8dea86d0f589!8m2!3d34.0484808!4d-118.2557888!16s%2Fg%2F11b77lkp2_!19sChIJxSmfW7THwoARifXQhuqNy5E?authuser=0&hl=en&rclk=1",
+      "name": "Casey's Irish Pub",
+      "category": "Irish pub",
+      "categories": [
+        "Irish pub"
+      ],
+      "rating": 4.3,
+      "price": "$10\u201320",
+      "address": "\ue0c8 613 S Grand Ave, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0484808,
+      "lng": -118.2557888,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxkIqy7EXCVgf4u2z_LogvbtO_C0xGJDr11mZAkxV3u9TNfXh8qRbXoNuqgRnF0aZoeI3stTWuYJgiW9wMEnPhp5ORcuUwNVhwugOEXSBvpujNOSweXGUImgnOAcSUwWzNbzm8J3Q=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7355dc9a8a7:0x41fc958523e7b9f4",
+      "url": "https://www.google.com/maps/place/Good+Clean+Fun/data=!4m7!3m6!1s0x80c2c7355dc9a8a7:0x41fc958523e7b9f4!8m2!3d34.0438789!4d-118.25775!16s%2Fg%2F11qq6qxtq9!19sChIJp6jJXTXHwoAR9LnnI4WV_EE?authuser=0&hl=en&rclk=1",
+      "name": "Good Clean Fun",
+      "category": "Wine bar",
+      "categories": [
+        "Wine bar"
+      ],
+      "rating": 4.8,
+      "price": "$30\u201350",
+      "address": "\ue0c8 868 S Olive St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0438789,
+      "lng": -118.25775,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipN8T42DvnSUde5TWT6EeRA89sM6E5MfX_bcA_p8=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7c818540131:0x5c8d7329ccba4a80",
+      "url": "https://www.google.com/maps/place/Prank+Bar/data=!4m7!3m6!1s0x80c2c7c818540131:0x5c8d7329ccba4a80!8m2!3d34.0419977!4d-118.2630147!16s%2Fg%2F11c67qwn62!19sChIJMQFUGMjHwoARgEq6zClzjVw?authuser=0&hl=en&rclk=1",
+      "name": "Prank Bar",
+      "category": "Restaurant",
+      "categories": [
+        "Restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1100 S Hope St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0419977,
+      "lng": -118.2630147,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipN7_ssm1vbcuMBgxe6EOMVl-X-iJSZVeWAzOXX_=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b782019c1b:0x24f5d5a36b75f58f",
+      "url": "https://www.google.com/maps/place/Yard+House/data=!4m7!3m6!1s0x80c2c7b782019c1b:0x24f5d5a36b75f58f!8m2!3d34.04512!4d-118.2657!16s%2Fg%2F1wk7r3ly!19sChIJG5wBgrfHwoARj_V1a6PV9SQ?authuser=0&hl=en&rclk=1",
+      "name": "Yard House",
+      "category": "New American restaurant",
+      "categories": [
+        "New American restaurant"
+      ],
+      "rating": 4.4,
+      "price": "$20\u201330",
+      "address": "\ue0c8 800 W Olympic Blvd A-115, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.04512,
+      "lng": -118.2657,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSz63N8MQNzMQ2aJESgC675i6RqaFq5aHVllt8hn460uTJjBJQtFO1xar7TeVRJ_Ti6yQoTGEslhtYGdQPSCsshAIoideAlDITTz1UMZzxE-T43EQw1XgA78qW0qQJYH5DA9yEdMz-pflIi3=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7007446c5bf:0x96095eec92677093",
+      "url": "https://www.google.com/maps/place/Bars+Grill/data=!4m7!3m6!1s0x80c2c7007446c5bf:0x96095eec92677093!8m2!3d34.0358052!4d-118.2900265!16s%2Fg%2F11yknmz41_!19sChIJv8VGdADHwoARk3BnkuxeCZY?authuser=0&hl=en&rclk=1",
+      "name": "Bars Grill",
+      "category": "Kebab shop",
+      "categories": [
+        "Kebab shop"
+      ],
+      "rating": 5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 1434 W 22nd St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0358052,
+      "lng": -118.2900265,
+      "opening_hours": null,
+      "photo_url": null,
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7cb06889aab:0x9794c8d634ee2f57",
+      "url": "https://www.google.com/maps/place/Pattern+Bar/data=!4m7!3m6!1s0x80c2c7cb06889aab:0x9794c8d634ee2f57!8m2!3d34.0416407!4d-118.2552946!16s%2Fg%2F1hc4lpq3q!19sChIJq5qIBsvHwoARVy_uNNbIlJc?authuser=0&hl=en&rclk=1",
+      "name": "Pattern Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 100 W 9th St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0416407,
+      "lng": -118.2552946,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwCXNvtQrkvgv_yd0ugh32LMse1EYfQPktCzfhSSTWw4eTA6ww05kKhQipuoBBtSXWYnAY9_oye6kPNJcxSg1XmjX12MxQZ_Xlhj9K8prIuRiIpb3IGTaiiKizcaogy9UGJ4uZLEA=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c6355e868bf5:0x63f5bc7b0cbf3203",
+      "url": "https://www.google.com/maps/place/Spring+St+Bar/data=!4m7!3m6!1s0x80c2c6355e868bf5:0x63f5bc7b0cbf3203!8m2!3d34.0450978!4d-118.2513307!16s%2Fg%2F12q4v16dp!19sChIJ9YuGXjXGwoARAzK_DHu89WM?authuser=0&hl=en&rclk=1",
+      "name": "Spring St Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.6,
+      "price": "$$",
+      "address": "\ue0c8 626 S Spring St B, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0450978,
+      "lng": -118.2513307,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzL__-S7_SsZnS4xb39gU6hVxm7iqLZZ86ZszwqEpCtCmCmKKfuaxw1RBQ78Zgii78fiwEtOqMFyk7J35tAwK3rCW9ciy_nry8QLyuQMSAszf0a_fBiYYhy9yC35p5BXxFbb6Y_=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c76a42452611:0x5fd6ff140c176209",
+      "url": "https://www.google.com/maps/place/Bar+Magnolia/data=!4m7!3m6!1s0x80c2c76a42452611:0x5fd6ff140c176209!8m2!3d34.045529!4d-118.2640141!16s%2Fg%2F11js5sp9sc!19sChIJESZFQmrHwoARCWIXDBT_1l8?authuser=0&hl=en&rclk=1",
+      "name": "Bar Magnolia",
+      "category": "Cocktail bar",
+      "categories": [
+        "Cocktail bar"
+      ],
+      "rating": 3.7,
+      "price": "$32.00",
+      "address": "\ue0c8 939 S Figueroa St Suite 400, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.045529,
+      "lng": -118.2640141,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzZgumoAmTgyR6z0_64dpLKrnK23wZI8K0dQ-DNUH3RhEIJV9HQGGeskdaXGcv3PgvC_w95GWgLF66L-b2b6jaT0S_-tRvVPoXVNETRKxIjomDykbSTIGp4gYY__b1Gb5tKyjDQHnxcgA-c=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b8a2e458a74d:0xa7e8a8ff09f6f191",
+      "url": "https://www.google.com/maps/place/BiergartenLA+-+Koreatown/data=!4m7!3m6!1s0x80c2b8a2e458a74d:0xa7e8a8ff09f6f191!8m2!3d34.0748411!4d-118.3088919!16s%2Fg%2F1tfl0glp!19sChIJTadY5KK4woARkfH2Cf-o6Kc?authuser=0&hl=en&rclk=1",
+      "name": "BiergartenLA - Koreatown",
+      "category": "Beer garden",
+      "categories": [
+        "Beer garden"
+      ],
+      "rating": 4.4,
+      "price": "$20\u201330",
+      "address": "\ue0c8 206 N Western Ave, Los Angeles, CA 90004",
+      "city": "Los Angeles",
+      "lat": 34.0748411,
+      "lng": -118.3088919,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx1WNiLgMtmnxzaX55ABQzUx7nmTGXLrgkphFUGL-9cWVdDw6DR48CZojTsYUQuu6TfZaRs5UOaAXUZ1qOuc6VKT-euMwX2kMv6uu0CQXiBeQS_TxdRvVbJpIZXJ-9S9aXTxUJm=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b77ca40001:0xd1c2a78aea957ec1",
+      "url": "https://www.google.com/maps/place/Bar+Figueroa/data=!4m7!3m6!1s0x80c2c7b77ca40001:0xd1c2a78aea957ec1!8m2!3d34.045529!4d-118.2640141!16s%2Fg%2F11gh34fj9p!19sChIJAQCkfLfHwoARwX6V6oqnwtE?authuser=0&hl=en&rclk=1",
+      "name": "Bar Figueroa",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.5,
+      "price": "$30\u201350",
+      "address": "\ue0c8 939 S Figueroa St Suite 200, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.045529,
+      "lng": -118.2640141,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxrCAICXGd2Ty3uEgJWAF0qX34h8mSQjN8aPGuBt3hCoxEGGmKBsCnW0GB5QOsf9oNZnlg8KY4UUeWY_1A2OqXZxRsH9XuQvjIdD2jYSQ9he0zwXmAsRmKZs7kb9_ZvSWRHr_VVMA=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7729f9041c3:0x8546ef5b866fe3ee",
+      "url": "https://www.google.com/maps/place/Crawfords/data=!4m7!3m6!1s0x80c2c7729f9041c3:0x8546ef5b866fe3ee!8m2!3d34.0695939!4d-118.2775033!16s%2Fg%2F11cjhm2nj3!19sChIJw0GQn3LHwoAR7uNvhlvvRoU?authuser=0&hl=en&rclk=1",
+      "name": "Crawfords",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2616 Beverly Blvd, Los Angeles, CA 90057",
+      "city": "Los Angeles",
+      "lat": 34.0695939,
+      "lng": -118.2775033,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzzJfWBX47Q_4-LV6ee2Q3qBYr2gMfA9zs8O9xfHP-usQm8g_FSnC-PBz_NGczSDelK6KwNkb-NnUqFrK_Bod6M3XefdMibEvlMw6yRETvJmJQhJ0UboUNqyJ_wMcmyhEak3r90=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2cfee89c90415:0xaa332ce1636de756",
+      "url": "https://www.google.com/maps/place/Boyle+Heights+Bar+llc/data=!4m7!3m6!1s0x80c2cfee89c90415:0xaa332ce1636de756!8m2!3d34.0245876!4d-118.193226!16s%2Fg%2F11px25z9hz!19sChIJFQTJie7PwoARVudtY-EsM6o?authuser=0&hl=en&rclk=1",
+      "name": "Boyle Heights Bar llc",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.6,
+      "price": "$10\u201320",
+      "address": "\ue0c8 3717 Whittier Blvd, Los Angeles, CA 90023",
+      "city": "Los Angeles",
+      "lat": 34.0245876,
+      "lng": -118.193226,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipOCdv7nEY0_4ZvbOfGt4eKGeCIcoR_7IxdrNDHQ=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7bad2510693:0xfa11c2489134ae34",
+      "url": "https://www.google.com/maps/place/Monty+Bar/data=!4m7!3m6!1s0x80c2c7bad2510693:0xfa11c2489134ae34!8m2!3d34.0516034!4d-118.2667803!16s%2Fg%2F11xnt6d5v!19sChIJkwZR0rrHwoARNK40kUjCEfo?authuser=0&hl=en&rclk=1",
+      "name": "Monty Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.3,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1222 W 7th St, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.0516034,
+      "lng": -118.2667803,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxSDa6_udI07VrdhSihxGGHD_sk-HL9tECLTL8y2-baJyI4ydNSgWjvZUreRRLnLdCow3pi_EFA_cdpCllJLHgA_gnsA59OI7HOfg940yvFkLA8MYurmUZYZlQyo7zRxqvOl9A=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b845f02ded:0xc1e3da6482cd5bb5",
+      "url": "https://www.google.com/maps/place/Impact+Bar+%26+Grill/data=!4m7!3m6!1s0x80c2c7b845f02ded:0xc1e3da6482cd5bb5!8m2!3d34.0434718!4d-118.2661242!16s%2Fg%2F11gfgpy2bd!19sChIJ7S3wRbjHwoARtVvNgmTa48E?authuser=0&hl=en&rclk=1",
+      "name": "Impact Bar & Grill",
+      "category": "Bar & grill",
+      "categories": [
+        "Bar & grill"
+      ],
+      "rating": 4.4,
+      "price": null,
+      "address": "\ue0c8 1111 S Figueroa St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0434718,
+      "lng": -118.2661242,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSz7ZAAHWPIRl0bLLgoewmLA7sn4ER5MrENaLEW6udKvy_hIGKeDxlAjepBtn-5qNtwyHmGl_dXv3zkvYCmJZKdrNNXISy2jU-raTtZ3GIddwMHjPg8R687PGKhh8cHmvfily_1H8Q=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b89a5a2edc19:0x34c351c96456bb8e",
+      "url": "https://www.google.com/maps/place/Frank+%27n+Hank/data=!4m7!3m6!1s0x80c2b89a5a2edc19:0x34c351c96456bb8e!8m2!3d34.0647274!4d-118.3089035!16s%2Fg%2F1whdjmbm!19sChIJGdwuWpq4woARjrtWZMlRwzQ?authuser=0&hl=en&rclk=1",
+      "name": "Frank 'n Hank",
+      "category": "Cocktail bar",
+      "categories": [
+        "Cocktail bar"
+      ],
+      "rating": 4.5,
+      "price": "$10\u201320",
+      "address": "\ue0c8 518 S Western Ave, Los Angeles, CA 90020",
+      "city": "Los Angeles",
+      "lat": 34.0647274,
+      "lng": -118.3089035,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxk-OcA7kF_VQZBp0_aJwpOyqUXFXQ2TeCYS_SOTjWI3gf2sRapNTGr0jXYgbEXc1Zm-M9rmls6xNfyg1p6ZSRk5x8p8oecSct4yOF1xqXC_R68KoVO9dg613wB9A6aqJ-7hwDM=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c64c19202c41:0x7fe23a6cb6a84284",
+      "url": "https://www.google.com/maps/place/The+Redwood+Bar+%26+Grill/data=!4m7!3m6!1s0x80c2c64c19202c41:0x7fe23a6cb6a84284!8m2!3d34.0527311!4d-118.2474087!16s%2Fg%2F1vhkktn4!19sChIJQSwgGUzGwoARhEKotmw64n8?authuser=0&hl=en&rclk=1",
+      "name": "The Redwood Bar & Grill",
+      "category": "Bar & grill",
+      "categories": [
+        "Bar & grill"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 316 W 2nd St, Los Angeles, CA 90012",
+      "city": "Los Angeles",
+      "lat": 34.0527311,
+      "lng": -118.2474087,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxqMd7c5QzwS7skX3oNY5QBoEEDua0Hhbfd3mUhZ0V5MMEkNFCtuzmG6GzRzqzt58qKbNmAMJU4UVa-ITwIynaP0kNr57EI-4OxVjPgJx26wwST4chsmYFHLrgF88o4HMxlNY9x7QxWjQBS=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c62186571411:0x4adf9cc429825982",
+      "url": "https://www.google.com/maps/place/Tony%27s+Saloon/data=!4m7!3m6!1s0x80c2c62186571411:0x4adf9cc429825982!8m2!3d34.0347305!4d-118.2316586!16s%2Fg%2F1v2kxq4h!19sChIJERRXhiHGwoARglmCKcSc30o?authuser=0&hl=en&rclk=1",
+      "name": "Tony's Saloon",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.4,
+      "price": "$10\u201320",
+      "address": "\ue0c8 2017 E 7th St, Los Angeles, CA 90021",
+      "city": "Los Angeles",
+      "lat": 34.0347305,
+      "lng": -118.2316586,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwuwWly9x5Z5deNQPWqoYF31QnmbPanl-M8Tn81KKtRryu_U7BkhBt-Jw1vF9mSGZJsScp_I1zU8RAeB5b5ut4jdsLpzZmUdPCPFpLnhfQK_cIzlXUsW1BO2RKEtC-iY1z-mXMbTzm2C_Et=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b95d10c11e69:0x89e110134a74cb83",
+      "url": "https://www.google.com/maps/place/Harvard+Yard+Bar/data=!4m7!3m6!1s0x80c2b95d10c11e69:0x89e110134a74cb83!8m2!3d34.0461573!4d-118.3088616!16s%2Fg%2F11nxnrkclc!19sChIJaR7BEF25woARg8t0ShMQ4Yk?authuser=0&hl=en&rclk=1",
+      "name": "Harvard Yard Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4,
+      "price": "$$",
+      "address": "\ue0c8 1400 S Western Ave, Los Angeles, CA 90006",
+      "city": "Los Angeles",
+      "lat": 34.0461573,
+      "lng": -118.3088616,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNWgDt3xMnAYGb4KuFmtUjw5gC--baGW1v2D1E=w112-h112-p-k-no",
+      "query": "pubs bars near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c635674ceb67:0x4ae00b3a66e6527a",
+      "url": "https://www.google.com/maps/place/Exchange+LA/data=!4m7!3m6!1s0x80c2c635674ceb67:0x4ae00b3a66e6527a!8m2!3d34.0453409!4d-118.2512491!16s%2Fg%2F1tdvp_wv!19sChIJZ-tMZzXGwoARelLmZjoL4Eo?authuser=0&hl=en&rclk=1",
+      "name": "Exchange LA",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.8,
+      "price": "$$$",
+      "address": "\ue0c8 618 S Spring St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0453409,
+      "lng": -118.2512491,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwNhObEntdFF3iu2BrSh5cS7yMi7U86-IfzP0VbYHhWuWHrsMqcydlz-Egu_AcbdkXAxqCI-Ax7GxWkvgOvaM4Mo2C96dC64skGOg09vTpEZ5_XPjlkawtQ6ByrZNz63DDl1Exw=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c63545599d4b:0xc53cafb3eeb64883",
+      "url": "https://www.google.com/maps/place/The+Reserve/data=!4m7!3m6!1s0x80c2c63545599d4b:0xc53cafb3eeb64883!8m2!3d34.0446156!4d-118.2518952!16s%2Fg%2F11bwcldkb_!19sChIJS51ZRTXGwoARg0i27rOvPMU?authuser=0&hl=en&rclk=1",
+      "name": "The Reserve",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.7,
+      "price": "$$",
+      "address": "\ue0c8 650 S Spring St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0446156,
+      "lng": -118.2518952,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipP9pk6z1NB9lPmfF-Zt9WtmpZ8yDhGt1QunpLCX=w529-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c64a5965ce55:0xcca369a05245fc4e",
+      "url": "https://www.google.com/maps/place/Crocker+Club/data=!4m7!3m6!1s0x80c2c64a5965ce55:0xcca369a05245fc4e!8m2!3d34.0476609!4d-118.2496292!16s%2Fm%2F0pkz7bt!19sChIJVc5lWUrGwoARTvxFUqBpo8w?authuser=0&hl=en&rclk=1",
+      "name": "Crocker Club",
+      "category": "Cocktail bar",
+      "categories": [
+        "Cocktail bar"
+      ],
+      "rating": 3.9,
+      "price": "$$",
+      "address": "\ue0c8 453 S Spring St, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.0476609,
+      "lng": -118.2496292,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwODmCsEWe0SB863HJ2ApV0bLgBbTpBw7TR0yogWvVIUAUGB0oM0hwpLs7_FaboL8J_KpBGz6AEVZvmXfVQh4WDywVLHSbGlUA66dWkw6QbWRO8V5zyiR9ycfeFr3cArw23RSHm=w529-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7c97a2afe63:0xad368894d57170a1",
+      "url": "https://www.google.com/maps/place/The+Mayan/data=!4m7!3m6!1s0x80c2c7c97a2afe63:0xad368894d57170a1!8m2!3d34.0405519!4d-118.2592132!16s%2Fm%2F0cnznt_!19sChIJY_4qesnHwoARoXBx1ZSINq0?authuser=0&hl=en&rclk=1",
+      "name": "The Mayan",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.1,
+      "price": "$$",
+      "address": "\ue0c8 1038 S Hill St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0405519,
+      "lng": -118.2592132,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipO6OT3msNCnOOB8_XH0DTYC0d4enYic5zcnbC0A=w372-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b3e391ba03:0xe78532e8565aedff",
+      "url": "https://www.google.com/maps/place/Elevate+Lounge/data=!4m7!3m6!1s0x80c2c7b3e391ba03:0xe78532e8565aedff!8m2!3d34.049694!4d-118.258233!16s%2Fm%2F0kfwkn7!19sChIJA7qR47PHwoAR_-1aVugyhec?authuser=0&hl=en&rclk=1",
+      "name": "Elevate Lounge",
+      "category": "Lounge",
+      "categories": [
+        "Lounge"
+      ],
+      "rating": 4,
+      "price": "$$",
+      "address": "\ue0c8 811 Wilshire Blvd 21st floor, Los Angeles, CA 90017",
+      "city": "Los Angeles",
+      "lat": 34.049694,
+      "lng": -118.258233,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzHVdxysf41oTi4faAh6mUQvpseVjoUmhKqWt47j43dkHumE0hBX110eF8pZtwEWrJNs-F_Id0wPMp5Z25Z_9AC3wiQW2W0TfkGutrv_7GECXJUj0we4rqKxenXMyaV_yIM1vBt=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c9d713126f77:0xd53daa0b906407a5",
+      "url": "https://www.google.com/maps/place/Kultur+Lounge/data=!4m7!3m6!1s0x80c2c9d713126f77:0xd53daa0b906407a5!8m2!3d34.0191904!4d-118.2726928!16s%2Fg%2F11tnjbxck7!19sChIJd28SE9fJwoARpQdkkAuqPdU?authuser=0&hl=en&rclk=1",
+      "name": "Kultur Lounge",
+      "category": "Lounge",
+      "categories": [
+        "Lounge"
+      ],
+      "rating": 4.1,
+      "price": "$100+",
+      "address": "\ue0c8 3311 Main St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0191904,
+      "lng": -118.2726928,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwDWGJ9vQij_y6vyQyiHvWNQAhuqJ6aW_KRXqwOuHSdcKdwGUVGugf96uXTZvBcRn_ee8fr2QhDFmIXVuW35aMo4Ue7x6HzBuZyPu1XBz0_hs48YF2wxQFfQ5vVVmpowAFEdY2OBQ=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78c43b6a45f:0x97a43cc1e951ff64",
+      "url": "https://www.google.com/maps/place/Lazaro%27s+Latin+Lounge/data=!4m7!3m6!1s0x80c2c78c43b6a45f:0x97a43cc1e951ff64!8m2!3d34.0388483!4d-118.2917237!16s%2Fg%2F1tqpzj3w!19sChIJX6S2Q4zHwoARZP9R6cE8pJc?authuser=0&hl=en&rclk=1",
+      "name": "Lazaro's Latin Lounge",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.6,
+      "price": "$$",
+      "address": "\ue0c8 1951 Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0388483,
+      "lng": -118.2917237,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipN4fOIX32ej-J3m4w_IhgHw9EyL6WdKnb-Hx_Ud=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c712dc6c3aa1:0xd01bff4a6fb3492a",
+      "url": "https://www.google.com/maps/place/Panamerican+Night+Club/data=!4m7!3m6!1s0x80c2c712dc6c3aa1:0xd01bff4a6fb3492a!8m2!3d34.0726975!4d-118.2749724!16s%2Fg%2F1tdgkjfq!19sChIJoTps3BLHwoARKkmzb0r_G9A?authuser=0&hl=en&rclk=1",
+      "name": "Panamerican Night Club",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.9,
+      "price": "$20\u201330",
+      "address": "\ue0c8 2601 W Temple St, Los Angeles, CA 90026",
+      "city": "Los Angeles",
+      "lat": 34.0726975,
+      "lng": -118.2749724,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw2ZJwcJ_O9jjiplAhwIK4-HaduXB46oD7l9z5X5CDDqlkdvQqLwf57ZPWRNi-3wJk-DuGeqe1UxyPoRVue-QCqvG6VwZAG6AGjkUAFYDhQeAtP1aXhvhUFYjuiWWLJj_5pbCfgWg=w224-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7c6aa9e2a5f:0xeda05bf9e8782123",
+      "url": "https://www.google.com/maps/place/Tropical+Club/data=!4m7!3m6!1s0x80c2c7c6aa9e2a5f:0xeda05bf9e8782123!8m2!3d34.0356058!4d-118.2701596!16s%2Fg%2F1tfsn7wg!19sChIJXyqeqsbHwoARIyF46PlboO0?authuser=0&hl=en&rclk=1",
+      "name": "Tropical Club",
+      "category": "Adult entertainment club",
+      "categories": [
+        "Adult entertainment club"
+      ],
+      "rating": 3.2,
+      "price": null,
+      "address": "\ue0c8 1721 Flower St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0356058,
+      "lng": -118.2701596,
+      "opening_hours": null,
+      "photo_url": null,
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7ea16479a97:0xe8277501b9805b50",
+      "url": "https://www.google.com/maps/place/LA+Grand+Club+Inc/data=!4m7!3m6!1s0x80c2c7ea16479a97:0xe8277501b9805b50!8m2!3d34.0419083!4d-118.2614582!16s%2Fg%2F11f66dhhgm!19sChIJl5pHFurHwoARUFuAuQF1J-g?authuser=0&hl=en&rclk=1",
+      "name": "LA Grand Club Inc",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.4,
+      "price": "$1\u201310",
+      "address": "\ue0c8 1040 S Grand Ave, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0419083,
+      "lng": -118.2614582,
+      "opening_hours": null,
+      "photo_url": null,
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c64b7f5840d7:0xa68d413ebc403277",
+      "url": "https://www.google.com/maps/place/La+Cita+Bar/data=!4m7!3m6!1s0x80c2c64b7f5840d7:0xa68d413ebc403277!8m2!3d34.050772!4d-118.2497017!16s%2Fm%2F0l5rw0f!19sChIJ10BYf0vGwoARdzJAvD5BjaY?authuser=0&hl=en&rclk=1",
+      "name": "La Cita Bar",
+      "category": "Bar",
+      "categories": [
+        "Bar"
+      ],
+      "rating": 4.1,
+      "price": "$$$",
+      "address": "\ue0c8 336 S Hill St, Los Angeles, CA 90013",
+      "city": "Los Angeles",
+      "lat": 34.050772,
+      "lng": -118.2497017,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwN3OIdr9ldpR0Mu0pZS5-6n7eSRIrTpVuYLZpvrzCIJvCvQRGBc8Uc2SZ9ADRFvK0Y26e9ZQ8o2JDVRxosUOHKTFwOElyYpvlS3k9GU8bVQo9Ql3FuIrwf2wSCx8bFZMlr7Nwitp5u0Vc=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c86ce23e64c1:0x2ef11bf5abf3610f",
+      "url": "https://www.google.com/maps/place/El+Dorado+Night+Club/data=!4m7!3m6!1s0x80c2c86ce23e64c1:0x2ef11bf5abf3610f!8m2!3d34.0063912!4d-118.2741671!16s%2Fg%2F1tg6ktsl!19sChIJwWQ-4mzIwoARD2Hzq_Ub8S4?authuser=0&hl=en&rclk=1",
+      "name": "El Dorado Night Club",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.7,
+      "price": "$$",
+      "address": "\ue0c8 4253 Main St, Los Angeles, CA 90037",
+      "city": "Los Angeles",
+      "lat": 34.0063912,
+      "lng": -118.2741671,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzprFtVhvlqKqVyRvJDt2LLXDZdpUcRck2UJgDQsk60x330v8ZvrEwQqibuRB8V-eAcFeir3mkliljCb8XS4EeRIsm9sUC_16ADFkfeiVOGHG_JHfEsSre3DqSVrasa6bcuzt6T=w224-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bf249fb73b6d:0xcb41caf2c956ca56",
+      "url": "https://www.google.com/maps/place/Sound+Nightclub/data=!4m7!3m6!1s0x80c2bf249fb73b6d:0xcb41caf2c956ca56!8m2!3d34.1010258!4d-118.3360313!16s%2Fg%2F1yg4d0q13!19sChIJbTu3nyS_woARVspWyfLKQcs?authuser=0&hl=en&rclk=1",
+      "name": "Sound Nightclub",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.9,
+      "price": "$50\u2013100",
+      "address": "\ue0c8 1642 N Las Palmas Ave, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1010258,
+      "lng": -118.3360313,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzEOlIqlkbTAjjqU4EPKnM9lNfW3uKAUFSao0MkSMEjxFDLc8PoPx9wuQZUCh_jzoErRVB0u0aBUbb2mQWLpQ77v-874p6cinaa_PaeOGhRrSRZjInQKY1fa44UQ6_BSn6rtU4KCrd8DUqT=w529-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c77c69a8e0d1:0x3884eab848a9618e",
+      "url": "https://www.google.com/maps/place/Arena+Night+Club/data=!4m7!3m6!1s0x80c2c77c69a8e0d1:0x3884eab848a9618e!8m2!3d34.0620233!4d-118.2948845!16s%2Fg%2F11hy9nv884!19sChIJ0eCoaXzHwoARjmGpSLjqhDg?authuser=0&hl=en&rclk=1",
+      "name": "Arena Night Club",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.1,
+      "price": null,
+      "address": "\ue0c8 3319 Wilshire Blvd, Los Angeles, CA 90010",
+      "city": "Los Angeles",
+      "lat": 34.0620233,
+      "lng": -118.2948845,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwu7m7TbRJlvAn4Q4FzBx5HezGQxroU7qCd1Cr0yAyrZE969VQ8p4x2wUKlRtGGWQkl08r_T7tuPkF66NjIxzZsE0rf95tAOx6nuHpn7qTMoJ6fLJEzUNrFoSt8gccxNXqxfA3s=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c87584c44e59:0x161173dc60b01660",
+      "url": "https://www.google.com/maps/place/The+Marke/data=!4m7!3m6!1s0x80c2c87584c44e59:0x161173dc60b01660!8m2!3d34.0191564!4d-118.2726397!16s%2Fg%2F11cs5t3bk8!19sChIJWU7EhHXIwoARYBawYNxzERY?authuser=0&hl=en&rclk=1",
+      "name": "The Marke",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3,
+      "price": null,
+      "address": "\ue0c8 3311 Main St, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0191564,
+      "lng": -118.2726397,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMg22xvexEr2ycBbV7vSXM7UEyui87hz5zjgB6m=w447-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c78c61e0d471:0x9722b03a6c281b97",
+      "url": "https://www.google.com/maps/place/West+Eight+Los+Angeles/data=!4m7!3m6!1s0x80c2c78c61e0d471:0x9722b03a6c281b97!8m2!3d34.045084!4d-118.2563882!16s%2Fg%2F11w1vlrgl8!19sChIJcdTgYYzHwoARlxsobDqwIpc?authuser=0&hl=en&rclk=1",
+      "name": "West Eight Los Angeles",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.6,
+      "price": "$30\u201350",
+      "address": "\ue0c8 425 W 8th St, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.045084,
+      "lng": -118.2563882,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzYBI1RMTT4EoqQham8ZQTTH7s2XNGR12PI6Cfhod3LHqg-GdfgpFv-P1TkaW2laqnd6-Yfrod6w03oA6vdhb5TvKlvb1n-ApB6EqUUacFLYyzzMVCR4TzqNkiN721zTUVxtLtM=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7f16d842349:0xe9f6caa32400e9",
+      "url": "https://www.google.com/maps/place/Leonardo%27s+Vermont/data=!4m7!3m6!1s0x80c2c7f16d842349:0xe9f6caa32400e9!8m2!3d34.0293241!4d-118.2911983!16s%2Fg%2F1tgc9sfk!19sChIJSSOEbfHHwoAR6QAko8r26QA?authuser=0&hl=en&rclk=1",
+      "name": "Leonardo's Vermont",
+      "category": "Dance restaurant",
+      "categories": [
+        "Dance restaurant"
+      ],
+      "rating": 4,
+      "price": "$100+",
+      "address": "\ue0c8 2800 S Vermont Ave, Los Angeles, CA 90007",
+      "city": "Los Angeles",
+      "lat": 34.0293241,
+      "lng": -118.2911983,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNmHWoGcw5Yp-QoAAXehUi_OacTqixaSf9lcKFE=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bf3bdabdb091:0x10c0bc6930cf75ea",
+      "url": "https://www.google.com/maps/place/Station1640/data=!4m7!3m6!1s0x80c2bf3bdabdb091:0x10c0bc6930cf75ea!8m2!3d34.1010585!4d-118.3293133!16s%2Fg%2F11gdry5_g1!19sChIJkbC92ju_woAR6nXPMGm8wBA?authuser=0&hl=en&rclk=1",
+      "name": "Station1640",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.7,
+      "price": "$$",
+      "address": "\ue0c8 1640 N Cahuenga Blvd, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1010585,
+      "lng": -118.3293133,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyHa2zS0_GIrm_t3hd2byn4MTMvVrulKT9emxFAX2_h3qMYGimUpBQ--lYjHatRwFqPWSRDGu-DCbi1KonTYY_FxlWiBhcR0oDjHbGk_nBxFdmv63pCwpRcduynWnoVSf1R7MMa=w435-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b85ff50b96d9:0xdb28f229e88e9168",
+      "url": "https://www.google.com/maps/place/Das+Bunker/data=!4m7!3m6!1s0x80c2b85ff50b96d9:0xdb28f229e88e9168!8m2!3d34.047775!4d-118.3241134!16s%2Fg%2F11cmqyf47r!19sChIJ2ZYL9V-4woARaJGO6CnyKNs?authuser=0&hl=en&rclk=1",
+      "name": "Das Bunker",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.2,
+      "price": "$10\u201320",
+      "address": "\ue0c8 4067 W Pico Blvd, Los Angeles, CA 90019",
+      "city": "Los Angeles",
+      "lat": 34.047775,
+      "lng": -118.3241134,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipPvd6Zag4p14Tcy6Xa5d3NddwkWYK-cEaG1BMXn=w527-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c73f0e0fe161:0xfaaec86085fd1215",
+      "url": "https://www.google.com/maps/place/Los+Globos/data=!4m7!3m6!1s0x80c2c73f0e0fe161:0xfaaec86085fd1215!8m2!3d34.0839142!4d-118.2743829!16s%2Fm%2F0k2yv3f!19sChIJYeEPDj_HwoARFRL9hWDIrvo?authuser=0&hl=en&rclk=1",
+      "name": "Los Globos",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.6,
+      "price": "$$$",
+      "address": "\ue0c8 3040 Sunset Blvd, Los Angeles, CA 90026",
+      "city": "Los Angeles",
+      "lat": 34.0839142,
+      "lng": -118.2743829,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxMxRi4qSU8pDvNrC3mMwForeahLbSn6E_4ULIPelY_VxgFg6zBgbNcLO1ylWhNIqobt9h7l5WpEZp6u70PbOvBcUvek6Iyk9fSf2iifxiZ8HuUqCww73N5gHw70EyOthu6TamNIQ=w224-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c73b60d42c87:0x57d90cdcc8e7fc46",
+      "url": "https://www.google.com/maps/place/Infinity+Club+%26+Lounge/data=!4m7!3m6!1s0x80c2c73b60d42c87:0x57d90cdcc8e7fc46!8m2!3d34.0573966!4d-118.2856645!16s%2Fg%2F11v9flhw31!19sChIJhyzUYDvHwoARRvznyNwM2Vc?authuser=0&hl=en&rclk=1",
+      "name": "Infinity Club & Lounge",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 5,
+      "price": null,
+      "address": "\ue0c8 2748 W 8th St #201, Los Angeles, CA 90005",
+      "city": "Los Angeles",
+      "lat": 34.0573966,
+      "lng": -118.2856645,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNdMSjVVcs2Yjn8I_7SdZuxlMqadnN6an5uJCX_=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c6ff80245dd5:0x5a1488e59e03d133",
+      "url": "https://www.google.com/maps/place/Club+Bahia/data=!4m7!3m6!1s0x80c2c6ff80245dd5:0x5a1488e59e03d133!8m2!3d34.0663707!4d-118.2498937!16s%2Fg%2F1td6b427!19sChIJ1V0kgP_GwoARM9EDnuWIFFo?authuser=0&hl=en&rclk=1",
+      "name": "Club Bahia",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.8,
+      "price": "$20\u201330",
+      "address": "\ue0c8 1130 Sunset Blvd, Los Angeles, CA 90012",
+      "city": "Los Angeles",
+      "lat": 34.0663707,
+      "lng": -118.2498937,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxP0WB7Tpc79159QTzWLLcHzmqVO-6KEzuuTzydcr8gLQ4DOZg5VuBV8VSoKF3I4NTkH4Qm0o3b_Dvq8q-5dMpbv2nXpbxxoiQjNyYHEwhoE-hou8j4jPfcH6v1WtqHn4TvLHnK=w396-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7a71ec2ce1d:0xe0d6cfd14398d29f",
+      "url": "https://www.google.com/maps/place/Sinners+y+Santos/data=!4m7!3m6!1s0x80c2c7a71ec2ce1d:0xe0d6cfd14398d29f!8m2!3d34.0408887!4d-118.2672895!16s%2Fg%2F11v3zvn7lb!19sChIJHc7CHqfHwoARn9KYQ9HP1uA?authuser=0&hl=en&rclk=1",
+      "name": "Sinners y Santos",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.8,
+      "price": "$50\u2013100",
+      "address": "\ue0c8 1254 S Figueroa St 8th Floor, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0408887,
+      "lng": -118.2672895,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMvl6tgv-PNXvwXXemqf_leHwhimUF8762UQJ2V=w447-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c91a3bb86c9d:0x46b619379d648da0",
+      "url": "https://www.google.com/maps/place/La+Boom/data=!4m7!3m6!1s0x80c2c91a3bb86c9d:0x46b619379d648da0!8m2!3d33.9795981!4d-118.2360433!16s%2Fg%2F11c0x_shyz!19sChIJnWy4OxrJwoARoI1knTcZtkY?authuser=0&hl=en&rclk=1",
+      "name": "La Boom",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.4,
+      "price": "$100+",
+      "address": "\ue0c8 6611 S Alameda St, Los Angeles, CA 90001",
+      "city": "Los Angeles",
+      "lat": 33.9795981,
+      "lng": -118.2360433,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxBdsft6YMpSLd3CpRo9GtZcVBFB1mJTPAPTbEb2-j9Bt9fvGVq0sYqaOhTK439f9_zf4d4OGUSxpFSGlSmA09ZEfEgJYizYLzdH1R1rsND9TUVZpLkIzKd2Y02xpTgRT1BauLs=w224-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bfe1bcee2ed5:0x32d95e85554fbe3f",
+      "url": "https://www.google.com/maps/place/Jungle+Hollywood/data=!4m7!3m6!1s0x80c2bfe1bcee2ed5:0x32d95e85554fbe3f!8m2!3d34.1010585!4d-118.3293133!16s%2Fg%2F11y41hblxy!19sChIJ1S7uvOG_woARP75PVYVe2TI?authuser=0&hl=en&rclk=1",
+      "name": "Jungle Hollywood",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.3,
+      "price": "$30\u201350",
+      "address": "\ue0c8 1640 N Cahuenga Blvd, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1010585,
+      "lng": -118.3293133,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNKAfchehjHIwQ6MeQxGAnxp8-gHgOgtfGCRuNi=w224-h398-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c74e2fee3669:0x99a8389c0544147e",
+      "url": "https://www.google.com/maps/place/The+Virgil/data=!4m7!3m6!1s0x80c2c74e2fee3669:0x99a8389c0544147e!8m2!3d34.0910898!4d-118.2870892!16s%2Fg%2F11y3sp2_4!19sChIJaTbuL07HwoARfhREBZw4qJk?authuser=0&hl=en&rclk=1",
+      "name": "The Virgil",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.3,
+      "price": "$$$",
+      "address": "\ue0c8 4519 Santa Monica Blvd, Los Angeles, CA 90029",
+      "city": "Los Angeles",
+      "lat": 34.0910898,
+      "lng": -118.2870892,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSyi_w1qKAQVJGa_FTsa42PWvHfMKJw7FXx3Ey8_alNo_aFmQaaVDRByXHNV7kPFKMi8uMpASYdy-2ky7UqeFAOQXpYVsIgeruNrlatQ3eJCVEf9lWnvl2YAmonQMxnOeVe33hSxbA=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bf3938120eaf:0xda97b22eba92addf",
+      "url": "https://www.google.com/maps/place/AVALON+Hollywood+%26+Bardot/data=!4m7!3m6!1s0x80c2bf3938120eaf:0xda97b22eba92addf!8m2!3d34.1027414!4d-118.3272224!16s%2Fm%2F027q4qs!19sChIJrw4SODm_woAR362Sui6yl9o?authuser=0&hl=en&rclk=1",
+      "name": "AVALON Hollywood & Bardot",
+      "category": "Live music venue",
+      "categories": [
+        "Live music venue"
+      ],
+      "rating": 4.3,
+      "price": "$$$",
+      "address": "\ue0c8 1735 Vine St, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1027414,
+      "lng": -118.3272224,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipMK_CD6RK8FiQjDS6Qxrt_FmlfjmGSZnM98rqJW=w447-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bf3b9e4bb1bb:0x94a5f085828261fd",
+      "url": "https://www.google.com/maps/place/Orlando%27s+Night+Club+SPC+43/data=!4m7!3m6!1s0x80c2bf3b9e4bb1bb:0x94a5f085828261fd!8m2!3d34.1012816!4d-118.3315262!16s%2Fg%2F11ckz9j3gb!19sChIJu7FLnju_woAR_WGCgoXwpZQ?authuser=0&hl=en&rclk=1",
+      "name": "Orlando's Night Club SPC 43",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.8,
+      "price": "$20\u201330",
+      "address": "\ue0c8 Goodnight Ave, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1012816,
+      "lng": -118.3315262,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw6JnXvHasvTWbvgp72gnkRqoT-DA4Uo66PjlUBGXi35I2GcMqgtPKTgWbfSKtovE3X97TgoPqR9ULPr9cjI3-S5QrARcXE9JoINRfwvyzXyjAkAMCcR6rVdqpdZu9-2jZG0ts=w224-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b85f1f28d3:0x802f93184b913860",
+      "url": "https://www.google.com/maps/place/Hyde+Lounge+at+Crypto.com+Arena/data=!4m7!3m6!1s0x80c2c7b85f1f28d3:0x802f93184b913860!8m2!3d34.0429034!4d-118.2677485!16s%2Fg%2F11b5wl240b!19sChIJ0ygfX7jHwoARYDiRSxiTL4A?authuser=0&hl=en&rclk=1",
+      "name": "Hyde Lounge at Crypto.com Arena",
+      "category": "Lounge",
+      "categories": [
+        "Lounge"
+      ],
+      "rating": 4.2,
+      "price": "$100+",
+      "address": "\ue0c8 1111 S Figueroa St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0429034,
+      "lng": -118.2677485,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipPW6oww24n5McHAC6MFzuBy7-A51wLYtKcv993w=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c6356ac25185:0xa534d7d4081177e5",
+      "url": "https://www.google.com/maps/place/Vuuka+Lounge/data=!4m7!3m6!1s0x80c2c6356ac25185:0xa534d7d4081177e5!8m2!3d34.0415094!4d-118.2588645!16s%2Fg%2F11mbprfvqd!19sChIJhVHCajXGwoAR5XcRCNTXNKU?authuser=0&hl=en&rclk=1",
+      "name": "Vuuka Lounge",
+      "category": "Lounge",
+      "categories": [
+        "Lounge"
+      ],
+      "rating": 4.4,
+      "price": "$30\u201350",
+      "address": "\ue0c8 1009 S Hill St, Los Angeles, CA 90015",
+      "city": "Los Angeles",
+      "lat": 34.0415094,
+      "lng": -118.2588645,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipM8Zf357cZsyThit8dvcb0T4ZlO3OfkRoAOH_Cr=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b882b7734309:0x8e360e2d220c3efb",
+      "url": "https://www.google.com/maps/place/The+Normandie+Club/data=!4m7!3m6!1s0x80c2b882b7734309:0x8e360e2d220c3efb!8m2!3d34.0634563!4d-118.3008976!16s%2Fg%2F11b70khp8j!19sChIJCUNzt4K4woAR-z4MIi0ONo4?authuser=0&hl=en&rclk=1",
+      "name": "The Normandie Club",
+      "category": "Cocktail bar",
+      "categories": [
+        "Cocktail bar"
+      ],
+      "rating": 4.6,
+      "price": "$$",
+      "address": "\ue0c8 3612 W 6th St, Los Angeles, CA 90020",
+      "city": "Los Angeles",
+      "lat": 34.0634563,
+      "lng": -118.3008976,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw4yt0sCoV8bhTtAqw6DPH8U-ogtW5fPf3P599LNojDXmvjR8DwLg95fhM_TJ4kSxZaP6PQsJ98FHfiXjw8BcSsxhOqiY_E_G97MIX6rUEfPrGXjrdol9dfJ7IjiIgPeTbI5MhqXQ=w112-h112-p-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c64a59a81e33:0x9baea06ee3a99fd3",
+      "url": "https://www.google.com/maps/place/Los+Angeles+Club+Crawl/data=!4m7!3m6!1s0x80c2c64a59a81e33:0x9baea06ee3a99fd3!8m2!3d34.0429261!4d-118.2552584!16s%2Fg%2F11dztqk9sj!19sChIJMx6oWUrGwoAR05-p426grps?authuser=0&hl=en&rclk=1",
+      "name": "Los Angeles Club Crawl",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.8,
+      "price": null,
+      "address": "\ue0c8 830 S Broadway, Los Angeles, CA 90014",
+      "city": "Los Angeles",
+      "lat": 34.0429261,
+      "lng": -118.2552584,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipM6-zXEgEdFlw49grapwg79E9Mph-7ItbRisf4y=w454-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2b8ad313d9f47:0x93481c19c1d8862e",
+      "url": "https://www.google.com/maps/place/La+Descarga/data=!4m7!3m6!1s0x80c2b8ad313d9f47:0x93481c19c1d8862e!8m2!3d34.0921162!4d-118.3094774!16s%2Fg%2F1ttq2cgp!19sChIJR589Ma24woARLobYwRkcSJM?authuser=0&hl=en&rclk=1",
+      "name": "La Descarga",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.1,
+      "price": "$$",
+      "address": "\ue0c8 1159 N Western Ave, Los Angeles, CA 90038",
+      "city": "Los Angeles",
+      "lat": 34.0921162,
+      "lng": -118.3094774,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSw_EwY3WcPCaWKwc8JYpbqtrixIkBphbbUJXnJMNkgWTfMfDRaPwsbOqOJ1N0vUHUmE90TS1mmXw6DYS1T6F42o1yl-aF9LkFaXMfkMZQjV4-DYQ8qBLbyMfU6CdxKlSBSXpEbr=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2bf47a4add1b9:0x68dac49c36f4facb",
+      "url": "https://www.google.com/maps/place/Academy+LA/data=!4m7!3m6!1s0x80c2bf47a4add1b9:0x68dac49c36f4facb!8m2!3d34.1019004!4d-118.320922!16s%2Fg%2F1yfdrn8gw!19sChIJudGtpEe_woARy_r0NpzE2mg?authuser=0&hl=en&rclk=1",
+      "name": "Academy LA",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 3.7,
+      "price": "$$$",
+      "address": "\ue0c8 6021 Hollywood Blvd, Los Angeles, CA 90028",
+      "city": "Los Angeles",
+      "lat": 34.1019004,
+      "lng": -118.320922,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxP834VFnwDuFc8i0vg36nEgJPUvTk8eD7_P5Oj-g74p-4GmB-8Sh_TB4RpH6NnhUAg9h1APu_xYvfJA3O8O-OSsHIMkkRJ-TwoFUjeZvVtmfHW-KySomdskm2QnXzKufNFkg8K5S8z6PuY=w397-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c7b3dad17f0b:0x937944a27f914e02",
+      "url": "https://www.google.com/maps/place/City+Club+LA/data=!4m7!3m6!1s0x80c2c7b3dad17f0b:0x937944a27f914e02!8m2!3d34.0507219!4d-118.2577447!16s%2Fg%2F1yh4hz79r!19sChIJC3_R2rPHwoARAk6Rf6JEeZM?authuser=0&hl=en&rclk=1",
+      "name": "City Club LA",
+      "category": "Social club",
+      "categories": [
+        "Social club"
+      ],
+      "rating": 4.7,
+      "price": null,
+      "address": "\ue0c8 555 Flower St 51st Floor, Los Angeles, CA 90071",
+      "city": "Los Angeles",
+      "lat": 34.0507219,
+      "lng": -118.2577447,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipNtquwpx4sVfUlOk-ApK231KB3RyKSST1aQ0wR4=w447-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    },
+    {
+      "place_id": "0x80c2c66b1207bbed:0x1f72fed96a8c9634",
+      "url": "https://www.google.com/maps/place/La+Zona+Rosa/data=!4m7!3m6!1s0x80c2c66b1207bbed:0x1f72fed96a8c9634!8m2!3d34.053891!4d-118.225429!16s%2Fg%2F1tg9sz6s!19sChIJ7bsHEmvGwoARNJaMatn-ch8?authuser=0&hl=en&rclk=1",
+      "name": "La Zona Rosa",
+      "category": "Night club",
+      "categories": [
+        "Night club"
+      ],
+      "rating": 4.1,
+      "price": "$30\u201350",
+      "address": "\ue0c8 1010 E Cesar E Chavez Ave, Los Angeles, CA 90033",
+      "city": "Los Angeles",
+      "lat": 34.053891,
+      "lng": -118.225429,
+      "opening_hours": null,
+      "photo_url": "https://lh3.googleusercontent.com/p/AF1QipPZHEopa8siHVwACDJNFh_Q_ibi_1lVgvOlEzsB=w447-h298-k-no",
+      "query": "nightclubs clubs near usc",
+      "reviews": []
+    }
+  ]
+}
