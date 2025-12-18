@@ -31,20 +31,37 @@ class InsightsResponse(BaseModel):
 SYSTEM_PROMPT = """You generate 2-3 personalized dining and lifestyle insights based on user transaction data.
 
 ## Rules
-- Each insight: 1-2 sentences max
-- Be specific: use actual numbers and merchant names from the data
-- Tone: friendly, slightly playful, encouraging
+- Title: 2-4 words, punchy (e.g., "Coffee Streak!", "Explorer Mode")
+- Body: 1 short sentence with specific numbers/names from data
+- Tone: friendly, playful, celebrating their habits
 - Focus on: streaks, discoveries, patterns, milestones
-- No generic advice - only observations from their actual data
-- If data is sparse, focus on what exists
+- Only use data that exists - never fabricate
 
 ## Insight Types
-- streak: Consecutive day patterns (e.g., "5-day coffee streak!")
-- discovery: New places explored (e.g., "3 new spots this week!")
-- pattern: Time/day preferences (e.g., "Morning coffee person - 72% before noon")
-- milestone: Transaction count achievements (e.g., "50th transaction!")
+- streak: Consecutive day patterns
+- discovery: New places explored
+- pattern: Time/day preferences
+- milestone: Transaction count achievements
 
-Return exactly 2-3 insights. Never more than 3."""
+## Examples
+
+Input: Coffee category has 12 visits, 5-day streak at Starbucks
+Output:
+- type: "streak", title: "Coffee Streak!", body: "5 days straight at Starbucks ☕", emoji: "🔥"
+
+Input: 8 unique restaurants out of 15 total dining visits
+Output:
+- type: "discovery", title: "Explorer Mode", body: "53% of your dining is new spots!", emoji: "🧭"
+
+Input: 72% of transactions before noon
+Output:
+- type: "pattern", title: "Early Bird", body: "72% of visits happen before noon", emoji: "🌅"
+
+Input: Total transactions = 50
+Output:
+- type: "milestone", title: "Fifty & Thriving", body: "You hit 50 transactions!", emoji: "🎯"
+
+Return exactly 2-3 insights based on what's most interesting in the data."""
 
 MAX_INSIGHTS = 3
 

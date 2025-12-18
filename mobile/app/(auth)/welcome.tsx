@@ -5,15 +5,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Logo } from '@/components/ui';
+import { useAuthStore } from '@/stores';
 
 export default function WelcomeScreen() {
+  const { devSignIn } = useAuthStore();
+
   const handleGetStarted = () => {
     router.push('/(auth)/login');
   };
 
-  // DEV ONLY: Skip to home
+  // DEV ONLY: Skip to home (signs in as dev user first)
   const handleSkipToHome = () => {
-    router.replace('/(tabs)/discover');
+    devSignIn();
+    router.replace('/(tabs)/pulse');
   };
 
   return (

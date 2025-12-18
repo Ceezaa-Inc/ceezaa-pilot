@@ -40,12 +40,15 @@ export default function PulseScreen() {
 
   const renderInsightCard = ({ item }: { item: (typeof insights)[0] }) => (
     <Card variant="default" padding="md" style={styles.insightCard}>
-      <View style={styles.insightContent}>
-        <Typography variant="h2">{item.emoji}</Typography>
-        <Typography variant="caption" color="secondary" numberOfLines={2}>
-          {item.description}
+      <View style={styles.insightHeader}>
+        <Typography variant="h3">{item.emoji}</Typography>
+        <Typography variant="bodySmall" color="primary" style={styles.insightTitle}>
+          {item.title}
         </Typography>
       </View>
+      <Typography variant="caption" color="secondary">
+        {item.description}
+      </Typography>
     </Card>
   );
 
@@ -214,12 +217,16 @@ const styles = StyleSheet.create({
     gap: layoutSpacing.sm,
   },
   insightCard: {
-    width: 140,
-    height: 100,
-  },
-  insightContent: {
-    flex: 1,
+    width: 220,
     gap: layoutSpacing.xs,
+  },
+  insightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.xs,
+  },
+  insightTitle: {
+    flex: 1,
   },
   playlistCard: {
     width: 160,
