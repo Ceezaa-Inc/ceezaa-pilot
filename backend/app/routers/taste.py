@@ -10,6 +10,7 @@ from app.dependencies import get_supabase_client
 from app.intelligence import DeclaredTaste, ProfileTitleMapper
 from app.intelligence.taste_fusion import TasteFusion
 from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
+from app.intelligence.ring_builder import RingBuilder
 from decimal import Decimal
 
 router = APIRouter(prefix="/api/taste", tags=["taste"])
@@ -360,4 +361,54 @@ async def get_fused_taste(
         confidence=fused.confidence,
         quiz_weight=fused.quiz_weight,
         tx_weight=fused.tx_weight,
+    )
+
+
+class RingSegmentResponse(BaseModel):
+    """Response model for a ring segment."""
+
+    category: str
+    percentage: int
+    color: str
+
+
+class TasteRingResponse(BaseModel):
+    """Response model for taste ring visualization."""
+
+    segments: list[RingSegmentResponse]
+    profile_title: str
+    tagline: str
+
+
+@router.get("/ring/{user_id}", response_model=TasteRingResponse)
+async def get_taste_ring(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> TasteRingResponse:
+    """Get taste ring visualization data.
+
+    Returns ring segments with percentages and colors,
+    optimized for the TasteRing UI component.
+
+    Ring-specific logic:
+    - Max 5 segments (rest combined into 'other')
+    - Minimum 3% threshold (smaller segments excluded)
+    - Category-specific colors
+    """
+    print(f"[Taste] Building ring for user: {user_id}")
+
+    builder = RingBuilder(supabase)
+    ring_data = builder.build_ring(user_id)
+
+    return TasteRingResponse(
+        segments=[
+            RingSegmentResponse(
+                category=s["category"],
+                percentage=s["percentage"],
+                color=s["color"],
+            )
+            for s in ring_data["segments"]
+        ],
+        profile_title=ring_data["profile_title"],
+        tagline=ring_data["tagline"],
     )

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Svg, { Circle, G } from 'react-native-svg';
@@ -7,7 +7,8 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { shadows } from '@/design/tokens/shadows';
 import { Typography, Card } from '@/components/ui';
-import { useTasteStore } from '@/stores';
+import { useAuthStore } from '@/stores';
+import { useTasteRing } from '@/hooks';
 
 interface TasteRingProps {
   size?: number;
@@ -16,7 +17,16 @@ interface TasteRingProps {
 }
 
 export function TasteRing({ size = 200, showCard = true, onPress }: TasteRingProps) {
-  const { categories, profile } = useTasteStore();
+  const { user } = useAuthStore();
+  const { segments, profileTitle, fetchRing, hasFetched } = useTasteRing();
+
+  // Fetch ring data on mount
+  useEffect(() => {
+    if (user?.id && !hasFetched) {
+      console.log('[TasteRing] Fetching ring for user:', user.id);
+      fetchRing(user.id);
+    }
+  }, [user?.id, hasFetched, fetchRing]);
 
   // Determine article (a/an) based on title
   const getArticle = (title: string) => {
@@ -39,21 +49,22 @@ export function TasteRing({ size = 200, showCard = true, onPress }: TasteRingPro
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
 
-  // Calculate total score for proportional segments
-  const totalScore = categories.reduce((sum, cat) => sum + cat.score, 0);
+  // Calculate total percentage for proportional segments
+  const totalPercentage = segments.reduce((sum, seg) => sum + seg.percentage, 0) || 100;
 
   // Build segment data with offsets
   let currentOffset = 0;
-  const segments = categories.map((category) => {
-    const segmentLength = (category.score / totalScore) * circumference;
-    const segment = {
-      color: category.color,
+  const ringSegments = segments.map((segment) => {
+    const segmentLength = (segment.percentage / totalPercentage) * circumference;
+    const ringSegment = {
+      category: segment.category,
+      color: segment.color,
       length: segmentLength,
       offset: currentOffset,
       gap: 4, // Small gap between segments
     };
     currentOffset += segmentLength;
-    return segment;
+    return ringSegment;
   });
 
   const ringContent = (
@@ -95,9 +106,9 @@ export function TasteRing({ size = 200, showCard = true, onPress }: TasteRingPro
               fill="transparent"
             />
             {/* Category segments */}
-            {segments.map((segment, index) => (
+            {ringSegments.map((segment) => (
               <Circle
-                key={categories[index].name}
+                key={segment.category}
                 cx={center}
                 cy={center}
                 r={radius}
@@ -115,10 +126,10 @@ export function TasteRing({ size = 200, showCard = true, onPress }: TasteRingPro
         {/* Center content */}
         <View style={[styles.centerContent, { width: size, height: size }]}>
           <Typography variant="caption" color="muted">
-            You are {getArticle(profile.title)}
+            You are {getArticle(profileTitle)}
           </Typography>
           <Typography variant="body" color="gold" align="center" style={styles.archetypeText}>
-            {profile.title}
+            {profileTitle || 'Taste Explorer'}
           </Typography>
         </View>
       </View>

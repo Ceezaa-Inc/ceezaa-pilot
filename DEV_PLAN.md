@@ -249,7 +249,7 @@ backend/app/
 | 9 | Frontend | Add category name formatting (Title Case) | ✅ |
 | 10 | Test | Complete onboarding → see unified taste ring | ✅ |
 
-**Completed**: Weighted fusion algorithm, confidence scoring, fused API endpoint, frontend integration.
+**Completed**: Weighted fusion algorithm, confidence scoring, fused API endpoint, frontend integration, cuisine extraction.
 
 **Key Files:**
 ```
@@ -280,7 +280,13 @@ fused_categories = {
 }
 ```
 
-**Future Enhancement**: Add cuisine tracking to fusion - extract cuisine from `plaid_category_detailed` for richer taste profiles and better venue matching.
+**Cuisine Tracking** (Implemented):
+- `CUISINE_MAPPING` in `plaid_categories.py` extracts cuisine from detailed categories
+- `ProcessedTransaction.cuisine` field stores extracted cuisine type
+- `UserAnalysis.cuisines` dict tracks cuisine counts, `top_cuisines` list (top 5)
+- `AggregationEngine._update_cuisines()` maintains O(1) incremental updates
+- Fused API returns `top_cuisines` for venue matching
+- Note: Plaid sandbox returns generic categories (FAST_FOOD, COFFEE) - cuisine data requires production restaurant transactions
 
 ---
 

@@ -115,6 +115,19 @@ export interface FusedTasteProfile {
   tx_weight: number;
 }
 
+// Ring visualization types
+export interface RingSegment {
+  category: string;
+  percentage: number;
+  color: string;
+}
+
+export interface TasteRingData {
+  segments: RingSegment[];
+  profile_title: string;
+  tagline: string;
+}
+
 // Onboarding API
 export const onboardingApi = {
   submitQuiz: (userId: string, answers: QuizAnswer[]): Promise<SubmitQuizResponse> =>
@@ -128,6 +141,9 @@ export const tasteApi = {
 
   getFused: (userId: string): Promise<FusedTasteProfile> =>
     api.get(`/api/taste/fused/${userId}`),
+
+  getRing: (userId: string): Promise<TasteRingData> =>
+    api.get(`/api/taste/ring/${userId}`),
 };
 
 export { ApiError };
