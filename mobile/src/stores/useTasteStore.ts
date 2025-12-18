@@ -189,8 +189,7 @@ export const useTasteStore = create<TasteState>((set, get) => ({
       });
     } catch (error) {
       console.error('[TasteStore] Insights fetch error:', error);
-      // On error, keep mock data
-      set({ hasFetchedInsights: true });
+      // On error, keep mock data but allow retry (don't set hasFetchedInsights)
     }
   },
 

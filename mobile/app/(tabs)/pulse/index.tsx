@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
+import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -122,9 +122,21 @@ export default function PulseScreen() {
 
         {/* Insights - Horizontal Scroll */}
         <View style={styles.section}>
-          <Typography variant="label" color="muted">
-            Insights
-          </Typography>
+          <View style={styles.sectionHeader}>
+            <Typography variant="label" color="muted">
+              Insights
+            </Typography>
+            {/* TEMP: Debug button to force fetch insights */}
+            <TouchableOpacity
+              onPress={() => {
+                console.log('[PulseScreen] Manual refresh insights for:', user?.id);
+                if (user?.id) fetchInsights(user.id);
+              }}
+              style={styles.debugButton}
+            >
+              <Typography variant="caption" color="gold">↻ Refresh</Typography>
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={insights}
             renderItem={renderInsightCard}
@@ -193,6 +205,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  debugButton: {
+    paddingHorizontal: layoutSpacing.sm,
+    paddingVertical: layoutSpacing.xs,
   },
   horizontalList: {
     gap: layoutSpacing.sm,
