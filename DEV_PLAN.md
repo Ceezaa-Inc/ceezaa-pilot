@@ -369,7 +369,7 @@ mobile/src/
 ```
 
 **Implementation Details:**
-- Model: `claude-haiku-4-5-20241022` for cost efficiency (~$24/month for 1000 users)
+- Model: `claude-haiku-4-5` for cost efficiency (~$24/month for 1000 users)
 - Structured outputs beta: `structured-outputs-2025-11-13` for guaranteed JSON
 - Prompt caching: System prompt cached (5-min TTL, auto-refresh)
 - Daily caching: Insights generated once per day, stored in DB

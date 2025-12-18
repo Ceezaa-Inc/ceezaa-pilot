@@ -71,7 +71,7 @@ class InsightGenerator:
 
         # Call Claude with structured outputs
         response = self._client.beta.messages.parse(
-            model="claude-haiku-4-5-20251001",
+            model="claude-haiku-4-5",
             max_tokens=500,
             betas=["structured-outputs-2025-11-13"],
             system=[
