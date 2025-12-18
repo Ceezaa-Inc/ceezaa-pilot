@@ -13,7 +13,7 @@ import { SAVED_PLANS, SavedPlan, getUpcomingPlans } from '@/mocks/plans';
 import { MOOD_DATA } from '@/mocks/taste';
 
 export default function PulseScreen() {
-  const { insights, fetchFusedProfile, fetchInsights, hasFetched, hasFetchedInsights } = useTasteStore();
+  const { insights, fetchFusedProfile, fetchInsights, clearInsightsCache, hasFetched, hasFetchedInsights } = useTasteStore();
   const { user } = useAuthStore();
   const upcomingPlans = getUpcomingPlans(3);
 
@@ -129,16 +129,30 @@ export default function PulseScreen() {
             <Typography variant="label" color="muted">
               Insights
             </Typography>
-            {/* TEMP: Debug button to force fetch insights */}
-            <TouchableOpacity
-              onPress={() => {
-                console.log('[PulseScreen] Manual refresh insights for:', user?.id);
-                if (user?.id) fetchInsights(user.id);
-              }}
-              style={styles.debugButton}
-            >
-              <Typography variant="caption" color="gold">↻ Refresh</Typography>
-            </TouchableOpacity>
+            {/* TEMP: Debug buttons */}
+            <View style={styles.debugButtons}>
+              <TouchableOpacity
+                onPress={async () => {
+                  console.log('[PulseScreen] Clearing cache for:', user?.id);
+                  if (user?.id) {
+                    await clearInsightsCache(user.id);
+                    fetchInsights(user.id);
+                  }
+                }}
+                style={styles.debugButton}
+              >
+                <Typography variant="caption" color="gold">🗑 Clear</Typography>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('[PulseScreen] Manual refresh for:', user?.id);
+                  if (user?.id) fetchInsights(user.id);
+                }}
+                style={styles.debugButton}
+              >
+                <Typography variant="caption" color="gold">↻ Refresh</Typography>
+              </TouchableOpacity>
+            </View>
           </View>
           <FlatList
             data={insights}
@@ -208,6 +222,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  debugButtons: {
+    flexDirection: 'row',
+    gap: layoutSpacing.sm,
   },
   debugButton: {
     paddingHorizontal: layoutSpacing.sm,

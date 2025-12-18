@@ -550,3 +550,24 @@ async def get_insights(
         insights=stored_insights,
         generated_at=now,
     )
+
+
+@router.delete("/insights/{user_id}/cache")
+async def clear_insights_cache(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> dict:
+    """DEV ONLY: Clear cached insights for a user to force regeneration."""
+    print(f"[Insights] Clearing cache for user: {user_id}")
+
+    result = (
+        supabase.table("daily_insights")
+        .delete()
+        .eq("user_id", user_id)
+        .execute()
+    )
+
+    deleted_count = len(result.data) if result.data else 0
+    print(f"[Insights] Deleted {deleted_count} cached insights")
+
+    return {"deleted": deleted_count}

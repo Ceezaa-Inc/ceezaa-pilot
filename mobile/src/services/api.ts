@@ -162,6 +162,9 @@ export const tasteApi = {
 
   getInsights: (userId: string): Promise<InsightsResponse> =>
     api.get(`/api/taste/insights/${userId}`),
+
+  clearInsightsCache: (userId: string): Promise<{ deleted: number }> =>
+    api.delete(`/api/taste/insights/${userId}/cache`),
 };
 
 export { ApiError };

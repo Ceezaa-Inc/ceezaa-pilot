@@ -32,6 +32,7 @@ interface TasteState {
   fetchProfile: (userId: string) => Promise<void>;
   fetchFusedProfile: (userId: string) => Promise<void>;
   fetchInsights: (userId: string) => Promise<void>;
+  clearInsightsCache: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -190,6 +191,17 @@ export const useTasteStore = create<TasteState>((set, get) => ({
     } catch (error) {
       console.error('[TasteStore] Insights fetch error:', error);
       // On error, keep mock data but allow retry (don't set hasFetchedInsights)
+    }
+  },
+
+  clearInsightsCache: async (userId: string) => {
+    try {
+      console.log('[TasteStore] Clearing insights cache for:', userId);
+      await tasteApi.clearInsightsCache(userId);
+      set({ hasFetchedInsights: false, insights: INSIGHTS });
+      console.log('[TasteStore] Cache cleared, ready for refetch');
+    } catch (error) {
+      console.error('[TasteStore] Clear cache error:', error);
     }
   },
 
