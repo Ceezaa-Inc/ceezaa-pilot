@@ -11,7 +11,7 @@ import {
   MOOD_DATA,
   MoodType,
 } from '@/mocks/taste';
-import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait, FusedTasteProfile } from '@/services/api';
+import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait, FusedTasteProfile, InsightsResponse } from '@/services/api';
 
 interface TasteState {
   profile: TasteProfile;
@@ -22,6 +22,7 @@ interface TasteState {
   isLoading: boolean;
   error: string | null;
   hasFetched: boolean;
+  hasFetchedInsights: boolean;
 
   // Actions
   setSelectedMood: (mood: MoodType | null) => void;
@@ -30,6 +31,7 @@ interface TasteState {
   refreshProfile: () => void;
   fetchProfile: (userId: string) => Promise<void>;
   fetchFusedProfile: (userId: string) => Promise<void>;
+  fetchInsights: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -72,6 +74,7 @@ export const useTasteStore = create<TasteState>((set, get) => ({
   isLoading: false,
   error: null,
   hasFetched: false,
+  hasFetchedInsights: false,
 
   setSelectedMood: (mood) => {
     set({ selectedMood: mood });
@@ -162,6 +165,32 @@ export const useTasteStore = create<TasteState>((set, get) => ({
         error: message,
         hasFetched: true,
       });
+    }
+  },
+
+  fetchInsights: async (userId: string) => {
+    try {
+      console.log('[TasteStore] Fetching insights for user:', userId);
+      const response = await tasteApi.getInsights(userId);
+      console.log('[TasteStore] Insights fetched:', response.insights.length);
+
+      // Convert API insights to local Insight format
+      const insights: Insight[] = response.insights.map((apiInsight) => ({
+        id: apiInsight.id,
+        emoji: apiInsight.emoji,
+        title: apiInsight.title,
+        description: apiInsight.body, // API uses "body", local uses "description"
+        type: apiInsight.type as Insight['type'],
+      }));
+
+      set({
+        insights: insights.length > 0 ? insights : INSIGHTS,
+        hasFetchedInsights: true,
+      });
+    } catch (error) {
+      console.error('[TasteStore] Insights fetch error:', error);
+      // On error, keep mock data
+      set({ hasFetchedInsights: true });
     }
   },
 

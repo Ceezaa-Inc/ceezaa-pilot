@@ -13,7 +13,7 @@ import { SAVED_PLANS, SavedPlan, getUpcomingPlans } from '@/mocks/plans';
 import { MOOD_DATA } from '@/mocks/taste';
 
 export default function PulseScreen() {
-  const { insights, fetchFusedProfile, hasFetched } = useTasteStore();
+  const { insights, fetchFusedProfile, fetchInsights, hasFetched, hasFetchedInsights } = useTasteStore();
   const { user } = useAuthStore();
   const upcomingPlans = getUpcomingPlans(3);
 
@@ -24,6 +24,14 @@ export default function PulseScreen() {
       fetchFusedProfile(user.id);
     }
   }, [user?.id, hasFetched]);
+
+  // Fetch insights on mount if not already fetched
+  useEffect(() => {
+    if (user?.id && !hasFetchedInsights) {
+      console.log('[PulseScreen] Fetching insights for:', user.id);
+      fetchInsights(user.id);
+    }
+  }, [user?.id, hasFetchedInsights]);
 
   const renderInsightCard = ({ item }: { item: (typeof insights)[0] }) => (
     <Card variant="default" padding="md" style={styles.insightCard}>

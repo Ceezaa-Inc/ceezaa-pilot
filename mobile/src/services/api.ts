@@ -128,6 +128,21 @@ export interface TasteRingData {
   tagline: string;
 }
 
+// Insight types
+export interface ApiInsight {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  emoji: string;
+  created_at: string;
+}
+
+export interface InsightsResponse {
+  insights: ApiInsight[];
+  generated_at: string | null;
+}
+
 // Onboarding API
 export const onboardingApi = {
   submitQuiz: (userId: string, answers: QuizAnswer[]): Promise<SubmitQuizResponse> =>
@@ -144,6 +159,9 @@ export const tasteApi = {
 
   getRing: (userId: string): Promise<TasteRingData> =>
     api.get(`/api/taste/ring/${userId}`),
+
+  getInsights: (userId: string): Promise<InsightsResponse> =>
+    api.get(`/api/taste/insights/${userId}`),
 };
 
 export { ApiError };

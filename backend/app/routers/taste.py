@@ -11,7 +11,9 @@ from app.intelligence import DeclaredTaste, ProfileTitleMapper
 from app.intelligence.taste_fusion import TasteFusion
 from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
 from app.intelligence.ring_builder import RingBuilder
+from app.intelligence.insight_generator import InsightGenerator, Insight
 from decimal import Decimal
+from datetime import date, datetime
 
 router = APIRouter(prefix="/api/taste", tags=["taste"])
 
@@ -411,4 +413,135 @@ async def get_taste_ring(
         ],
         profile_title=ring_data["profile_title"],
         tagline=ring_data["tagline"],
+    )
+
+
+class InsightResponse(BaseModel):
+    """Response model for a single insight."""
+
+    id: str
+    type: str
+    title: str
+    body: str
+    emoji: str
+    created_at: datetime
+
+
+class InsightsListResponse(BaseModel):
+    """Response model for list of insights."""
+
+    insights: list[InsightResponse]
+    generated_at: datetime | None
+
+
+@router.get("/insights/{user_id}", response_model=InsightsListResponse)
+async def get_insights(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> InsightsListResponse:
+    """Get personalized insights for a user.
+
+    On-demand generation:
+    1. Check if insights exist for today
+    2. If yes → return from DB
+    3. If no → generate via LLM, store, return
+    """
+    print(f"[Insights] Fetching insights for user: {user_id}")
+
+    today = date.today()
+
+    # Check for existing insights today
+    existing = (
+        supabase.table("daily_insights")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("shown_at", str(today))
+        .execute()
+    )
+
+    if existing.data and len(existing.data) > 0:
+        print(f"[Insights] Found {len(existing.data)} cached insights")
+        return InsightsListResponse(
+            insights=[
+                InsightResponse(
+                    id=row["id"],
+                    type=row["insight_type"],
+                    title=row["title"],
+                    body=row["body"],
+                    emoji=row.get("emoji", "💡"),
+                    created_at=row["created_at"],
+                )
+                for row in existing.data
+            ],
+            generated_at=existing.data[0]["created_at"] if existing.data else None,
+        )
+
+    # No insights for today - generate new ones
+    print(f"[Insights] Generating new insights for user: {user_id}")
+
+    # Fetch user_analysis for the generator
+    analysis_result = (
+        supabase.table("user_analysis")
+        .select("*")
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+
+    if not analysis_result.data:
+        print(f"[Insights] No user analysis found, returning empty")
+        return InsightsListResponse(insights=[], generated_at=None)
+
+    analysis = analysis_result.data
+
+    # Build user data dict for generator
+    user_data = {
+        "total_transactions": analysis.get("total_transactions", 0),
+        "categories": analysis.get("categories", {}),
+        "streaks": analysis.get("streaks", {}),
+        "exploration": analysis.get("exploration", {}),
+        "time_buckets": analysis.get("time_buckets", {}),
+        "top_merchants": analysis.get("top_merchants", []),
+    }
+
+    # Generate insights
+    generator = InsightGenerator()
+    insights = generator.generate(user_data)
+    print(f"[Insights] Generated {len(insights)} insights")
+
+    # Store in database
+    now = datetime.now()
+    stored_insights = []
+
+    for insight in insights:
+        result = (
+            supabase.table("daily_insights")
+            .insert({
+                "user_id": user_id,
+                "insight_type": insight.type,
+                "title": insight.title,
+                "body": insight.body,
+                "emoji": insight.emoji,
+                "source_data": user_data,
+                "shown_at": str(today),
+            })
+            .execute()
+        )
+
+        if result.data:
+            row = result.data[0]
+            stored_insights.append(
+                InsightResponse(
+                    id=row["id"],
+                    type=row["insight_type"],
+                    title=row["title"],
+                    body=row["body"],
+                    emoji=row.get("emoji", "💡"),
+                    created_at=row["created_at"],
+                )
+            )
+
+    return InsightsListResponse(
+        insights=stored_insights,
+        generated_at=now,
     )
