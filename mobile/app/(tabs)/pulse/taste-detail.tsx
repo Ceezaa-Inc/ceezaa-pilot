@@ -9,6 +9,13 @@ import { Typography, Card } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
 import { useTasteStore } from '@/stores';
 
+// Format name for display (title case, replace underscores)
+const formatName = (name: string) => {
+  return name
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 export default function TasteDetailScreen() {
   const { profile, categories, traits } = useTasteStore();
 
@@ -97,7 +104,7 @@ export default function TasteDetailScreen() {
                   {index + 1}
                 </Typography>
                 <Typography variant="body" color="primary">
-                  {cuisine}
+                  {formatName(cuisine)}
                 </Typography>
               </View>
             ))}

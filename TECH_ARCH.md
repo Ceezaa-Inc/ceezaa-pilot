@@ -237,6 +237,7 @@ class TransactionProcessor:
                 id=plaid_txn.merchant_entity_id,
             ),
             taste_category=self._map_category(plaid_txn.personal_finance_category),
+            cuisine=self._extract_cuisine(plaid_txn.personal_finance_category.detailed),
             time_bucket=self._get_time_bucket(plaid_txn.datetime),  # morning/afternoon/evening/night
             day_type=self._get_day_type(plaid_txn.date),            # weekday/weekend
         )
@@ -246,13 +247,41 @@ class TransactionProcessor:
         CATEGORY_MAP = {
             "COFFEE_SHOPS": "coffee",
             "RESTAURANTS": "dining",
-            "FAST_FOOD": "dining",
+            "FAST_FOOD": "fast_food",
             "BARS": "nightlife",
             "ENTERTAINMENT": "entertainment",
             "GYMS_AND_FITNESS_CENTERS": "fitness",
             # ... more mappings
         }
         return CATEGORY_MAP.get(plaid_category.primary, "other")
+
+    def _extract_cuisine(self, detailed_category: str) -> str | None:
+        """Extract cuisine type from Plaid detailed category.
+
+        Plaid's personal_finance_category.detailed provides structured cuisine info:
+        - FOOD_AND_DRINK_RESTAURANT_ASIAN → "asian"
+        - FOOD_AND_DRINK_RESTAURANT_SUSHI → "sushi"
+        - FOOD_AND_DRINK_RESTAURANT_THAI → "thai"
+
+        This enables cuisine-based venue matching without manual merchant mapping.
+        """
+        CUISINE_MAP = {
+            "FOOD_AND_DRINK_RESTAURANT_ASIAN": "asian",
+            "FOOD_AND_DRINK_RESTAURANT_SUSHI": "sushi",
+            "FOOD_AND_DRINK_RESTAURANT_THAI": "thai",
+            "FOOD_AND_DRINK_RESTAURANT_INDIAN": "indian",
+            "FOOD_AND_DRINK_RESTAURANT_LATIN_AMERICAN": "latin",
+            "FOOD_AND_DRINK_RESTAURANT_EUROPEAN": "european",
+            "FOOD_AND_DRINK_RESTAURANT_AMERICAN": "american",
+            "FOOD_AND_DRINK_RESTAURANT_MIDDLE_EASTERN": "middle_eastern",
+            "FOOD_AND_DRINK_RESTAURANT_AFRICAN": "african",
+            "FOOD_AND_DRINK_RESTAURANT_SEAFOOD": "seafood",
+            "FOOD_AND_DRINK_RESTAURANT_STEAKHOUSE": "steakhouse",
+            "FOOD_AND_DRINK_RESTAURANT_PIZZA": "pizza",
+            "FOOD_AND_DRINK_RESTAURANT_VEGETARIAN_VEGAN": "vegetarian",
+            "FOOD_AND_DRINK_RESTAURANT_BREAKFAST_BRUNCH": "brunch",
+        }
+        return CUISINE_MAP.get(detailed_category)
 ```
 
 ### Aggregation Engine
@@ -285,12 +314,31 @@ class AggregationEngine:
         # 6. Exploration ratio
         self._update_exploration(analysis, txn)
 
-        # 7. Update metadata
+        # 7. Cuisine distribution (from Plaid detailed categories)
+        if txn.cuisine:
+            analysis.cuisines[txn.cuisine] = analysis.cuisines.get(txn.cuisine, 0) + 1
+            self._update_top_cuisines(analysis)
+
+        # 8. Update metadata
         analysis.total_transactions += 1
         analysis.last_transaction_at = txn.timestamp
 
         return analysis
+
+    def _update_top_cuisines(self, analysis: UserAnalysis) -> None:
+        """Rebuild top cuisines list - cached top 5 for quick access."""
+        sorted_cuisines = sorted(
+            analysis.cuisines.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
+        analysis.top_cuisines = [c[0] for c in sorted_cuisines[:5]]
 ```
+
+**Cuisine Tracking Benefit**: By extracting cuisine from Plaid's detailed categories, we can:
+- Show users their actual cuisine preferences (not just "dining")
+- Match users to venues by observed cuisine preference
+- Track cuisine exploration over time
 
 ### Taste Fusion
 
@@ -500,24 +548,38 @@ class MatchingEngine:
     def _calculate_match_score(self, taste: FusedTaste, venue: Venue) -> float:
         score = 0.0
 
-        # Category match (40% weight)
-        category_pref = taste.categories.get(venue.taste_cluster, 0)
-        score += category_pref * 0.4
-
         # Vibe match (30% weight)
         vibe_matches = len(set(taste.vibes) & set(venue.vibe_tags))
         score += (vibe_matches / max(len(taste.vibes), 1)) * 0.3
 
-        # Merchant familiarity bonus (15% weight)
-        if venue.name in taste.top_merchants:
-            score += 0.15
+        # Cuisine match (20% weight) - from observed transaction data
+        # Uses top_cuisines extracted from plaid_category_detailed
+        if venue.cuisine_type in taste.top_cuisines:
+            score += 0.2
+
+        # Price match (20% weight)
+        if venue.price_tier == taste.price_tier:
+            score += 0.2
+
+        # Category affinity (15% weight)
+        category_pref = taste.categories.get(venue.taste_cluster, 0)
+        score += category_pref * 0.15
 
         # Exploration bonus for adventurous users (15% weight)
-        if taste.exploration_ratio > 0.5 and "hidden_gem" in venue.vibe_tags:
+        if taste.exploration_style == "adventurous" and "hidden_gem" in venue.vibe_tags:
             score += 0.15
 
         return min(score, 1.0)  # Cap at 100%
 ```
+
+**Matching Data Sources:**
+| Signal | Source | Weight |
+|--------|--------|--------|
+| Vibes | Quiz (declared_taste.vibe_preferences) | 30% |
+| Cuisine | Transactions (user_analysis.top_cuisines from plaid_category_detailed) | 20% |
+| Price | Quiz (declared_taste.price_tier) | 20% |
+| Category | Fused (weighted quiz + transaction category breakdown) | 15% |
+| Exploration | Quiz + behavior (declared exploration style + hidden_gem preference) | 15% |
 
 ---
 
@@ -657,8 +719,9 @@ CREATE TABLE transactions (
   merchant_name TEXT,
   merchant_id TEXT,
   plaid_category_primary TEXT,
-  plaid_category_detailed TEXT,
-  taste_category TEXT,                       -- Our mapped category
+  plaid_category_detailed TEXT,              -- e.g., FOOD_AND_DRINK_RESTAURANT_ASIAN
+  taste_category TEXT,                       -- Our mapped category (coffee, dining, etc.)
+  cuisine TEXT,                              -- Extracted from detailed: asian, sushi, thai, etc.
   time_bucket TEXT,                          -- morning/afternoon/evening/night
   day_type TEXT,                             -- weekday/weekend
   location_city TEXT,
@@ -682,6 +745,10 @@ CREATE TABLE user_analysis (
   -- Merchant data
   merchant_visits JSONB NOT NULL DEFAULT '{}',   -- {merchant_id: visit_count}
   top_merchants JSONB NOT NULL DEFAULT '[]',     -- Cached top 10
+
+  -- Cuisine tracking (from plaid_category_detailed)
+  cuisines JSONB NOT NULL DEFAULT '{}',          -- {asian: 12, sushi: 8, thai: 5, ...}
+  top_cuisines JSONB NOT NULL DEFAULT '[]',      -- Cached top 5 for matching
 
   -- Behavioral patterns
   streaks JSONB NOT NULL DEFAULT '{}',           -- {coffee: {current: 5, longest: 12, last_date: ...}}

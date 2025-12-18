@@ -19,7 +19,7 @@
 | **BA: Authentication** | 🔄 Partial | 70% |
 | **FS1: Quiz → Taste Profile** | ✅ Complete | 100% |
 | **FS2: Transaction Sync** | ✅ Complete | 100% |
-| **FS3: Taste Fusion** | ⬜ Not Started | 0% |
+| **FS3: Taste Fusion** | ✅ Complete | 100% |
 | **FS4: Taste Ring Data** | ⬜ Not Started | 0% |
 | **FS5: AI Insights** | ⬜ Not Started | 0% |
 | **FS6: Venue Catalog** | ⬜ Not Started | 0% |
@@ -194,52 +194,79 @@ mobile/app/(onboarding)/
 
 ---
 
-### ⬜ FS2: Transaction Sync → Observed Taste
+### ✅ FS2: Transaction Sync → Observed Taste (Complete)
 
 **Goal**: Link bank → see transaction-based taste data
 
 **Expo Test**: Link sandbox bank → see "45 coffee transactions, 23 dining" etc.
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Write AggregationEngine tests | RED |
-| 2 | Backend | Create `backend/app/intelligence/aggregation_engine.py` | GREEN |
-| 3 | Backend | Implement incremental O(1) category updates | GREEN |
-| 4 | Backend | Implement time pattern tracking | GREEN |
-| 5 | Backend | Implement merchant loyalty tracking | GREEN |
-| 6 | Backend | Create `user_analysis` upsert logic | - |
-| 7 | Backend | Create `GET /api/taste/observed` endpoint | - |
-| 8 | Frontend | Update `card-link.tsx` to trigger sync after link | - |
-| 9 | Frontend | Show "Analyzing X transactions..." progress | - |
-| 10 | Test | Link Plaid → see category breakdown | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Write AggregationEngine tests | ✅ |
+| 2 | Backend | Create `backend/app/intelligence/aggregation_engine.py` | ✅ |
+| 3 | Backend | Implement incremental O(1) category updates | ✅ |
+| 4 | Backend | Implement time pattern tracking | ✅ |
+| 5 | Backend | Implement merchant loyalty tracking | ✅ |
+| 6 | Backend | Create `user_analysis` upsert logic | ✅ |
+| 7 | Backend | Auto-aggregate after transaction sync | ✅ |
+| 8 | Frontend | Update `card-link.tsx` to trigger sync after link | ✅ |
+| 9 | Frontend | Show "Analyzing X transactions..." progress | ✅ |
+| 10 | Test | Link Plaid → see category breakdown | ✅ |
 
-**Key Algorithm**: O(1) incremental updates (no loops over all transactions)
-```python
-# On each new transaction, update aggregates incrementally:
-user_analysis.categories[category].count += 1
-user_analysis.categories[category].spend += amount
-# NOT: for tx in all_transactions: aggregate()
+**Completed**: O(1) aggregation engine, automatic aggregation on sync, Plaid detailed categories stored.
+
+**Key Files:**
 ```
+backend/app/
+├── intelligence/
+│   └── aggregation_engine.py    # O(1) incremental aggregation
+├── services/
+│   └── plaid_service.py         # Stores plaid_category_detailed
+└── models/
+    └── plaid.py                 # ProcessedTransaction model
+```
+
+**Note**: `plaid_category_detailed` is stored in transactions table. Future enhancement will extract cuisine types from detailed categories (e.g., `FOOD_AND_DRINK_RESTAURANT_ASIAN` → "asian").
 
 ---
 
-### ⬜ FS3: Taste Fusion → Unified Profile
+### ✅ FS3: Taste Fusion → Unified Profile (Complete)
 
 **Goal**: Quiz + Transactions merged into single taste profile
 
 **Expo Test**: Finish onboarding → Pulse tab shows real Taste Ring with YOUR data
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Write TasteFusion tests | RED |
-| 2 | Backend | Create `backend/app/intelligence/taste_fusion.py` | GREEN |
-| 3 | Backend | Implement weighted fusion algorithm | GREEN |
-| 4 | Backend | Implement confidence scoring | GREEN |
-| 5 | Backend | Create `fused_taste` upsert logic | - |
-| 6 | Backend | Update `GET /api/taste/profile` to return fused data | - |
-| 7 | Frontend | Update `enhanced-reveal.tsx` to show fused profile | - |
-| 8 | Frontend | Update Pulse tab to use fused profile | - |
-| 9 | Test | Complete onboarding → see unified taste ring | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Write TasteFusion tests | ✅ |
+| 2 | Backend | Create `backend/app/intelligence/taste_fusion.py` | ✅ |
+| 3 | Backend | Implement weighted fusion algorithm | ✅ |
+| 4 | Backend | Implement confidence scoring | ✅ |
+| 5 | Backend | Create `fused_taste` upsert logic | ✅ |
+| 6 | Backend | Create `GET /api/taste/fused` endpoint | ✅ |
+| 7 | Frontend | Update `enhanced-reveal.tsx` to show fused profile | ✅ |
+| 8 | Frontend | Update Pulse tab to use fused profile | ✅ |
+| 9 | Frontend | Add category name formatting (Title Case) | ✅ |
+| 10 | Test | Complete onboarding → see unified taste ring | ✅ |
+
+**Completed**: Weighted fusion algorithm, confidence scoring, fused API endpoint, frontend integration.
+
+**Key Files:**
+```
+backend/app/
+├── intelligence/
+│   └── taste_fusion.py          # TasteFusion class with weighted algorithm
+├── routers/
+│   └── taste.py                 # GET /api/taste/fused/{user_id}
+└── tests/intelligence/
+    └── test_taste_fusion.py     # TDD tests
+
+mobile/
+├── src/stores/
+│   └── useTasteStore.ts         # fetchFusedProfile()
+└── app/(tabs)/pulse/
+    └── taste-detail.tsx         # Category display formatting
+```
 
 **Fusion Algorithm**:
 ```python
@@ -252,6 +279,8 @@ fused_categories = {
     for cat in categories
 }
 ```
+
+**Future Enhancement**: Add cuisine tracking to fusion - extract cuisine from `plaid_category_detailed` for richer taste profiles and better venue matching.
 
 ---
 
@@ -393,23 +422,36 @@ Output (JSON):
 def calculate_match(user_taste, venue):
     score = 0
 
-    # Vibe match (40%)
+    # Vibe match (30%)
     vibe_overlap = len(set(user_taste.vibes) & set(venue.vibe_tags))
-    score += 0.4 * (vibe_overlap / max(len(user_taste.vibes), 1))
+    score += 0.3 * (vibe_overlap / max(len(user_taste.vibes), 1))
 
-    # Cuisine match (30%)
-    if venue.cuisine_type in user_taste.cuisine_preferences:
-        score += 0.3
+    # Cuisine match (20%) - from observed transaction data
+    # Uses top_cuisines extracted from plaid_category_detailed
+    # e.g., FOOD_AND_DRINK_RESTAURANT_ASIAN → "asian"
+    if venue.cuisine_type in user_taste.top_cuisines:
+        score += 0.2
 
     # Price match (20%)
     if venue.price_tier == user_taste.price_tier:
         score += 0.2
 
-    # Category affinity (10%)
-    score += 0.1 * user_taste.category_weights.get(venue.taste_cluster, 0)
+    # Category affinity (15%)
+    score += 0.15 * user_taste.category_weights.get(venue.taste_cluster, 0)
+
+    # Exploration bonus (15%) - for adventurous users
+    if user_taste.exploration_style == "adventurous" and venue.is_hidden_gem:
+        score += 0.15
 
     return round(score * 100)  # Return as percentage
 ```
+
+**Data Sources for Matching:**
+- `vibes`: From quiz (declared_taste.vibe_preferences)
+- `top_cuisines`: From transactions (extracted from plaid_category_detailed)
+- `price_tier`: From quiz (declared_taste.price_tier)
+- `category_weights`: From fused_taste (weighted quiz + transaction data)
+- `exploration_style`: From quiz (declared_taste.exploration_style)
 
 ---
 

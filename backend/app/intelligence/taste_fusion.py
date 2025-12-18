@@ -28,6 +28,11 @@ CATEGORY_COLORS = {
 }
 
 
+def format_category_name(name: str) -> str:
+    """Format category name for display (title case, replace underscores)."""
+    return name.replace("_", " ").title()
+
+
 @dataclass
 class CategoryScore:
     """A single category with its fused score for ring display."""
@@ -202,10 +207,11 @@ class TasteFusion:
         for cat_name, cat_stats in observed.categories.items():
             percentage = round((cat_stats.count / total_count) * 100)
             color = CATEGORY_COLORS.get(cat_name, CATEGORY_COLORS["other"])
+            display_name = format_category_name(cat_name)
 
             scores.append(
                 CategoryScore(
-                    name=cat_name,
+                    name=display_name,
                     percentage=percentage,
                     color=color,
                     count=cat_stats.count,
