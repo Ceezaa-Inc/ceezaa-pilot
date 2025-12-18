@@ -505,9 +505,14 @@ async def get_insights(
     }
 
     # Generate insights
-    generator = InsightGenerator()
-    insights = generator.generate(user_data)
-    print(f"[Insights] Generated {len(insights)} insights")
+    try:
+        generator = InsightGenerator()
+        insights = generator.generate(user_data)
+        print(f"[Insights] Generated {len(insights)} insights")
+    except Exception as e:
+        print(f"[Insights] LLM generation failed: {e}")
+        # Return empty insights on LLM failure (API key missing, rate limit, etc.)
+        return InsightsListResponse(insights=[], generated_at=None)
 
     # Store in database
     now = datetime.now()

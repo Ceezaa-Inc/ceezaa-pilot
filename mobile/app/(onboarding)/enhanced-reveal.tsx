@@ -9,7 +9,7 @@ import { TasteRing } from '@/components/pulse/TasteRing';
 import { useTasteStore, useAuthStore } from '@/stores';
 
 export default function EnhancedRevealScreen() {
-  const { traits, insights, categories, fetchFusedProfile } = useTasteStore();
+  const { traits, categories, fetchFusedProfile } = useTasteStore();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -106,22 +106,6 @@ export default function EnhancedRevealScreen() {
             ))}
           </View>
         </Card>
-
-        <View style={styles.insights}>
-          <Typography variant="label" color="muted">
-            Key Insights
-          </Typography>
-          <View style={styles.insightsList}>
-            {insights.slice(0, 3).map((insight) => (
-              <View key={insight.id} style={styles.insightRow}>
-                <Typography variant="body">{insight.emoji}</Typography>
-                <Typography variant="bodySmall" color="secondary">
-                  {insight.description}
-                </Typography>
-              </View>
-            ))}
-          </View>
-        </View>
       </Animated.View>
 
       <View style={styles.footer}>
@@ -180,18 +164,6 @@ const styles = StyleSheet.create({
   traitFill: {
     height: '100%',
     borderRadius: 4,
-  },
-  insights: {
-    marginTop: layoutSpacing.lg,
-    gap: layoutSpacing.sm,
-  },
-  insightsList: {
-    gap: layoutSpacing.xs,
-  },
-  insightRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.sm,
   },
   footer: {
     paddingHorizontal: layoutSpacing.lg,
