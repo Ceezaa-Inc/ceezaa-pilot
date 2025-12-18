@@ -21,7 +21,7 @@
 | **FS2: Transaction Sync** | ✅ Complete | 100% |
 | **FS3: Taste Fusion** | ✅ Complete | 100% |
 | **FS4: Taste Ring Data** | ✅ Complete | 100% |
-| **FS5: AI Insights** | ⬜ Not Started | 0% |
+| **FS5: AI Insights** | ✅ Complete | 100% |
 | **FS6: Venue Catalog** | ⬜ Not Started | 0% |
 | **FS7: Taste Matching** | ⬜ Not Started | 0% |
 | **FS8: Mood Discovery** | ⬜ Not Started | 0% |
@@ -337,47 +337,45 @@ mobile/src/
 
 ---
 
-### ⬜ FS5: AI Insights (First LLM Usage)
+### ✅ FS5: AI Insights (Complete)
 
 **Goal**: Personalized insights generated from your data
 
-**Expo Test**: Pulse tab shows "You've had coffee 5 days straight! Your go-to is Blue Bottle."
+**Expo Test**: Pulse tab shows AI-generated insights about your spending habits
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Create `backend/app/intelligence/insight_generator.py` | - |
-| 2 | Backend | Implement insight prompt template (JSON structured) | - |
-| 3 | Backend | Add semantic caching for similar profiles | - |
-| 4 | Backend | Create `POST /api/taste/generate-insights` | - |
-| 5 | Backend | Store insights in `daily_insights` table | - |
-| 6 | Backend | Create `GET /api/taste/insights` | - |
-| 7 | Frontend | Create `useInsights` hook | - |
-| 8 | Frontend | Connect Pulse tab InsightCard to API | - |
-| 9 | Test | See AI-generated insights about YOUR habits | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create `InsightGenerator` with Claude Haiku | ✅ |
+| 2 | Backend | Use structured outputs (Pydantic models) | ✅ |
+| 3 | Backend | Add prompt caching (90% cost reduction) | ✅ |
+| 4 | Backend | Create `GET /api/taste/insights/{user_id}` | ✅ |
+| 5 | Backend | On-demand generation with daily caching | ✅ |
+| 6 | Backend | Store insights in `daily_insights` table | ✅ |
+| 7 | Frontend | Add `fetchInsights` to useTasteStore | ✅ |
+| 8 | Frontend | Connect Pulse tab to fetch insights on mount | ✅ |
+| 9 | Test | 9 unit tests passing | ✅ |
 
-**Insight Prompt Template**:
-```python
-INSIGHT_PROMPT = """
-Generate 2-3 personalized dining insights.
-
-User Data:
-{user_data_json}
-
-Rules:
-- Each insight: 1-2 sentences
-- Be specific (mention numbers, merchant names)
-- Tone: friendly, slightly playful
-- Focus on patterns or streaks
-
-Output (JSON):
-{
-  "insights": [
-    {"type": "streak", "title": "Coffee Streak!", "body": "..."},
-    {"type": "discovery", "title": "New Favorite?", "body": "..."}
-  ]
-}
-"""
+**Key Files:**
 ```
+backend/app/
+├── intelligence/
+│   └── insight_generator.py     # InsightGenerator with Claude Haiku
+└── routers/
+    └── taste.py                 # GET /api/taste/insights/{user_id}
+
+mobile/src/
+└── stores/
+    └── useTasteStore.ts         # fetchInsights action
+```
+
+**Implementation Details:**
+- Model: `claude-haiku-4-5-20241022` for cost efficiency (~$24/month for 1000 users)
+- Structured outputs beta: `structured-outputs-2025-11-13` for guaranteed JSON
+- Prompt caching: System prompt cached (5-min TTL, auto-refresh)
+- Daily caching: Insights generated once per day, stored in DB
+- Insight types: streak, discovery, pattern, milestone
+
+**Requires**: `ANTHROPIC_API_KEY` in Render environment variables
 
 ---
 
