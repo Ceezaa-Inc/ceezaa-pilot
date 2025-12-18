@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -7,7 +7,7 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
-import { useTasteStore } from '@/stores';
+import { useTasteStore, useAuthStore } from '@/stores';
 
 // Format name for display (title case, replace underscores)
 const formatName = (name: string) => {
@@ -17,7 +17,16 @@ const formatName = (name: string) => {
 };
 
 export default function TasteDetailScreen() {
-  const { profile, categories, traits } = useTasteStore();
+  const { profile, categories, traits, fetchDNA, clearDNACache, hasFetchedDNA } = useTasteStore();
+  const { user } = useAuthStore();
+
+  // Fetch DNA on mount
+  useEffect(() => {
+    if (user?.id && !hasFetchedDNA) {
+      console.log('[TasteDetail] Fetching DNA for:', user.id);
+      fetchDNA(user.id);
+    }
+  }, [user?.id, hasFetchedDNA]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -72,9 +81,35 @@ export default function TasteDetailScreen() {
 
         {/* Taste Traits */}
         <View style={styles.section}>
-          <Typography variant="label" color="muted">
-            Your Taste DNA
-          </Typography>
+          <View style={styles.sectionHeader}>
+            <Typography variant="label" color="muted">
+              Your Taste DNA
+            </Typography>
+            {/* TEMP: Debug buttons */}
+            <View style={styles.debugButtons}>
+              <TouchableOpacity
+                onPress={async () => {
+                  console.log('[TasteDetail] Clearing DNA cache for:', user?.id);
+                  if (user?.id) {
+                    await clearDNACache(user.id);
+                    fetchDNA(user.id);
+                  }
+                }}
+                style={styles.debugButton}
+              >
+                <Typography variant="caption" color="gold">🗑 Clear</Typography>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('[TasteDetail] Manual DNA refresh for:', user?.id);
+                  if (user?.id) fetchDNA(user.id);
+                }}
+                style={styles.debugButton}
+              >
+                <Typography variant="caption" color="gold">↻ Refresh</Typography>
+              </TouchableOpacity>
+            </View>
+          </View>
           <View style={styles.traitsGrid}>
             {traits.map((trait) => (
               <Card key={trait.name} variant="outlined" padding="md" style={styles.traitCard}>
@@ -136,6 +171,19 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: layoutSpacing.sm,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  debugButtons: {
+    flexDirection: 'row',
+    gap: layoutSpacing.sm,
+  },
+  debugButton: {
+    paddingHorizontal: layoutSpacing.sm,
+    paddingVertical: layoutSpacing.xs,
   },
   traitsGrid: {
     flexDirection: 'row',

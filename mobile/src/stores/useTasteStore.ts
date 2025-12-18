@@ -11,7 +11,7 @@ import {
   MOOD_DATA,
   MoodType,
 } from '@/mocks/taste';
-import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait, FusedTasteProfile, InsightsResponse } from '@/services/api';
+import { tasteApi, TasteProfile as ApiTasteProfile, TasteTrait as ApiTasteTrait, FusedTasteProfile, InsightsResponse, DNAResponse } from '@/services/api';
 
 interface TasteState {
   profile: TasteProfile;
@@ -23,6 +23,7 @@ interface TasteState {
   error: string | null;
   hasFetched: boolean;
   hasFetchedInsights: boolean;
+  hasFetchedDNA: boolean;
 
   // Actions
   setSelectedMood: (mood: MoodType | null) => void;
@@ -33,6 +34,8 @@ interface TasteState {
   fetchFusedProfile: (userId: string) => Promise<void>;
   fetchInsights: (userId: string) => Promise<void>;
   clearInsightsCache: (userId: string) => Promise<void>;
+  fetchDNA: (userId: string) => Promise<void>;
+  clearDNACache: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -76,6 +79,7 @@ export const useTasteStore = create<TasteState>((set, get) => ({
   error: null,
   hasFetched: false,
   hasFetchedInsights: false,
+  hasFetchedDNA: false,
 
   setSelectedMood: (mood) => {
     set({ selectedMood: mood });
@@ -202,6 +206,42 @@ export const useTasteStore = create<TasteState>((set, get) => ({
       console.log('[TasteStore] Cache cleared, ready for refetch');
     } catch (error) {
       console.error('[TasteStore] Clear cache error:', error);
+    }
+  },
+
+  fetchDNA: async (userId: string) => {
+    try {
+      console.log('[TasteStore] Fetching DNA for user:', userId);
+      const response = await tasteApi.getDNA(userId);
+      console.log('[TasteStore] DNA fetched:', response.traits.length, 'traits');
+
+      // Convert API DNA traits to local TasteTrait format
+      const traits: TasteTrait[] = response.traits.map((apiTrait) => ({
+        name: apiTrait.name,
+        emoji: apiTrait.emoji,
+        description: apiTrait.description,
+        score: 0, // DNA traits don't have scores
+        color: apiTrait.color,
+      }));
+
+      set({
+        traits: traits.length > 0 ? traits : TASTE_TRAITS,
+        hasFetchedDNA: true,
+      });
+    } catch (error) {
+      console.error('[TasteStore] DNA fetch error:', error);
+      // On error, keep mock data but allow retry
+    }
+  },
+
+  clearDNACache: async (userId: string) => {
+    try {
+      console.log('[TasteStore] Clearing DNA cache for:', userId);
+      await tasteApi.clearDNACache(userId);
+      set({ hasFetchedDNA: false, traits: TASTE_TRAITS });
+      console.log('[TasteStore] DNA cache cleared, ready for refetch');
+    } catch (error) {
+      console.error('[TasteStore] Clear DNA cache error:', error);
     }
   },
 

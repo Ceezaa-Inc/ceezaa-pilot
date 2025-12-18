@@ -143,6 +143,21 @@ export interface InsightsResponse {
   generated_at: string | null;
 }
 
+// DNA types
+export interface ApiDNATrait {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  color: string;
+  created_at: string;
+}
+
+export interface DNAResponse {
+  traits: ApiDNATrait[];
+  generated_at: string | null;
+}
+
 // Onboarding API
 export const onboardingApi = {
   submitQuiz: (userId: string, answers: QuizAnswer[]): Promise<SubmitQuizResponse> =>
@@ -165,6 +180,12 @@ export const tasteApi = {
 
   clearInsightsCache: (userId: string): Promise<{ deleted: number }> =>
     api.delete(`/api/taste/insights/${userId}/cache`),
+
+  getDNA: (userId: string): Promise<DNAResponse> =>
+    api.get(`/api/taste/dna/${userId}`),
+
+  clearDNACache: (userId: string): Promise<{ deleted: number }> =>
+    api.delete(`/api/taste/dna/${userId}/cache`),
 };
 
 export { ApiError };

@@ -12,6 +12,7 @@ from app.intelligence.taste_fusion import TasteFusion
 from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
 from app.intelligence.ring_builder import RingBuilder
 from app.intelligence.insight_generator import InsightGenerator, Insight
+from app.intelligence.dna_generator import DNAGenerator, DNATrait
 from decimal import Decimal
 from datetime import date, datetime
 
@@ -569,5 +570,176 @@ async def clear_insights_cache(
 
     deleted_count = len(result.data) if result.data else 0
     print(f"[Insights] Deleted {deleted_count} cached insights")
+
+    return {"deleted": deleted_count}
+
+
+# ============== DNA Endpoints ==============
+
+
+class DNATraitResponse(BaseModel):
+    """Response model for a single DNA trait."""
+
+    id: str
+    name: str
+    emoji: str
+    description: str
+    color: str
+    created_at: datetime
+
+
+class DNAListResponse(BaseModel):
+    """Response model for list of DNA traits."""
+
+    traits: list[DNATraitResponse]
+    generated_at: datetime | None
+
+
+@router.get("/dna/{user_id}", response_model=DNAListResponse)
+async def get_dna(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> DNAListResponse:
+    """Get personalized DNA traits for a user.
+
+    On-demand generation:
+    1. Check if DNA exists for today
+    2. If yes → return from DB
+    3. If no → generate via LLM, store, return
+    """
+    print(f"[DNA] Fetching DNA for user: {user_id}")
+
+    today = date.today()
+
+    # Check for existing DNA today
+    existing = (
+        supabase.table("daily_dna")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("shown_at", str(today))
+        .execute()
+    )
+
+    if existing.data and len(existing.data) >= 4:
+        print(f"[DNA] Found {len(existing.data)} cached traits")
+        return DNAListResponse(
+            traits=[
+                DNATraitResponse(
+                    id=row["id"],
+                    name=row["trait_name"],
+                    emoji=row["emoji"],
+                    description=row["description"],
+                    color=row["color"],
+                    created_at=row["created_at"],
+                )
+                for row in existing.data
+            ],
+            generated_at=existing.data[0]["created_at"] if existing.data else None,
+        )
+
+    # No DNA for today - generate new traits
+    print(f"[DNA] Generating new DNA for user: {user_id}")
+
+    # Fetch user_analysis (transaction data)
+    analysis_result = (
+        supabase.table("user_analysis")
+        .select("*")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    # Fetch declared_taste (quiz data)
+    declared_result = (
+        supabase.table("declared_taste")
+        .select("*")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not analysis_result.data and not declared_result.data:
+        print(f"[DNA] No user data found, returning empty")
+        return DNAListResponse(traits=[], generated_at=None)
+
+    # Combine data for generator
+    analysis = analysis_result.data or {}
+    declared = declared_result.data or {}
+
+    user_data = {
+        # Transaction data
+        "categories": analysis.get("categories", {}),
+        "top_merchants": analysis.get("top_merchants", []),
+        "time_buckets": analysis.get("time_buckets", {}),
+        # Quiz data
+        "exploration_style": declared.get("exploration_style"),
+        "vibe_preferences": declared.get("vibe_preferences", []),
+        "social_preference": declared.get("social_preference"),
+        "price_tier": declared.get("price_tier"),
+    }
+
+    # Generate DNA traits
+    try:
+        generator = DNAGenerator()
+        traits = generator.generate(user_data)
+        print(f"[DNA] Generated {len(traits)} traits")
+    except Exception as e:
+        print(f"[DNA] LLM generation failed: {e}")
+        return DNAListResponse(traits=[], generated_at=None)
+
+    # Store in database
+    now = datetime.now()
+    stored_traits = []
+
+    for trait in traits:
+        result = (
+            supabase.table("daily_dna")
+            .insert({
+                "user_id": user_id,
+                "trait_name": trait.name,
+                "emoji": trait.emoji,
+                "description": trait.description,
+                "color": trait.color,
+                "shown_at": str(today),
+            })
+            .execute()
+        )
+
+        if result.data:
+            row = result.data[0]
+            stored_traits.append(
+                DNATraitResponse(
+                    id=row["id"],
+                    name=row["trait_name"],
+                    emoji=row["emoji"],
+                    description=row["description"],
+                    color=row["color"],
+                    created_at=row["created_at"],
+                )
+            )
+
+    return DNAListResponse(
+        traits=stored_traits,
+        generated_at=now,
+    )
+
+
+@router.delete("/dna/{user_id}/cache")
+async def clear_dna_cache(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> dict:
+    """DEV ONLY: Clear cached DNA for a user to force regeneration."""
+    print(f"[DNA] Clearing cache for user: {user_id}")
+
+    result = (
+        supabase.table("daily_dna")
+        .delete()
+        .eq("user_id", user_id)
+        .execute()
+    )
+
+    deleted_count = len(result.data) if result.data else 0
+    print(f"[DNA] Deleted {deleted_count} cached traits")
 
     return {"deleted": deleted_count}
