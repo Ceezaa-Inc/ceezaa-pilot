@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
@@ -17,21 +17,26 @@ export default function PulseScreen() {
   const { user } = useAuthStore();
   const upcomingPlans = getUpcomingPlans(3);
 
-  // Fetch fused profile on mount if not already fetched
-  useEffect(() => {
-    if (user?.id && !hasFetched) {
-      console.log('[PulseScreen] Fetching fused profile for:', user.id);
-      fetchFusedProfile(user.id);
-    }
-  }, [user?.id, hasFetched]);
+  // Fetch data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      console.log('[PulseScreen] Focus effect:', { userId: user?.id, hasFetched, hasFetchedInsights });
 
-  // Fetch insights on mount if not already fetched
-  useEffect(() => {
-    if (user?.id && !hasFetchedInsights) {
-      console.log('[PulseScreen] Fetching insights for:', user.id);
-      fetchInsights(user.id);
-    }
-  }, [user?.id, hasFetchedInsights]);
+      if (user?.id) {
+        // Fetch fused profile if not already fetched
+        if (!hasFetched) {
+          console.log('[PulseScreen] Fetching fused profile for:', user.id);
+          fetchFusedProfile(user.id);
+        }
+
+        // Fetch insights if not already fetched
+        if (!hasFetchedInsights) {
+          console.log('[PulseScreen] Fetching insights for:', user.id);
+          fetchInsights(user.id);
+        }
+      }
+    }, [user?.id, hasFetched, hasFetchedInsights])
+  );
 
   const renderInsightCard = ({ item }: { item: (typeof insights)[0] }) => (
     <Card variant="default" padding="md" style={styles.insightCard}>
