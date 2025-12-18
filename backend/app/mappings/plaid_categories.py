@@ -129,3 +129,36 @@ NON_RECOMMENDATION_CATEGORIES = {
     "other_food",
     "other",
 }
+
+
+# Map Plaid detailed categories to cuisine types
+# Extracts cuisine info that would otherwise be lost when mapping to "dining"
+CUISINE_MAPPING: dict[str, str] = {
+    "FOOD_AND_DRINK_RESTAURANT_ASIAN": "asian",
+    "FOOD_AND_DRINK_RESTAURANT_SUSHI": "sushi",
+    "FOOD_AND_DRINK_RESTAURANT_THAI": "thai",
+    "FOOD_AND_DRINK_RESTAURANT_INDIAN": "indian",
+    "FOOD_AND_DRINK_RESTAURANT_LATIN_AMERICAN": "latin",
+    "FOOD_AND_DRINK_RESTAURANT_EUROPEAN": "european",
+    "FOOD_AND_DRINK_RESTAURANT_AMERICAN": "american",
+    "FOOD_AND_DRINK_RESTAURANT_MIDDLE_EASTERN": "middle_eastern",
+    "FOOD_AND_DRINK_RESTAURANT_AFRICAN": "african",
+    "FOOD_AND_DRINK_RESTAURANT_SEAFOOD": "seafood",
+    "FOOD_AND_DRINK_RESTAURANT_STEAKHOUSE": "steakhouse",
+    "FOOD_AND_DRINK_RESTAURANT_PIZZA": "pizza",
+    "FOOD_AND_DRINK_RESTAURANT_VEGETARIAN_VEGAN": "vegetarian",
+    "FOOD_AND_DRINK_RESTAURANT_BREAKFAST_BRUNCH": "brunch",
+}
+
+
+def get_cuisine(plaid_detailed_category: str) -> str | None:
+    """Extract cuisine type from Plaid detailed category.
+
+    Args:
+        plaid_detailed_category: The detailed category from Plaid's
+            personal_finance_category.detailed field
+
+    Returns:
+        The cuisine type (e.g., "asian", "sushi") or None if not a restaurant
+    """
+    return CUISINE_MAPPING.get(plaid_detailed_category)

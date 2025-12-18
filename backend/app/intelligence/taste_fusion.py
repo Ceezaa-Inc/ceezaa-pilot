@@ -50,6 +50,7 @@ class FusedTaste:
 
     categories: list[CategoryScore] = field(default_factory=list)
     vibes: list[str] = field(default_factory=list)
+    top_cuisines: list[str] = field(default_factory=list)  # From observed transactions
     exploration_ratio: float = 0.0
     confidence: float = 0.0
     quiz_weight: float = 1.0
@@ -70,6 +71,7 @@ class FusedTaste:
                 for c in self.categories
             ],
             "vibes": self.vibes,
+            "top_cuisines": self.top_cuisines,
             "exploration_ratio": self.exploration_ratio,
             "confidence": self.confidence,
             "quiz_weight": self.quiz_weight,
@@ -128,6 +130,7 @@ class TasteFusion:
         return FusedTaste(
             categories=categories,
             vibes=list(declared.vibe_preferences),
+            top_cuisines=observed.top_cuisines,
             exploration_ratio=exploration_ratio,
             confidence=confidence,
             quiz_weight=quiz_weight,

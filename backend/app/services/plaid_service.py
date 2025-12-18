@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 from supabase import Client
 
-from app.mappings.plaid_categories import get_taste_category
+from app.mappings.plaid_categories import get_taste_category, get_cuisine
 from app.services.plaid_client import sync_transactions
 from app.intelligence.aggregation_engine import AggregationEngine, UserAnalysis
 from app.models.plaid import ProcessedTransaction
@@ -239,6 +239,7 @@ class PlaidService:
             primary_cat = pfc.primary if pfc else None
             detailed_cat = pfc.detailed if pfc else None
             taste_cat = get_taste_category(detailed_cat) if detailed_cat else "other"
+            cuisine = get_cuisine(detailed_cat) if detailed_cat else None
 
             # Extract location
             loc = tx.location
@@ -265,6 +266,7 @@ class PlaidService:
                 "plaid_category_primary": primary_cat,
                 "plaid_category_detailed": detailed_cat,
                 "taste_category": taste_cat,
+                "cuisine": cuisine,
                 "time_bucket": time_bucket,
                 "day_type": day_type,
                 "location_city": city,
@@ -326,6 +328,7 @@ class PlaidService:
                 merchant_name=tx.get("merchant_name") or "Unknown",
                 merchant_id=tx.get("merchant_id"),
                 taste_category=tx.get("taste_category") or "other",
+                cuisine=tx.get("cuisine"),  # From plaid_category_detailed
                 time_bucket=tx.get("time_bucket") or "unknown",
                 day_type=tx.get("day_type") or "unknown",
                 payment_channel="unknown",
@@ -346,6 +349,8 @@ class PlaidService:
                 "day_types": analysis_dict["day_types"],
                 "merchant_visits": analysis_dict["merchant_visits"],
                 "top_merchants": analysis_dict["top_merchants"],
+                "cuisines": analysis_dict["cuisines"],
+                "top_cuisines": analysis_dict["top_cuisines"],
                 "streaks": analysis_dict["streaks"],
                 "exploration": analysis_dict["exploration"],
                 "total_transactions": analysis_dict["total_transactions"],

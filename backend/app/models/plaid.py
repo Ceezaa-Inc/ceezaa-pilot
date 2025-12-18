@@ -99,6 +99,7 @@ class ProcessedTransaction(BaseModel):
     merchant_name: str  # merchant_name or name fallback
     merchant_id: Optional[str] = None  # merchant_entity_id
     taste_category: str  # Mapped from personal_finance_category
+    cuisine: Optional[str] = None  # Extracted from detailed category (asian, sushi, thai)
     time_bucket: str  # "morning", "afternoon", "evening", "night"
     day_type: str  # "weekday", "weekend"
     payment_channel: str

@@ -321,8 +321,8 @@ class TestExplorationTracking:
         result = engine.ingest(txn1, empty_analysis)
         result = engine.ingest(txn2, result)
 
-        assert result.exploration["dining"]["unique"] == 2
-        assert result.exploration["dining"]["total"] == 2
+        assert result.exploration["dining"].unique == 2
+        assert result.exploration["dining"].total == 2
 
     def test_repeat_merchant_increments_total_not_unique(self, engine, empty_analysis):
         """Revisiting same merchant should increment total but not unique."""
@@ -354,8 +354,8 @@ class TestExplorationTracking:
         result = engine.ingest(txn1, empty_analysis)
         result = engine.ingest(txn2, result)
 
-        assert result.exploration["dining"]["unique"] == 1
-        assert result.exploration["dining"]["total"] == 2
+        assert result.exploration["dining"].unique == 1
+        assert result.exploration["dining"].total == 2
 
 
 class TestStreakTracking:
@@ -367,8 +367,8 @@ class TestStreakTracking:
         """First transaction should start streak at 1."""
         result = engine.ingest(sample_coffee_txn, empty_analysis)
 
-        assert result.streaks["coffee"]["current"] == 1
-        assert result.streaks["coffee"]["longest"] == 1
+        assert result.streaks["coffee"].current == 1
+        assert result.streaks["coffee"].longest == 1
 
     def test_consecutive_days_increment_streak(self, engine, empty_analysis):
         """Transactions on consecutive days should increment streak."""
@@ -413,8 +413,8 @@ class TestStreakTracking:
         result = engine.ingest(txn_day2, result)
         result = engine.ingest(txn_day3, result)
 
-        assert result.streaks["coffee"]["current"] == 3
-        assert result.streaks["coffee"]["longest"] == 3
+        assert result.streaks["coffee"].current == 3
+        assert result.streaks["coffee"].longest == 3
 
     def test_gap_in_days_resets_current_streak(self, engine, empty_analysis):
         """Gap of more than 1 day should reset current streak but preserve longest."""
@@ -460,8 +460,198 @@ class TestStreakTracking:
         result = engine.ingest(txn_day2, result)
         result = engine.ingest(txn_day5, result)
 
-        assert result.streaks["coffee"]["current"] == 1  # Reset
-        assert result.streaks["coffee"]["longest"] == 2  # Preserved
+        assert result.streaks["coffee"].current == 1  # Reset
+        assert result.streaks["coffee"].longest == 2  # Preserved
+
+
+class TestCuisineTracking:
+    """Test cuisine distribution tracking from Plaid detailed categories."""
+
+    def test_first_cuisine_creates_entry(self, engine, empty_analysis):
+        """First transaction with cuisine should create cuisine entry."""
+        txn = ProcessedTransaction(
+            id="txn-asian-001",
+            amount=35.00,
+            timestamp=datetime(2024, 1, 15, 19, 0),
+            merchant_name="Sushi Place",
+            merchant_id="merchant-sushi",
+            taste_category="dining",
+            cuisine="asian",  # NEW field
+            time_bucket="evening",
+            day_type="weekday",
+            payment_channel="in store",
+            pending=False,
+        )
+
+        result = engine.ingest(txn, empty_analysis)
+
+        assert result.cuisines.get("asian", 0) == 1
+        assert "asian" in result.top_cuisines
+
+    def test_multiple_cuisines_tracked_independently(self, engine, empty_analysis):
+        """Different cuisines should be tracked separately."""
+        txn_asian = ProcessedTransaction(
+            id="txn-asian-001",
+            amount=35.00,
+            timestamp=datetime(2024, 1, 15, 19, 0),
+            merchant_name="Asian Fusion",
+            merchant_id="merchant-af",
+            taste_category="dining",
+            cuisine="asian",
+            time_bucket="evening",
+            day_type="weekday",
+            payment_channel="in store",
+            pending=False,
+        )
+        txn_italian = ProcessedTransaction(
+            id="txn-italian-001",
+            amount=50.00,
+            timestamp=datetime(2024, 1, 16, 19, 0),
+            merchant_name="Italian Trattoria",
+            merchant_id="merchant-it",
+            taste_category="dining",
+            cuisine="european",
+            time_bucket="evening",
+            day_type="weekday",
+            payment_channel="in store",
+            pending=False,
+        )
+
+        result = engine.ingest(txn_asian, empty_analysis)
+        result = engine.ingest(txn_italian, result)
+
+        assert result.cuisines["asian"] == 1
+        assert result.cuisines["european"] == 1
+
+    def test_repeated_cuisine_increments_count(self, engine, empty_analysis):
+        """Multiple transactions of same cuisine should increment count."""
+        for i in range(5):
+            txn = ProcessedTransaction(
+                id=f"txn-sushi-{i}",
+                amount=30.00 + i,
+                timestamp=datetime(2024, 1, 15 + i, 19, 0),
+                merchant_name=f"Sushi Restaurant {i}",
+                merchant_id=f"merchant-sushi-{i}",
+                taste_category="dining",
+                cuisine="sushi",
+                time_bucket="evening",
+                day_type="weekday",
+                payment_channel="in store",
+                pending=False,
+            )
+            empty_analysis = engine.ingest(txn, empty_analysis)
+
+        result = empty_analysis
+        assert result.cuisines["sushi"] == 5
+
+    def test_top_cuisines_limited_to_5(self, engine, empty_analysis):
+        """top_cuisines list should only contain top 5 cuisines."""
+        cuisines = ["asian", "sushi", "thai", "indian", "italian", "mexican", "american", "pizza"]
+
+        # Create transactions for 8 different cuisines with varying counts
+        for idx, cuisine in enumerate(cuisines):
+            count = 10 - idx  # First cuisine has most transactions
+            for i in range(count):
+                txn = ProcessedTransaction(
+                    id=f"txn-{cuisine}-{i}",
+                    amount=30.00,
+                    timestamp=datetime(2024, 1, 15, 19, 0),
+                    merchant_name=f"{cuisine} Restaurant",
+                    merchant_id=f"merchant-{cuisine}-{i}",
+                    taste_category="dining",
+                    cuisine=cuisine,
+                    time_bucket="evening",
+                    day_type="weekday",
+                    payment_channel="in store",
+                    pending=False,
+                )
+                empty_analysis = engine.ingest(txn, empty_analysis)
+
+        result = empty_analysis
+        assert len(result.top_cuisines) == 5
+        # Top 5 should be asian, sushi, thai, indian, italian (highest counts)
+        assert result.top_cuisines[0] == "asian"  # 10 transactions
+        assert "mexican" not in result.top_cuisines  # Only 4 transactions
+        assert "american" not in result.top_cuisines  # Only 3 transactions
+        assert "pizza" not in result.top_cuisines  # Only 2 transactions
+
+    def test_top_cuisines_sorted_by_count(self, engine, empty_analysis):
+        """top_cuisines should be sorted by transaction count descending."""
+        # Create 3 sushi, 5 thai, 2 indian transactions
+        for i in range(3):
+            txn = ProcessedTransaction(
+                id=f"txn-sushi-{i}",
+                amount=30.00,
+                timestamp=datetime(2024, 1, 15, 19, 0),
+                merchant_name="Sushi Place",
+                merchant_id="merchant-sushi",
+                taste_category="dining",
+                cuisine="sushi",
+                time_bucket="evening",
+                day_type="weekday",
+                payment_channel="in store",
+                pending=False,
+            )
+            empty_analysis = engine.ingest(txn, empty_analysis)
+
+        for i in range(5):
+            txn = ProcessedTransaction(
+                id=f"txn-thai-{i}",
+                amount=25.00,
+                timestamp=datetime(2024, 1, 16, 19, 0),
+                merchant_name="Thai Kitchen",
+                merchant_id="merchant-thai",
+                taste_category="dining",
+                cuisine="thai",
+                time_bucket="evening",
+                day_type="weekday",
+                payment_channel="in store",
+                pending=False,
+            )
+            empty_analysis = engine.ingest(txn, empty_analysis)
+
+        for i in range(2):
+            txn = ProcessedTransaction(
+                id=f"txn-indian-{i}",
+                amount=28.00,
+                timestamp=datetime(2024, 1, 17, 19, 0),
+                merchant_name="Indian Curry House",
+                merchant_id="merchant-indian",
+                taste_category="dining",
+                cuisine="indian",
+                time_bucket="evening",
+                day_type="weekday",
+                payment_channel="in store",
+                pending=False,
+            )
+            empty_analysis = engine.ingest(txn, empty_analysis)
+
+        result = empty_analysis
+        # Order should be: thai (5), sushi (3), indian (2)
+        assert result.top_cuisines[0] == "thai"
+        assert result.top_cuisines[1] == "sushi"
+        assert result.top_cuisines[2] == "indian"
+
+    def test_null_cuisine_not_tracked(self, engine, empty_analysis):
+        """Transactions without cuisine should not create cuisine entry."""
+        txn = ProcessedTransaction(
+            id="txn-no-cuisine",
+            amount=5.50,
+            timestamp=datetime(2024, 1, 15, 9, 0),
+            merchant_name="Coffee Shop",
+            merchant_id="merchant-coffee",
+            taste_category="coffee",
+            cuisine=None,  # No cuisine for coffee
+            time_bucket="morning",
+            day_type="weekday",
+            payment_channel="in store",
+            pending=False,
+        )
+
+        result = engine.ingest(txn, empty_analysis)
+
+        assert len(result.cuisines) == 0
+        assert len(result.top_cuisines) == 0
 
 
 class TestEdgeCases:

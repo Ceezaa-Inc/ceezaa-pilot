@@ -82,6 +82,10 @@ class UserAnalysis:
     merchant_visits: dict[str, int] = field(default_factory=dict)
     top_merchants: list[dict] = field(default_factory=list)
 
+    # Cuisine tracking (from plaid_category_detailed)
+    cuisines: dict[str, int] = field(default_factory=dict)
+    top_cuisines: list[str] = field(default_factory=list)
+
     # Behavioral patterns
     streaks: dict[str, StreakData] = field(default_factory=dict)
     exploration: dict[str, ExplorationData] = field(default_factory=dict)
@@ -101,6 +105,8 @@ class UserAnalysis:
             "day_types": self.day_types,
             "merchant_visits": self.merchant_visits,
             "top_merchants": self.top_merchants,
+            "cuisines": self.cuisines,
+            "top_cuisines": self.top_cuisines,
             "streaks": {k: v.to_dict() for k, v in self.streaks.items()},
             "exploration": {k: v.to_dict() for k, v in self.exploration.items()},
             "total_transactions": self.total_transactions,
@@ -137,6 +143,10 @@ class UserAnalysis:
         # Parse merchant data
         analysis.merchant_visits = data.get("merchant_visits", {})
         analysis.top_merchants = data.get("top_merchants", [])
+
+        # Parse cuisine data
+        analysis.cuisines = data.get("cuisines", {})
+        analysis.top_cuisines = data.get("top_cuisines", [])
 
         # Parse streaks
         for cat_name, streak_data in data.get("streaks", {}).items():
@@ -215,7 +225,10 @@ class AggregationEngine:
         # 6. Update streaks
         self._update_streaks(txn, analysis)
 
-        # 7. Update metadata
+        # 7. Update cuisine tracking
+        self._update_cuisines(txn, analysis)
+
+        # 8. Update metadata
         self._update_metadata(txn, analysis)
 
         return analysis
@@ -389,3 +402,21 @@ class AggregationEngine:
             analysis.first_transaction_at = txn.timestamp
 
         analysis.last_transaction_at = txn.timestamp
+
+    def _update_cuisines(
+        self, txn: ProcessedTransaction, analysis: UserAnalysis
+    ) -> None:
+        """Update cuisine distribution and top cuisines list."""
+        if not txn.cuisine:
+            return
+
+        # Increment cuisine count
+        analysis.cuisines[txn.cuisine] = analysis.cuisines.get(txn.cuisine, 0) + 1
+
+        # Rebuild top cuisines (top 5, sorted by count descending)
+        sorted_cuisines = sorted(
+            analysis.cuisines.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        analysis.top_cuisines = [c[0] for c in sorted_cuisines[:5]]

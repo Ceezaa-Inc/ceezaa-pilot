@@ -251,6 +251,7 @@ class FusedTasteResponse(BaseModel):
     profile_tagline: str
     categories: list[FusedCategoryResponse]
     vibes: list[str]
+    top_cuisines: list[str]  # From observed transactions (asian, sushi, thai, etc.)
     exploration_ratio: float
     confidence: float
     quiz_weight: float
@@ -314,6 +315,10 @@ async def get_fused_taste(
     # Parse merchant visits
     user_analysis.merchant_visits = observed_data.get("merchant_visits", {})
 
+    # Parse cuisine data
+    user_analysis.cuisines = observed_data.get("cuisines", {})
+    user_analysis.top_cuisines = observed_data.get("top_cuisines", [])
+
     # Run fusion algorithm
     fusion = TasteFusion()
     fused = fusion.fuse(declared_taste, user_analysis)
@@ -350,6 +355,7 @@ async def get_fused_taste(
             for c in fused.categories
         ],
         vibes=fused.vibes,
+        top_cuisines=fused.top_cuisines,
         exploration_ratio=fused.exploration_ratio,
         confidence=fused.confidence,
         quiz_weight=fused.quiz_weight,
