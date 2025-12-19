@@ -188,4 +188,68 @@ export const tasteApi = {
     api.delete(`/api/taste/dna/${userId}/cache`),
 };
 
+// Discover types
+export interface MoodOption {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export interface MoodsResponse {
+  moods: MoodOption[];
+}
+
+export interface DiscoverVenue {
+  id: string;
+  name: string;
+  cuisine_type: string | null;
+  tagline: string | null;
+  price_tier: string | null;
+  energy: string | null;
+  taste_cluster: string | null;
+  best_for: string[];
+  standout: string[];
+  match_score: number;
+  match_reasons: string[];
+  google_rating: number | null;
+  formatted_address: string | null;
+  photo_url: string | null;
+  lat: number | null;
+  lng: number | null;
+}
+
+export interface DiscoverFeedResponse {
+  venues: DiscoverVenue[];
+  total: number;
+  has_more: boolean;
+  mood: string | null;
+}
+
+export interface DiscoverFeedParams {
+  mood?: string;
+  category?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// Discover API
+export const discoverApi = {
+  getMoods: (): Promise<MoodsResponse> => api.get('/api/discover/moods'),
+
+  getFeed: (userId: string, params?: DiscoverFeedParams): Promise<DiscoverFeedResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params?.mood) queryParams.append('mood', params.mood);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    const queryString = queryParams.toString();
+    const url = `/api/discover/feed/${userId}${queryString ? `?${queryString}` : ''}`;
+    return api.get(url);
+  },
+
+  getVenue: (venueId: string, userId: string): Promise<DiscoverVenue> =>
+    api.get(`/api/discover/venue/${venueId}?user_id=${userId}`),
+};
+
 export { ApiError };

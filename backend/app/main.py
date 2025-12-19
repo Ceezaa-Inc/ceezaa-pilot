@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import auth, onboarding, plaid, taste
+from app.routers import auth, discover, onboarding, plaid, taste
 
 settings = get_settings()
 
@@ -29,6 +29,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(auth.router)
+app.include_router(discover.router)
 app.include_router(onboarding.router)
 app.include_router(plaid.router)
 app.include_router(taste.router)

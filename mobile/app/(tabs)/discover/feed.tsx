@@ -1,5 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -7,17 +14,45 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography } from '@/components/ui';
 import { VenueCard } from '@/components/discover';
-import { MoodType, MOOD_DATA } from '@/mocks/taste';
-import { getVenuesByMood, VENUES } from '@/mocks/venues';
-
-const MOODS: MoodType[] = ['chill', 'energetic', 'romantic', 'social', 'adventurous', 'cozy'];
+import { useDiscoverFeed } from '@/hooks';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { MoodOption } from '@/services/api';
 
 export default function FeedScreen() {
-  const { mood } = useLocalSearchParams<{ mood?: string }>();
-  const selectedMood = mood as MoodType | undefined;
+  const { mood: initialMood } = useLocalSearchParams<{ mood?: string }>();
+  const { user } = useAuthStore();
+  const userId = user?.id || 'test-user';
 
-  const venues = selectedMood ? getVenuesByMood(selectedMood) : VENUES;
-  const title = selectedMood ? MOOD_DATA[selectedMood].label : 'All Venues';
+  const {
+    venues,
+    moods,
+    selectedMood,
+    total,
+    hasMore,
+    isLoading,
+    isLoadingMore,
+    error,
+    fetchFeed,
+    fetchMoods,
+    loadMore,
+    setMood,
+  } = useDiscoverFeed();
+
+  // Fetch moods on mount
+  useEffect(() => {
+    fetchMoods();
+  }, [fetchMoods]);
+
+  // Fetch feed when user or mood changes
+  useEffect(() => {
+    if (userId) {
+      fetchFeed(userId, { mood: initialMood || undefined });
+    }
+  }, [userId, initialMood, fetchFeed]);
+
+  const handleRefresh = useCallback(() => {
+    fetchFeed(userId, { mood: selectedMood || undefined });
+  }, [userId, selectedMood, fetchFeed]);
 
   const handleVenuePress = (venueId: string) => {
     router.push({
@@ -26,14 +61,26 @@ export default function FeedScreen() {
     });
   };
 
-  const handleFilterPress = (newMood: MoodType) => {
-    if (newMood === selectedMood) {
-      // Deselect - show all
-      router.setParams({ mood: '' });
-    } else {
-      router.setParams({ mood: newMood });
-    }
+  const handleFilterPress = (moodId: string) => {
+    const newMood = moodId === selectedMood ? null : moodId;
+    setMood(newMood);
+    fetchFeed(userId, { mood: newMood || undefined });
   };
+
+  const handleEndReached = useCallback(() => {
+    if (hasMore && !isLoadingMore) {
+      loadMore(userId);
+    }
+  }, [hasMore, isLoadingMore, loadMore, userId]);
+
+  // Get title from selected mood
+  const getMoodLabel = (moodId: string | null): string => {
+    if (!moodId) return 'All Venues';
+    const mood = moods.find((m) => m.id === moodId);
+    return mood?.label || 'All Venues';
+  };
+
+  const title = getMoodLabel(selectedMood);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -47,7 +94,7 @@ export default function FeedScreen() {
           {title}
         </Typography>
         <Typography variant="body" color="secondary">
-          {venues.length} places found
+          {isLoading ? 'Loading...' : `${total} places found`}
         </Typography>
       </View>
 
@@ -58,16 +105,16 @@ export default function FeedScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersContent}
         >
-          {MOODS.map((m) => {
-            const isActive = m === selectedMood;
+          {moods.map((m: MoodOption) => {
+            const isActive = m.id === selectedMood;
             return (
               <TouchableOpacity
-                key={m}
+                key={m.id}
                 style={[styles.filterChip, isActive && styles.filterChipActive]}
-                onPress={() => handleFilterPress(m)}
+                onPress={() => handleFilterPress(m.id)}
               >
                 <Typography variant="bodySmall" color={isActive ? 'gold' : 'primary'}>
-                  {MOOD_DATA[m].label}
+                  {m.emoji} {m.label}
                 </Typography>
               </TouchableOpacity>
             );
@@ -76,8 +123,31 @@ export default function FeedScreen() {
       </View>
 
       {/* Venue List */}
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {venues.length === 0 ? (
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor={colors.primary.DEFAULT} />
+        }
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const paddingToBottom = 100;
+          if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+            handleEndReached();
+          }
+        }}
+        scrollEventThrottle={400}
+      >
+        {error ? (
+          <View style={styles.emptyState}>
+            <Typography variant="h3" color="muted" align="center">
+              Something went wrong
+            </Typography>
+            <Typography variant="body" color="muted" align="center">
+              {error}
+            </Typography>
+          </View>
+        ) : venues.length === 0 && !isLoading ? (
           <View style={styles.emptyState}>
             <Typography variant="h3" color="muted" align="center">
               No venues found
@@ -87,9 +157,16 @@ export default function FeedScreen() {
             </Typography>
           </View>
         ) : (
-          venues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} onPress={() => handleVenuePress(venue.id)} />
-          ))
+          <>
+            {venues.map((venue) => (
+              <VenueCard key={venue.id} venue={venue} onPress={() => handleVenuePress(venue.id)} />
+            ))}
+            {isLoadingMore && (
+              <View style={styles.loadingMore}>
+                <ActivityIndicator color={colors.primary.DEFAULT} />
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -137,5 +214,9 @@ const styles = StyleSheet.create({
   emptyState: {
     paddingVertical: layoutSpacing.xl,
     gap: layoutSpacing.sm,
+  },
+  loadingMore: {
+    paddingVertical: layoutSpacing.lg,
+    alignItems: 'center',
   },
 });
