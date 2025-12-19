@@ -84,31 +84,33 @@ export default function TempVenuesScreen() {
       </View>
 
       {/* Cluster Filters */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filters}
-      >
-        <TouchableOpacity
-          style={[styles.filterChip, !filter && styles.filterActive]}
-          onPress={() => setFilter(null)}
+      <View style={styles.filtersContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filters}
         >
-          <Typography variant="bodySmall" color={!filter ? 'gold' : 'secondary'}>
-            All
-          </Typography>
-        </TouchableOpacity>
-        {clusters.map((cluster) => (
           <TouchableOpacity
-            key={cluster}
-            style={[styles.filterChip, filter === cluster && styles.filterActive]}
-            onPress={() => setFilter(cluster)}
+            style={[styles.filterChip, !filter && styles.filterActive]}
+            onPress={() => setFilter(null)}
           >
-            <Typography variant="bodySmall" color={filter === cluster ? 'gold' : 'secondary'}>
-              {cluster.charAt(0).toUpperCase() + cluster.slice(1)}
+            <Typography variant="bodySmall" color={!filter ? 'gold' : 'secondary'}>
+              All
             </Typography>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+          {clusters.map((cluster) => (
+            <TouchableOpacity
+              key={cluster}
+              style={[styles.filterChip, filter === cluster && styles.filterActive]}
+              onPress={() => setFilter(cluster)}
+            >
+              <Typography variant="bodySmall" color={filter === cluster ? 'gold' : 'secondary'}>
+                {cluster.charAt(0).toUpperCase() + cluster.slice(1)}
+              </Typography>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -168,12 +170,12 @@ export default function TempVenuesScreen() {
                   )}
                   {venue.energy && (
                     <Typography variant="caption" color="muted">
-                      • {venue.energy}
+                      {venue.cuisine_type ? '• ' : ''}{venue.energy}
                     </Typography>
                   )}
                   {venue.price_tier && (
                     <Typography variant="caption" color="muted">
-                      • {venue.price_tier}
+                      {(venue.cuisine_type || venue.energy) ? '• ' : ''}{venue.price_tier}
                     </Typography>
                   )}
                 </View>
@@ -220,10 +222,13 @@ const styles = StyleSheet.create({
     padding: layoutSpacing.lg,
     gap: layoutSpacing.xs,
   },
+  filtersContainer: {
+    marginBottom: layoutSpacing.md,
+  },
   filters: {
-    paddingHorizontal: layoutSpacing.lg,
-    paddingBottom: layoutSpacing.md,
     gap: layoutSpacing.sm,
+    paddingLeft: layoutSpacing.lg,
+    paddingRight: layoutSpacing.lg,
   },
   filterChip: {
     paddingHorizontal: layoutSpacing.md,

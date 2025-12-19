@@ -1,7 +1,7 @@
 # Ceezaa MVP - Technical Architecture
 
 > **Timeline:** 10 weeks
-> **Stack:** React Native (Expo) + Supabase + Python FastAPI + Google Places + OpenAI
+> **Stack:** React Native (Expo) + Supabase + Python FastAPI + Apify + Anthropic Claude
 > **Goal:** Transaction + Quiz data → Taste Intelligence → Personalized Discovery + Group Planning
 > **Core Magic:** Declared preferences (quiz) + Observed behavior (transactions) = True taste profile
 > **Intelligence Philosophy:** Rules First, AI Last - minimize LLM usage, maximize deterministic logic
@@ -64,7 +64,7 @@
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                         EXTERNAL APIs                            │
-│    Plaid API  •  Google Places API  •  OpenAI  •  Expo Push     │
+│    Plaid API  •  Apify  •  Anthropic Claude  •  Expo Push       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -380,13 +380,13 @@ class TasteFusion:
 
 ## Venue Catalog Architecture
 
-The venue catalog is **curated** for MVP - Manually selected 150-200 venues in SF, tagged with taste clusters.
+The venue catalog is **curated** for MVP - ~200 venues near USC Los Angeles, tagged with taste clusters using AI.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    VENUE CATALOG (MVP)                           │
 │                                                                  │
-│  Data Source: Google Places API + CEO Curation                   │
+│  Data Source: Apify Google Maps Scraper + Claude Haiku Tagging   │
 │                                                                  │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │  VENUES TABLE (~150-200 for beta)                         │   │
@@ -417,59 +417,71 @@ The venue catalog is **curated** for MVP - Manually selected 150-200 venues in S
 ### Venue Import Flow
 
 ```
-1. Manually provide Google Places IDs for curated venues
+1. Run discovery script with search queries (e.g., "restaurants near usc")
            │
            ▼
-2. Backend fetches full details from Google Places API
+2. Apify Google Maps Scraper fetches venue data + reviews
            │
            ▼
-3. Manually assign primary cluster + cuisine + price
+3. Claude Haiku analyzes reviews → generates VenueProfile
+   (taste_cluster, cuisine_type, tagline, energy, best_for, standout)
            │
            ▼
-4. GPT analyzes description + reviews → secondary tags
+4. Upsert venues to Supabase with all AI-generated tags
            │
            ▼
-5. Store in venues table with all tags
-           │
-           ▼
-6. Location-based filtering (SF users see SF venues only)
+5. Location-based filtering (LA users see LA venues)
 ```
 
-### GPT Tagging Service (AI - One-Time at Import)
+**Cost**: ~$0.00193/venue (Claude Haiku) + ~$0.0025/venue (Apify) = **~$0.45 for 100 venues**
+
+### Venue Tagger (AI - One-Time at Import)
 
 **IMPORTANT:** This is one of only 2 places AI is used. Tags are generated ONCE when a venue is imported and cached forever. No runtime AI calls for venue data.
 
+Uses **Claude Haiku** with **structured outputs** for type-safe extraction:
+
 ```python
-class VenueTaggingService:
-    """Use GPT to generate secondary tags from venue data. ONE-TIME at import."""
+from pydantic import BaseModel, Field
+import anthropic
 
-    TAGGING_PROMPT = """
-    Analyze this venue and generate tags.
+class VenueProfile(BaseModel):
+    """Structured venue profile extracted by Claude Haiku."""
+    taste_cluster: Literal["coffee", "dining", "nightlife", "bakery"]
+    cuisine_type: str | None = Field(description="Lowercase cuisine or null")
+    tagline: str = Field(description="8-12 word punchy description")
+    energy: Literal["chill", "moderate", "lively"]
+    best_for: list[str] = Field(max_length=3)  # date_night, group_celebration, solo_work, etc.
+    standout: list[str] = Field(max_length=2)  # hidden_gem, local_favorite, instagram_worthy, etc.
 
-    Venue: {name}
-    Category: {google_category}
-    Price: {price_level}
-    Reviews Summary: {top_reviews}
+class VenueTagger:
+    """Tag venues using Claude Haiku with structured outputs. ONE-TIME at import."""
 
-    Output Format:
-    {
-      "vibe_tags": ["trendy", "intimate", ...],  // max 5
-      "energy_level": "low" | "medium" | "high",
-      "best_for": ["date_night", "groups", ...],  // max 3
-      "cuisine_tags": ["italian", "pizza", ...],  // max 3
-      "crowd": "young_professional" | "families" | "mixed"
-    }
-    """
+    def __init__(self):
+        self._client = anthropic.Anthropic()
 
-    async def generate_tags(self, venue: VenueData) -> SecondaryTags:
-        """Called ONCE per venue at import time. Results stored in venues table."""
-        response = await openai.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": self.TAGGING_PROMPT.format(...)}],
-            response_format={"type": "json_object"},
+    def tag(self, venue_data: dict) -> VenueProfile:
+        """Called ONCE per venue at import. Results stored in venues table."""
+        response = self._client.beta.messages.parse(
+            model="claude-haiku-4-5",
+            max_tokens=300,
+            betas=["structured-outputs-2025-11-13"],
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": self._build_prompt(venue_data)}],
+            output_format=VenueProfile,
         )
-        return SecondaryTags.model_validate_json(response.choices[0].message.content)
+        return response.parsed_output
 ```
+
+**VenueProfile Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| taste_cluster | enum | coffee, dining, nightlife, bakery |
+| cuisine_type | string | Lowercase cuisine (e.g., "italian") or null |
+| tagline | string | 8-12 word catchy description |
+| energy | enum | chill, moderate, lively |
+| best_for | array | Max 3: date_night, group_celebration, solo_work, business_lunch, casual_hangout, late_night, family_outing, quick_bite |
+| standout | array | Max 2: hidden_gem, local_favorite, instagram_worthy, cult_following, cozy_vibes, upscale_feel |
 
 ### Insight Generator (AI - Cached Daily)
 
@@ -617,8 +629,8 @@ E2E (later):   Detox
 Framework:     FastAPI + Uvicorn
 Database:      Supabase (PostgreSQL)
 Plaid:         plaid-python
-Google:        googlemaps (Python client)
-AI:            openai (Python SDK)
+Venue Data:    apify-client (Google Maps scraper)
+AI:            anthropic (Claude Haiku for tagging/insights)
 Validation:    Pydantic v2
 Background:    APScheduler (cron jobs)
 Testing:       pytest + pytest-asyncio
@@ -640,8 +652,8 @@ Edge Funcs:    Optional for lightweight operations
 | API | Purpose | Cost |
 |-----|---------|------|
 | Plaid | Transaction data | Free (sandbox) → $0.30/item/mo (prod) |
-| Google Places | Venue data | $17/1000 requests |
-| OpenAI | GPT for tagging/insights | ~$0.001/request (gpt-4o-mini) |
+| Apify | Venue discovery + reviews scraping | ~$0.0025/venue |
+| Anthropic Claude | Venue tagging (Haiku) + insights | ~$0.002/venue (Haiku) |
 | Expo Push | Push notifications | Free |
 
 ---
@@ -1495,12 +1507,11 @@ PLAID_CLIENT_ID=
 PLAID_SECRET=
 PLAID_ENV=sandbox
 
-# Google
-GOOGLE_PLACES_API_KEY=
+# Apify (venue scraping)
+APIFY_TOKEN=
 
-# OpenAI
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
+# Anthropic (AI tagging/insights)
+ANTHROPIC_API_KEY=
 
 # Push
 EXPO_ACCESS_TOKEN=
@@ -1516,8 +1527,8 @@ EXPO_ACCESS_TOKEN=
 | Auth | Supabase (Phone OTP + Social) | Simple, Gen Z friendly, built-in |
 | Database | Supabase PostgreSQL | Managed, Realtime built-in |
 | Backend | Python FastAPI | Best for data/AI work, per PRD |
-| Venue Data | Google Places + curation | Clean data, controlled quality |
-| Tagging | GPT-4o-mini | Cost-effective, good quality |
+| Venue Discovery | Apify Google Maps Scraper | Comprehensive data + reviews in one call |
+| Venue Tagging | Claude Haiku + Structured Outputs | Type-safe, cost-effective (~$0.002/venue) |
 | Real-time | Supabase Realtime | Built-in WebSockets |
 | Animations | Reanimated + Moti | Native performance |
 | Testing | Jest + pytest | TDD requirement |
@@ -1525,5 +1536,5 @@ EXPO_ACCESS_TOKEN=
 
 ---
 
-*Last updated: Dec 2024*
-*Version: v2.0 - Full-Stack Checkpoints + Rules First AI Last*
+*Last updated: Dec 2025*
+*Version: v3.0 - Apify + Claude Haiku Venue Pipeline*
