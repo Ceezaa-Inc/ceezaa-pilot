@@ -26,8 +26,9 @@
 | **FS6: Venue Catalog** | ✅ Complete | 100% |
 | **FS7: Taste Matching** | ⬜ Not Started | 0% |
 | **FS8: Mood Discovery** | ⬜ Not Started | 0% |
-| **FS9: Sessions** | ⬜ Not Started | 0% |
-| **FS10: Vault** | ⬜ Not Started | 0% |
+| **FS9: Vault** | ⬜ Not Started | 0% |
+| **FS10: Sessions** | ⬜ Not Started | 0% |
+| **FS11: Profile** | ⬜ Not Started | 0% |
 | **Phase 8: Polish** | ⬜ Not Started | 0% |
 | **Phase 9: Launch** | ⬜ Not Started | 0% |
 
@@ -95,7 +96,7 @@
 | FS1-FS4 | 0 | Rule-based |
 | FS5 | 1 per user | Daily batch OR cached |
 | FS6 | 1 per venue | Import time only |
-| FS7-FS10 | 0 | Rule-based |
+| FS7-FS11 | 0 | Rule-based |
 
 **Production cost**: ~$5-10/month for thousands of users
 
@@ -432,46 +433,56 @@ mobile/
 
 ---
 
-### ⬜ FS6: Venue Catalog Import (Second LLM Usage)
+### ✅ FS6: Venue Catalog Import (Complete)
 
 **Goal**: Import venues with AI-generated tags
 
-**Expo Test**: Discover tab shows real SF/NYC venues with vibe tags
+**Expo Test**: Discover tab shows real LA venues with vibe tags
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Create Google Places import script | - |
-| 2 | Backend | Create `backend/app/intelligence/venue_tagger.py` | - |
-| 3 | Backend | Implement venue tagging prompt (JSON structured) | - |
-| 4 | Backend | Import CEO's curated venue list (150-200) | Batch |
-| 5 | Backend | Store tagged venues in `venues` table | - |
-| 6 | Backend | Create `GET /api/venues` endpoint | - |
-| 7 | Backend | Create `GET /api/venues/{id}` endpoint | - |
-| 8 | Frontend | Connect Discover tab to real venue data | - |
-| 9 | Test | Browse real venues with AI-generated vibes | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create Apify venue discovery script | ✅ |
+| 2 | Backend | Create `backend/app/intelligence/venue_tagger.py` | ✅ |
+| 3 | Backend | Implement Claude Haiku structured outputs | ✅ |
+| 4 | Backend | Import ~200 curated venues near USC | ✅ |
+| 5 | Backend | Store tagged venues in `venues` table | ✅ |
+| 6 | Backend | Create temp venue pages in mobile | ✅ |
+| 7 | Test | Browse real venues with AI-generated vibes | ✅ |
 
-**Venue Tagging Prompt**:
-```python
-VENUE_TAG_PROMPT = """
-Analyze this venue and generate tags.
+**Completed**: 138 venues imported with Claude Haiku tagging (~$0.16 total)
 
-Venue: {name}
-Category: {google_category}
-Price: {price_level}
-Reviews: {top_reviews}
+**Key Files:**
+```
+backend/
+├── scripts/
+│   ├── discover_venues.py      # Apify Google Maps scraper
+│   ├── import_venues.py        # Full import pipeline
+│   └── test_venue_tagging.py   # Tagging test script
+├── app/intelligence/
+│   └── venue_tagger.py         # VenueTagger with Claude Haiku
+└── data/
+    └── venues_with_reviews.json # Cached Apify results
 
-Output (JSON):
-{
-  "vibe_tags": ["trendy", "intimate"],
-  "energy_level": "medium",
-  "best_for": ["date_night", "groups"],
-  "cuisine_tags": ["italian", "pizza"],
-  "crowd": "young_professional"
-}
-"""
+mobile/app/(tabs)/vault/
+├── temp-venues.tsx             # Venue list (temp page)
+└── temp-venue/[id].tsx         # Venue detail (temp page)
+
+supabase/migrations/
+└── 013_venue_profile_fields.sql # Added tagline, best_for, standout
 ```
 
-**Key**: This runs ONCE per venue at import. Results cached forever.
+**VenueProfile Schema** (Claude Haiku structured output):
+```python
+class VenueProfile(BaseModel):
+    taste_cluster: Literal["coffee", "dining", "nightlife", "bakery"]
+    cuisine_type: str | None
+    tagline: str           # 8-12 word punchy description
+    energy: Literal["chill", "moderate", "lively"]
+    best_for: list[str]    # Max 3: date_night, group_celebration, solo_work, etc.
+    standout: list[str]    # Max 2: hidden_gem, local_favorite, instagram_worthy, etc.
+```
+
+**Cost**: ~$0.002/venue (Claude Haiku) + ~$0.0025/venue (Apify)
 
 ---
 
@@ -558,28 +569,7 @@ MOOD_TO_VIBES = {
 
 ---
 
-### ⬜ FS9: Sessions (Group Planning)
-
-**Goal**: Real-time group voting
-
-**Expo Test**: Create session on one device, join on another, see real-time votes
-
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Create `POST /api/sessions` endpoint | - |
-| 2 | Backend | Create `GET /api/sessions/{id}` endpoint | - |
-| 3 | Backend | Create `POST /api/sessions/{code}/join` endpoint | - |
-| 4 | Backend | Create `POST /api/sessions/{id}/vote` endpoint | - |
-| 5 | Backend | Create `POST /api/sessions/{id}/close` endpoint | - |
-| 6 | Backend | Set up Supabase Realtime for sessions | Config |
-| 7 | Frontend | Connect Create Session to API | - |
-| 8 | Frontend | Implement Realtime subscription for votes | - |
-| 9 | Frontend | Connect Voting screen to live updates | - |
-| 10 | Test | Multi-device session with real-time votes | E2E |
-
----
-
-### ⬜ FS10: Vault (Visit History)
+### ⬜ FS9: Vault (Visit History)
 
 **Goal**: Auto-populated visit history from transactions
 
@@ -613,6 +603,55 @@ def detect_visits(transactions, venues):
                 })
     return visits
 ```
+
+---
+
+### ⬜ FS10: Sessions (Group Planning)
+
+**Goal**: Real-time group voting
+
+**Expo Test**: Create session on one device, join on another, see real-time votes
+
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `POST /api/sessions` endpoint | - |
+| 2 | Backend | Create `GET /api/sessions/{id}` endpoint | - |
+| 3 | Backend | Create `POST /api/sessions/{code}/join` endpoint | - |
+| 4 | Backend | Create `POST /api/sessions/{id}/vote` endpoint | - |
+| 5 | Backend | Create `POST /api/sessions/{id}/close` endpoint | - |
+| 6 | Backend | Set up Supabase Realtime for sessions | Config |
+| 7 | Frontend | Connect Create Session to API | - |
+| 8 | Frontend | Implement Realtime subscription for votes | - |
+| 9 | Frontend | Connect Voting screen to live updates | - |
+| 10 | Test | Multi-device session with real-time votes | E2E |
+
+---
+
+### ⬜ FS11: Profile
+
+**Goal**: User profile management and settings
+
+**Expo Test**: View profile → see linked cards, update notification preferences
+
+| # | Type | Task | TDD |
+|---|------|------|-----|
+| 1 | Backend | Create `GET /api/profile` endpoint | - |
+| 2 | Backend | Create `PATCH /api/profile` endpoint | - |
+| 3 | Backend | Create `GET /api/profile/linked-cards` endpoint | - |
+| 4 | Backend | Create `DELETE /api/plaid/accounts/{id}` endpoint | - |
+| 5 | Backend | Create `GET /api/notifications/preferences` | - |
+| 6 | Backend | Create `PATCH /api/notifications/preferences` | - |
+| 7 | Frontend | Connect Profile tab to real user data | - |
+| 8 | Frontend | Connect LinkedCards to real Plaid accounts | - |
+| 9 | Frontend | Connect notification preferences to API | - |
+| 10 | Test | Update profile settings → changes persist | E2E |
+
+**Profile Features:**
+- Display name and avatar
+- Linked payment cards (Plaid accounts)
+- Notification preferences (daily insights, streak milestones, session invites)
+- Privacy settings
+- App version and support links
 
 ---
 
@@ -652,7 +691,9 @@ backend/app/
 │   ├── profile_titles.py        # FS1 - Rule-based lookup
 │   ├── aggregation_engine.py    # FS2 - Rule-based O(1)
 │   ├── taste_fusion.py          # FS3 - Rule-based
+│   ├── ring_builder.py          # FS4 - Ring visualization
 │   ├── insight_generator.py     # FS5 - LLM (cached)
+│   ├── dna_generator.py         # FS5.5 - LLM (cached)
 │   ├── venue_tagger.py          # FS6 - LLM (batch import)
 │   └── matching_engine.py       # FS7 - Rule-based
 ├── mappings/
@@ -663,11 +704,12 @@ backend/app/
     ├── auth.py                  # Existing
     ├── plaid.py                 # Existing
     ├── onboarding.py            # FS1
-    ├── taste.py                 # FS1-FS5
+    ├── taste.py                 # FS1-FS5.5
     ├── discover.py              # FS7-FS8
     ├── venues.py                # FS6
-    ├── sessions.py              # FS9
-    └── vault.py                 # FS10
+    ├── vault.py                 # FS9
+    ├── sessions.py              # FS10
+    └── profile.py               # FS11
 ```
 
 ---
@@ -739,4 +781,4 @@ All UI components built with mock data:
 
 ---
 
-*Last updated: Dec 2024*
+*Last updated: Dec 2025*
