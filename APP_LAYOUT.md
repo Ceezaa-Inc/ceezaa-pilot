@@ -10,7 +10,7 @@
 ## Design Principles
 
 1. **Taste-First Discovery** - Every recommendation powered by user's actual behavior + stated preferences
-2. **Effortless Group Planning** - Turn "where should we go?" into a 2-minute decision
+2. **Effortless Group Planning** - Turn "where should we go?" into a 2 minute decision
 3. **Minimal Friction** - Every tap should feel worth it, every screen has one clear purpose
 4. **Delightful Details** - Micro-animations that spark joy without slowing down
 5. **Privacy Respectful** - Transaction data powers taste, never shown to others
