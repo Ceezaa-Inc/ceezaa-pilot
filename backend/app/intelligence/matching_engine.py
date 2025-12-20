@@ -284,11 +284,19 @@ class MatchingEngine:
 
         Returns:
             Score 0.0-1.0. Top cuisine = 1.0, each rank down = -0.15.
+            Non-dining venues (coffee, bakery, nightlife) get neutral score (0.5).
         """
         venue_cuisine = venue.get("cuisine_type")
+        taste_cluster = venue.get("taste_cluster")
+
+        # Non-dining venues shouldn't be penalized for cuisine
+        # Give them a neutral score so other factors determine ranking
+        non_dining_clusters = {"coffee", "bakery", "nightlife", "bar"}
+        if taste_cluster and taste_cluster.lower() in non_dining_clusters:
+            return 0.5  # Neutral score - doesn't help or hurt
 
         if not venue_cuisine or not cuisines:
-            return 0.0
+            return 0.3  # Slight positive for venues without cuisine data
 
         if venue_cuisine not in cuisines:
             return 0.0

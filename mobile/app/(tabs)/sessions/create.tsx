@@ -112,7 +112,7 @@ export default function CreateSessionScreen() {
     });
 
     router.replace({
-      pathname: '/(tabs)/discover/session/[id]',
+      pathname: '/(tabs)/sessions/[id]',
       params: { id: session.id },
     });
   };

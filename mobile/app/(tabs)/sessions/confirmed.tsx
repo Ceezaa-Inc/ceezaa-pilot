@@ -46,7 +46,7 @@ export default function ConfirmedScreen() {
   };
 
   const handleDone = () => {
-    router.replace('/(tabs)/discover');
+    router.replace('/(tabs)/sessions');
   };
 
   return (
@@ -124,7 +124,7 @@ export default function ConfirmedScreen() {
             onPress={handleShare}
           />
           <Button
-            label="Back to Discover"
+            label="Back to Sessions"
             variant="ghost"
             fullWidth
             onPress={handleDone}

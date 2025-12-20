@@ -76,7 +76,7 @@ export default function VotingScreen() {
       // Find winner
       const winner = localVenues.reduce((max, v) => (v.votes > max.votes ? v : max));
       router.replace({
-        pathname: '/(tabs)/discover/session/confirmed',
+        pathname: '/(tabs)/sessions/confirmed',
         params: { id, winnerId: winner.venueId, winnerName: winner.venueName },
       });
     }

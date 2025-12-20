@@ -27,13 +27,21 @@ DOLLAR_SIGN_LEVELS: dict[str, int] = {
 
 # Google Maps price ranges to numeric level
 # Based on typical LA restaurant prices
+# Note: Google uses en-dash (–) but sometimes hyphen (-) appears, so we normalize
 PRICE_RANGE_LEVELS: dict[str, int] = {
+    # With en-dash (–)
     "$1–10": 0,       # Budget (fast food, coffee)
     "$10–20": 1,      # Moderate (casual dining)
     "$20–30": 1,      # Moderate (casual+)
     "$30–50": 2,      # Premium (nice dinner)
     "$50–100": 2,     # Premium (upscale)
     "$100+": 3,       # Luxury
+    # With regular hyphen (-)
+    "$1-10": 0,
+    "$10-20": 1,
+    "$20-30": 1,
+    "$30-50": 2,
+    "$50-100": 2,
     "$32.00": 2,      # Specific price → Premium
 }
 

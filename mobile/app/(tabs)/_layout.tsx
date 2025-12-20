@@ -6,6 +6,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   const icons: Record<string, string> = {
     pulse: '◉',
     discover: '◈',
+    sessions: '◇',
     vault: '▣',
     profile: '◯',
   };
@@ -47,6 +48,13 @@ export default function TabsLayout() {
         options={{
           title: 'Discover',
           tabBarIcon: ({ focused }) => <TabIcon name="discover" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="sessions"
+        options={{
+          title: 'Sessions',
+          tabBarIcon: ({ focused }) => <TabIcon name="sessions" focused={focused} />,
         }}
       />
       <Tabs.Screen

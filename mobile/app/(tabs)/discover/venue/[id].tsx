@@ -1,22 +1,119 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
-import { getVenueById, formatHoursForDisplay } from '@/mocks/venues';
+import { getVenueById, formatHoursForDisplay, Venue } from '@/mocks/venues';
+import { discoverApi, DiscoverVenue } from '@/services/api';
+import { useAuthStore } from '@/stores/useAuthStore';
 
-const getPriceString = (level: number): string => {
-  return '$'.repeat(level);
+type VenueDisplay = {
+  name: string;
+  cuisineType: string;
+  priceString: string;
+  neighborhood: string;
+  rating: number | null;
+  reviewCount: number | null;
+  matchScore: number;
+  address: string;
+  tagline: string | null;
+  tags: string[];
+  features: string[];
+  bestFor: string[];
 };
+
+function getMockVenueDisplay(venue: Venue): VenueDisplay {
+  return {
+    name: venue.name,
+    cuisineType: venue.cuisine || venue.type,
+    priceString: '$'.repeat(venue.priceLevel),
+    neighborhood: venue.neighborhood,
+    rating: venue.rating,
+    reviewCount: venue.reviewCount,
+    matchScore: venue.matchPercentage,
+    address: venue.address,
+    tagline: null,
+    tags: venue.tags,
+    features: venue.features,
+    bestFor: venue.moods,
+  };
+}
+
+function getApiVenueDisplay(venue: DiscoverVenue): VenueDisplay {
+  return {
+    name: venue.name,
+    cuisineType: venue.cuisine_type || venue.taste_cluster || 'Restaurant',
+    priceString: venue.price_tier || '$$',
+    neighborhood: venue.formatted_address?.split(',')[0] || '',
+    rating: venue.google_rating,
+    reviewCount: null,
+    matchScore: venue.match_score,
+    address: venue.formatted_address || '',
+    tagline: venue.tagline,
+    tags: [],
+    features: [],
+    bestFor: venue.best_for || [],
+  };
+}
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const venue = getVenueById(id || '');
+  const { user } = useAuthStore();
+  const userId = user?.id || 'test-user';
 
-  if (!venue) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiVenue, setApiVenue] = useState<DiscoverVenue | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // First try mock venue
+  const mockVenue = getVenueById(id || '');
+
+  // If no mock venue, fetch from API
+  useEffect(() => {
+    if (!mockVenue && id) {
+      setIsLoading(true);
+      discoverApi.getVenue(id, userId)
+        .then((venue) => {
+          setApiVenue(venue);
+          setError(null);
+        })
+        .catch((err) => {
+          setError(err.message || 'Failed to load venue');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [id, mockVenue, userId]);
+
+  // Determine display data
+  const display: VenueDisplay | null = mockVenue
+    ? getMockVenueDisplay(mockVenue)
+    : apiVenue
+      ? getApiVenueDisplay(apiVenue)
+      : null;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Typography variant="body" color="primary">
+              ← Back
+            </Typography>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.emptyState}>
+          <ActivityIndicator color={colors.primary.DEFAULT} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!display || error) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
@@ -28,7 +125,7 @@ export default function VenueDetailScreen() {
         </View>
         <View style={styles.emptyState}>
           <Typography variant="h3" color="muted" align="center">
-            Venue not found
+            {error || 'Venue not found'}
           </Typography>
         </View>
       </SafeAreaView>
@@ -48,7 +145,7 @@ export default function VenueDetailScreen() {
           </TouchableOpacity>
           <View style={styles.matchBadge}>
             <Typography variant="h4" color="gold">
-              {venue.matchPercentage}% Match
+              {display.matchScore}% Match
             </Typography>
           </View>
         </View>
@@ -57,103 +154,118 @@ export default function VenueDetailScreen() {
           {/* Header Info */}
           <View style={styles.headerInfo}>
             <Typography variant="h2" color="primary">
-              {venue.name}
+              {display.name}
             </Typography>
+            {display.tagline && (
+              <Typography variant="body" color="secondary">
+                {display.tagline}
+              </Typography>
+            )}
             <View style={styles.metaRow}>
               <Typography variant="body" color="secondary">
-                {venue.cuisine || venue.type} • {getPriceString(venue.priceLevel)} •{' '}
-                {venue.neighborhood}
+                {display.cuisineType} • {display.priceString} • {display.neighborhood}
               </Typography>
             </View>
-            <View style={styles.ratingRow}>
-              <Typography variant="body" color="gold">
-                ★ {venue.rating}
-              </Typography>
-              <Typography variant="bodySmall" color="muted">
-                ({venue.reviewCount} reviews)
-              </Typography>
-              <Typography variant="bodySmall" color="muted">
-                • {venue.distance}
-              </Typography>
-            </View>
+            {display.rating && (
+              <View style={styles.ratingRow}>
+                <Typography variant="body" color="gold">
+                  ★ {display.rating}
+                </Typography>
+                {display.reviewCount && (
+                  <Typography variant="bodySmall" color="muted">
+                    ({display.reviewCount} reviews)
+                  </Typography>
+                )}
+              </View>
+            )}
           </View>
 
           {/* Tags */}
-          <View style={styles.tagsContainer}>
-            {venue.tags.map((tag) => (
-              <View key={tag} style={styles.tag}>
-                <Typography variant="caption" color="secondary">
-                  {tag}
-                </Typography>
-              </View>
-            ))}
-          </View>
+          {display.tags.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {display.tags.map((tag) => (
+                <View key={tag} style={styles.tag}>
+                  <Typography variant="caption" color="secondary">
+                    {tag}
+                  </Typography>
+                </View>
+              ))}
+            </View>
+          )}
 
           {/* Details Card */}
-          <Card variant="default" padding="md" style={styles.detailsCard}>
-            <View style={styles.detailRow}>
-              <Typography variant="body" color="muted">
-                📍 Address
-              </Typography>
-              <Typography variant="body" color="primary">
-                {venue.address}
-              </Typography>
-            </View>
-          </Card>
-
-          {/* Hours Section */}
-          <View style={styles.section}>
-            <Typography variant="label" color="muted">
-              Hours
-            </Typography>
-            <Card variant="default" padding="md" style={styles.hoursCard}>
-              {formatHoursForDisplay(venue.hours).map((item, index) => (
-                <View key={index} style={styles.hoursRow}>
-                  <Typography variant="bodySmall" color="secondary">
-                    {item.label}
-                  </Typography>
-                  <Typography
-                    variant="bodySmall"
-                    color={item.time === 'Closed' ? 'muted' : 'primary'}
-                  >
-                    {item.time}
-                  </Typography>
-                </View>
-              ))}
+          {display.address && (
+            <Card variant="default" padding="md" style={styles.detailsCard}>
+              <View style={styles.detailRow}>
+                <Typography variant="body" color="muted">
+                  📍 Address
+                </Typography>
+                <Typography variant="body" color="primary" style={styles.addressText}>
+                  {display.address}
+                </Typography>
+              </View>
             </Card>
-          </View>
+          )}
+
+          {/* Hours Section - only for mock venues */}
+          {mockVenue && (
+            <View style={styles.section}>
+              <Typography variant="label" color="muted">
+                Hours
+              </Typography>
+              <Card variant="default" padding="md" style={styles.hoursCard}>
+                {formatHoursForDisplay(mockVenue.hours).map((item, index) => (
+                  <View key={index} style={styles.hoursRow}>
+                    <Typography variant="bodySmall" color="secondary">
+                      {item.label}
+                    </Typography>
+                    <Typography
+                      variant="bodySmall"
+                      color={item.time === 'Closed' ? 'muted' : 'primary'}
+                    >
+                      {item.time}
+                    </Typography>
+                  </View>
+                ))}
+              </Card>
+            </View>
+          )}
 
           {/* Features */}
-          <View style={styles.section}>
-            <Typography variant="label" color="muted">
-              Features
-            </Typography>
-            <View style={styles.featuresGrid}>
-              {venue.features.map((feature) => (
-                <View key={feature} style={styles.featureItem}>
-                  <Typography variant="bodySmall" color="secondary">
-                    ✓ {feature}
-                  </Typography>
-                </View>
-              ))}
+          {display.features.length > 0 && (
+            <View style={styles.section}>
+              <Typography variant="label" color="muted">
+                Features
+              </Typography>
+              <View style={styles.featuresGrid}>
+                {display.features.map((feature) => (
+                  <View key={feature} style={styles.featureItem}>
+                    <Typography variant="bodySmall" color="secondary">
+                      ✓ {feature}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
+          )}
 
-          {/* Moods */}
-          <View style={styles.section}>
-            <Typography variant="label" color="muted">
-              Best For
-            </Typography>
-            <View style={styles.moodsRow}>
-              {venue.moods.map((mood) => (
-                <View key={mood} style={styles.moodChip}>
-                  <Typography variant="caption" color="primary">
-                    {mood.charAt(0).toUpperCase() + mood.slice(1)}
-                  </Typography>
-                </View>
-              ))}
+          {/* Best For */}
+          {display.bestFor.length > 0 && (
+            <View style={styles.section}>
+              <Typography variant="label" color="muted">
+                Best For
+              </Typography>
+              <View style={styles.moodsRow}>
+                {display.bestFor.map((item) => (
+                  <View key={item} style={styles.moodChip}>
+                    <Typography variant="caption" color="primary">
+                      {item.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
+          )}
         </View>
       </ScrollView>
 
@@ -229,7 +341,12 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: layoutSpacing.md,
+  },
+  addressText: {
+    flex: 1,
+    textAlign: 'right',
   },
   hoursCard: {
     gap: layoutSpacing.sm,

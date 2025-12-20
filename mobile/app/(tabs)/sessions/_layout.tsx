@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 
-export default function SessionLayout() {
+export default function SessionsLayout() {
   return (
     <Stack
       screenOptions={{
