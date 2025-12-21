@@ -418,7 +418,7 @@ class MatchingEngine:
         elif venue_cluster == "bakery":
             return self._bakery_fit_score(user_taste, venue)
 
-        return 0.25  # Low score for unknown clusters
+        return 0.0  # Unknown = no match
 
     def _coffee_fit_score(
         self, user_taste: dict[str, Any], venue: dict[str, Any]
@@ -516,7 +516,7 @@ class MatchingEngine:
         best_for = venue.get("best_for", [])
 
         if not best_for:
-            return 0.25  # Low score for missing best_for
+            return 0.0  # No best_for = no context match
 
         score = 0.0
 
@@ -537,7 +537,7 @@ class MatchingEngine:
     ) -> float:
         """Match social preference to venue occasions."""
         if not social_pref:
-            return 0.3  # Low neutral
+            return 0.0  # No preference = no match
 
         matching_occasions = SOCIAL_OCCASION_MAP.get(social_pref, [])
         overlap = len(set(best_for) & set(matching_occasions))
@@ -546,14 +546,14 @@ class MatchingEngine:
             return 1.0
         elif overlap == 1:
             return 0.5
-        return 0.2
+        return 0.0  # No overlap = no match
 
     def _vibes_to_occasion_match(
         self, vibes: list[str], best_for: list[str]
     ) -> float:
         """Match user vibes to venue occasions."""
         if not vibes:
-            return 0.3  # Low neutral
+            return 0.0  # No vibes = no match
 
         relevant_occasions: set[str] = set()
         for vibe in vibes:
@@ -564,5 +564,5 @@ class MatchingEngine:
         if overlap >= 2:
             return 1.0
         elif overlap == 1:
-            return 0.45
-        return 0.2
+            return 0.5
+        return 0.0  # No overlap = no match
