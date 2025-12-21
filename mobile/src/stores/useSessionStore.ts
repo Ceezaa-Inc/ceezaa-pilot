@@ -201,6 +201,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   createSession: async (userId, data) => {
+    console.log('[Sessions] createSession called with:', { userId, data });
+
+    if (!data || !data.name) {
+      throw new Error('Session data is required with a name');
+    }
+
     const response = await sessionsApi.createSession(userId, {
       title: data.name,
       planned_date: data.date,

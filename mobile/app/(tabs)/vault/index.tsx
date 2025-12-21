@@ -27,12 +27,16 @@ export default function VaultScreen() {
     }
   }, [user?.id]);
 
-  const handlePlacePress = (venueId: string) => {
+  const handlePlacePress = (placeId: string) => {
     router.push({
       pathname: '/(tabs)/vault/place/[id]',
-      params: { id: venueId },
+      params: { id: placeId },
     });
   };
+
+  // Generate a unique key for each place (venueId or fallback to venueName)
+  const getPlaceKey = (place: typeof filteredPlaces[0]) =>
+    place.venueId || place.venueName;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -104,9 +108,9 @@ export default function VaultScreen() {
           ) : (
             filteredPlaces.map((place) => (
               <PlaceCard
-                key={place.venueId}
+                key={getPlaceKey(place)}
                 place={place}
-                onPress={() => handlePlacePress(place.venueId)}
+                onPress={() => handlePlacePress(getPlaceKey(place))}
               />
             ))
           )}
