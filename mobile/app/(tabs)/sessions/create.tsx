@@ -9,6 +9,7 @@ import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Input, Card } from '@/components/ui';
 import { VenuePickerModal } from '@/components/session';
 import { useSessionStore } from '@/stores/useSessionStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { MoodType, MOOD_DATA } from '@/mocks/taste';
 import { Venue, getVenuesByMood } from '@/mocks/venues';
 import { SessionVenue } from '@/mocks/sessions';
@@ -38,6 +39,7 @@ export default function CreateSessionScreen() {
   const [showVenuePicker, setShowVenuePicker] = useState(false);
 
   const { createSession } = useSessionStore();
+  const { user } = useAuthStore();
 
   // Get suggested venues based on selected mood
   const suggestedVenues = useMemo(() => {
@@ -100,21 +102,23 @@ export default function CreateSessionScreen() {
     }
   };
 
-  const handleCreate = () => {
-    if (!name.trim() || selectedVenues.length === 0) return;
+  const handleCreate = async () => {
+    if (!name.trim() || selectedVenues.length === 0 || !user?.id) return;
 
-    const session = createSession({
-      name: name.trim(),
-      date: date.toISOString().split('T')[0],
-      time: formatTime(time),
-      mood: selectedMood || undefined,
-      venues: selectedVenues,
-    });
+    try {
+      const session = await createSession(user.id, {
+        name: name.trim(),
+        date: date.toISOString().split('T')[0],
+        time: formatTime(time),
+      });
 
-    router.replace({
-      pathname: '/(tabs)/sessions/[id]',
-      params: { id: session.id },
-    });
+      router.replace({
+        pathname: '/(tabs)/sessions/[id]',
+        params: { id: session.id },
+      });
+    } catch (error) {
+      console.error('[Sessions] Failed to create session:', error);
+    }
   };
 
   const isValid = name.trim().length > 0 && selectedVenues.length > 0;

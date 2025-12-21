@@ -3,8 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Typography, Button, Modal, OTPInput } from '@/components/ui';
-import { useSessionStore } from '@/stores/useSessionStore';
-import { Session } from '@/mocks/sessions';
+import { useSessionStore, Session } from '@/stores/useSessionStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface JoinSessionModalProps {
   visible: boolean;
@@ -18,19 +18,24 @@ export function JoinSessionModal({ visible, onClose, onJoinSuccess }: JoinSessio
   const [isLoading, setIsLoading] = useState(false);
 
   const { joinSession } = useSessionStore();
+  const { user } = useAuthStore();
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (code.length !== 6) {
       setError('Please enter a 6-character code');
+      return;
+    }
+
+    if (!user?.id) {
+      setError('Please sign in to join a session');
       return;
     }
 
     setIsLoading(true);
     setError(null);
 
-    // Simulate network delay
-    setTimeout(() => {
-      const session = joinSession(code);
+    try {
+      const session = await joinSession(code, user.id);
 
       if (session) {
         setCode('');
@@ -39,8 +44,11 @@ export function JoinSessionModal({ visible, onClose, onJoinSuccess }: JoinSessio
       } else {
         setError('Invalid session code. Please check and try again.');
       }
+    } catch (err) {
+      setError('Failed to join session. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const handleClose = () => {
