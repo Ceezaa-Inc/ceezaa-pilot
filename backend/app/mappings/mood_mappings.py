@@ -21,10 +21,10 @@ class MoodConfig:
     # Venue standout tags to boost for this mood
     standout_boost: list[str]
 
-    # Boost amounts (added to base match score)
-    energy_boost: int = 15       # +15% for matching energy
-    best_for_boost: int = 10     # +10% per matching best_for tag
-    standout_boost_amt: int = 5  # +5% per matching standout tag
+    # Boost amounts (added to base match score) - kept low for balance
+    energy_boost: int = 8        # +8% for matching energy
+    best_for_boost: int = 4      # +4% per matching best_for tag
+    standout_boost_amt: int = 3  # +3% per matching standout tag
 
 
 # Mood configurations matching the mobile MoodGrid
@@ -100,7 +100,8 @@ def calculate_mood_boost(
         overlap = set(venue_standout) & set(config.standout_boost)
         boost += len(overlap) * config.standout_boost_amt
 
-    return boost
+    # Cap total mood boost to prevent score inflation
+    return min(boost, 20)
 
 
 def get_available_moods() -> list[dict[str, str]]:
