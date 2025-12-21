@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -7,8 +7,8 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 import { PlaceCard, AddVisitModal } from '@/components/vault';
-import { useVaultStore } from '@/stores/useVaultStore';
-import { StatusFilter } from '@/mocks/visits';
+import { useVaultStore, StatusFilter } from '@/stores/useVaultStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -17,8 +17,15 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
 ];
 
 export default function VaultScreen() {
-  const { filteredPlaces, currentFilter, setFilter, stats, addVisit } = useVaultStore();
+  const { filteredPlaces, currentFilter, setFilter, stats, addVisit, fetchVisits } = useVaultStore();
+  const { user } = useAuthStore();
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchVisits(user.id);
+    }
+  }, [user?.id]);
 
   const handlePlacePress = (venueId: string) => {
     router.push({
@@ -61,7 +68,7 @@ export default function VaultScreen() {
         <View style={styles.stats}>
           <StatCard value={String(stats.totalPlaces)} label="Places" />
           <StatCard value={String(stats.totalVisits)} label="Visits" />
-          <StatCard value={`$${stats.totalSpentThisMonth}`} label="This Month" />
+          <StatCard value={`$${stats.thisMonthSpent ?? 0}`} label="This Month" />
         </View>
 
         {/* Filters */}

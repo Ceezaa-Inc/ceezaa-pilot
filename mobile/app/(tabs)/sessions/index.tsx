@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -7,13 +7,20 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography } from '@/components/ui';
 import { SessionCard, JoinSessionModal } from '@/components/session';
-import { useSessionStore } from '@/stores/useSessionStore';
-import { Session } from '@/mocks/sessions';
+import { useSessionStore, Session } from '@/stores/useSessionStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function SessionsScreen() {
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const { getUserSessions } = useSessionStore();
+  const { getUserSessions, fetchSessions } = useSessionStore();
+  const { user } = useAuthStore();
   const userSessions = getUserSessions();
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchSessions(user.id);
+    }
+  }, [user?.id]);
 
   // Separate active and past sessions
   const activeSessions = userSessions.filter(
@@ -123,9 +130,11 @@ export default function SessionsScreen() {
         {/* Empty State */}
         {userSessions.length === 0 && (
           <View style={styles.emptyState}>
-            <Typography variant="h3" style={styles.emptyEmoji}>
-              🎉
-            </Typography>
+            <View style={styles.emojiContainer}>
+              <Typography variant="h3" style={styles.emptyEmoji}>
+                🎉
+              </Typography>
+            </View>
             <Typography variant="body" color="muted" align="center">
               No sessions yet
             </Typography>
@@ -179,7 +188,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.sm,
   },
+  emojiContainer: {
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   emptyEmoji: {
     fontSize: 48,
+    lineHeight: 56,
   },
 });
