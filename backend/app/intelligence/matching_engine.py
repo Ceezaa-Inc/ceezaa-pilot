@@ -293,7 +293,7 @@ class MatchingEngine:
 
             base_score = base_result.match_score
 
-            # Calculate mood boost
+            # Calculate mood boost (for ranking only, not display)
             mood_boost = calculate_mood_boost(
                 mood,
                 venue.get("energy"),
@@ -301,17 +301,16 @@ class MatchingEngine:
                 venue.get("standout", []),
             )
 
-            # Final score capped at 99
-            final_score = min(base_score + mood_boost, 99)
-
+            # Display pure match score, use mood boost for ranking only
             results.append({
                 "venue": venue,
-                "match_score": final_score,
+                "match_score": base_score,
                 "scores": base_result.scores,
+                "_sort_score": base_score + mood_boost,
             })
 
-        # Sort by score descending
-        results.sort(key=lambda x: x["match_score"], reverse=True)
+        # Sort by mood-adjusted score, display pure match score
+        results.sort(key=lambda x: x["_sort_score"], reverse=True)
 
         return results
 
@@ -361,18 +360,14 @@ class MatchingEngine:
 
         # If no tx data, use quiz only
         if not tx_cuisines:
-            return quiz_score if quiz_score > 0 else 0.15  # Low score for non-match
+            return quiz_score  # No artificial floor
 
         # If no quiz data, use tx only
         if not quiz_cuisines:
-            return tx_score if tx_score > 0 else 0.15
+            return tx_score  # No artificial floor
 
         # Weighted blend
         blended = (tx_score * tx_weight) + (quiz_score * quiz_weight)
-
-        # Boost if either source has a match
-        if tx_score > 0 or quiz_score > 0:
-            blended = max(blended, 0.25)
 
         return blended
 

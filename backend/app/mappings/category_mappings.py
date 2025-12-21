@@ -54,13 +54,13 @@ def calculate_category_affinity(
         - 1.0: 50%+ combined spending in relevant categories
     """
     if not venue_cluster or not user_categories:
-        return 0.15  # Low score for unknown
+        return 0.0  # No artificial floor
 
     # Get user categories that are relevant to this venue type
     relevant_user_cats = VENUE_TO_USER_CATEGORIES.get(venue_cluster.lower(), [])
 
     if not relevant_user_cats:
-        return 0.15  # Low score for unknown venue clusters
+        return 0.0  # No artificial floor
 
     # Sum percentages from all relevant categories
     total_pct = 0.0
@@ -76,8 +76,7 @@ def calculate_category_affinity(
     # This allows users who split spending across categories to still match well
     normalized = min(total_pct / 50.0, 1.0)
 
-    # Low minimum floor - poor spending = poor score
-    return max(normalized, 0.1)
+    return normalized  # No artificial floor
 
 
 def get_relevant_venue_clusters(user_category: str) -> list[str]:
