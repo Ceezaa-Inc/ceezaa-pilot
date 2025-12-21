@@ -35,30 +35,29 @@ ENERGY_TO_VIBES: dict[str, list[str]] = {
 
 
 def calculate_energy_match(user_vibes: list[str], venue_energy: str | None) -> float:
-    """Calculate energy/vibe match score.
+    """Calculate energy/vibe match score using gradual scaling.
 
     Args:
         user_vibes: List of user's vibe preferences from quiz.
         venue_energy: Venue's energy level ("chill", "moderate", "lively").
 
     Returns:
-        Match score 0.0-1.0:
-        - 1.0: 2+ vibes match
-        - 0.5: 1 vibe matches
-        - 0.0: No vibes match
+        Match score 0.0-1.0 based on overlap ratio:
+        - Score = overlap count / total compatible vibes
+        - More overlap = higher score, gradual scaling
     """
     if not venue_energy or not user_vibes:
         return 0.0
 
     compatible_vibes = ENERGY_TO_VIBES.get(venue_energy, [])
-    overlap = len(set(user_vibes) & set(compatible_vibes))
+    if not compatible_vibes:
+        return 0.0
 
-    # 2+ matches = full score, 1 match = half score
-    if overlap >= 2:
-        return 1.0
-    if overlap == 1:
-        return 0.5
-    return 0.0
+    # Gradual scaling based on overlap ratio
+    overlap = len(set(user_vibes) & set(compatible_vibes))
+    total = len(compatible_vibes)
+
+    return overlap / total
 
 
 # Exploration style → standout bonus mapping

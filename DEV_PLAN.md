@@ -24,8 +24,7 @@
 | **FS5: AI Insights** | ✅ Complete | 100% |
 | **FS5.5: AI Taste DNA** | ✅ Complete | 100% |
 | **FS6: Venue Catalog** | ✅ Complete | 100% |
-| **FS7: Taste Matching** | ⬜ Not Started | 0% |
-| **FS8: Mood Discovery** | ⬜ Not Started | 0% |
+| **FS7+FS8: Taste Matching & Mood Discovery** | ✅ Complete | 100% |
 | **FS9: Vault** | ⬜ Not Started | 0% |
 | **FS10: Sessions** | ⬜ Not Started | 0% |
 | **FS11: Profile** | ⬜ Not Started | 0% |
@@ -486,85 +485,60 @@ class VenueProfile(BaseModel):
 
 ---
 
-### ⬜ FS7: Taste-Based Matching
+### ✅ FS7+FS8: Taste Matching & Mood Discovery (Complete)
 
-**Goal**: Venues ranked by YOUR taste profile
+**Goal**: Personalized venue matching + mood-based filtering
 
-**Expo Test**: Discover shows "92% match" on venues that fit YOUR taste
+**Expo Test**: See match percentages on venues, tap mood → venues re-ranked
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Write MatchingEngine tests | RED |
-| 2 | Backend | Create `backend/app/intelligence/matching_engine.py` | GREEN |
-| 3 | Backend | Implement taste-to-venue scoring algorithm | GREEN |
-| 4 | Backend | Create `GET /api/discover/feed` with personalization | - |
-| 5 | Frontend | Connect Discover feed to personalized API | - |
-| 6 | Frontend | Show match percentage on VenueCard | - |
-| 7 | Test | See venues ranked by YOUR preferences | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create `MatchingEngine` with simplified 3-component model | ✅ |
+| 2 | Backend | Implement category mappings (excludes "other") | ✅ |
+| 3 | Backend | Implement affinity, match, compatibility scoring | ✅ |
+| 4 | Backend | Create `GET /api/discover/feed` with personalization | ✅ |
+| 5 | Backend | Add mood parameter with ranking-only boost | ✅ |
+| 6 | Frontend | Connect Discover feed to personalized API | ✅ |
+| 7 | Frontend | Show match percentage on VenueCard | ✅ |
+| 8 | Frontend | Connect MoodGrid to filtered API | ✅ |
+| 9 | Test | Differentiated scores for broad spenders | ✅ |
 
-**Matching Algorithm** (Rule-based, no AI):
-```python
-def calculate_match(user_taste, venue):
-    score = 0
+**Key Files:**
+```
+backend/app/
+├── intelligence/
+│   └── matching_engine.py       # Simplified 3-component model
+├── mappings/
+│   ├── category_mappings.py     # Specific categories only (no "other")
+│   ├── price_mappings.py        # Price tier normalization
+│   ├── vibe_mappings.py         # Gradual energy scoring
+│   └── mood_mappings.py         # Mood boost configuration
+└── routers/
+    └── discover.py              # GET /api/discover/feed
 
-    # Vibe match (30%)
-    vibe_overlap = len(set(user_taste.vibes) & set(venue.vibe_tags))
-    score += 0.3 * (vibe_overlap / max(len(user_taste.vibes), 1))
-
-    # Cuisine match (20%) - from observed transaction data
-    # Uses top_cuisines extracted from plaid_category_detailed
-    # e.g., FOOD_AND_DRINK_RESTAURANT_ASIAN → "asian"
-    if venue.cuisine_type in user_taste.top_cuisines:
-        score += 0.2
-
-    # Price match (20%)
-    if venue.price_tier == user_taste.price_tier:
-        score += 0.2
-
-    # Category affinity (15%)
-    score += 0.15 * user_taste.category_weights.get(venue.taste_cluster, 0)
-
-    # Exploration bonus (15%) - for adventurous users
-    if user_taste.exploration_style == "adventurous" and venue.is_hidden_gem:
-        score += 0.15
-
-    return round(score * 100)  # Return as percentage
+mobile/app/(tabs)/discover/
+├── index.tsx                    # MoodGrid with API connection
+└── feed.tsx                     # VenueCards with match percentages
 ```
 
-**Data Sources for Matching:**
-- `vibes`: From quiz (declared_taste.vibe_preferences)
-- `top_cuisines`: From transactions (extracted from plaid_category_detailed)
-- `price_tier`: From quiz (declared_taste.price_tier)
-- `category_weights`: From fused_taste (weighted quiz + transaction data)
-- `exploration_style`: From quiz (declared_taste.exploration_style)
+**Simplified 3-Component Algorithm**:
+```
+ALL VENUES (same weights):
+├── Affinity:      40% - Specific category spending (excludes "other")
+├── Match:         30% - Cuisine (dining) or venue-fit (non-dining)
+└── Compatibility: 30% - Price + Energy averaged
+```
 
----
+**Natural Scoring Philosophy**:
+- "Other" spending (groceries, transfers) excluded from affinity
+- Mood affects ranking order, not displayed score
+- Gradual energy scoring (not step function)
+- Expected: Broad spenders 25-50%, specific spenders 60-80%
 
-### ⬜ FS8: Mood-Based Discovery
-
-**Goal**: Filter venues by mood
-
-**Expo Test**: Tap "Date Night" → see romantic venues
-
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Add `mood` parameter to `/api/discover/feed` | - |
-| 2 | Backend | Define mood → vibe_tags mapping | - |
-| 3 | Backend | Filter venues by vibe_tags matching mood | - |
-| 4 | Frontend | Connect MoodGrid tiles to filtered API | - |
-| 5 | Frontend | Show filtered results on mood selection | - |
-| 6 | Test | Tap mood tile → see filtered venues | E2E |
-
-**Mood Mapping**:
+**Mood Boost (Ranking Only)**:
 ```python
-MOOD_TO_VIBES = {
-    "date_night": ["romantic", "intimate", "upscale"],
-    "group_hangout": ["social", "energetic", "fun"],
-    "solo_treat": ["chill", "cozy", "quiet"],
-    "quick_bite": ["casual", "fast", "convenient"],
-    "special_occasion": ["upscale", "elegant", "trendy"],
-    "late_night": ["nightlife", "energetic", "late"],
-}
+# Display shows: "Venue X - 52% match"
+# But sorted by: 52% + mood_boost for matching venues
 ```
 
 ---

@@ -1,7 +1,7 @@
-"""Tests for MatchingEngine - Adaptive Weighted Sum Model.
+"""Tests for MatchingEngine - Simplified 3-Component Model.
 
 Tests the venue matching algorithm that scores venues based on user taste profile
-with adaptive weights for dining vs non-dining venues.
+using 3 components: Affinity (40%), Match (30%), Compatibility (30%).
 """
 
 import pytest
@@ -43,53 +43,42 @@ class TestDiningVenueScoring:
             "standout": ["hidden_gem"],
         }
 
-    def test_category_score_uses_mapped_affinity(self, engine, dining_user, italian_restaurant):
-        """Category score should use bidirectional category mapping."""
+    def test_affinity_uses_specific_categories(self, engine, dining_user, italian_restaurant):
+        """Affinity should use specific categories, not 'other'."""
         result = engine.score(dining_user, italian_restaurant)
-        # dining venue matches user's dining spending (50%)
-        # With mapping, score should be significant (>0.4)
-        assert result.scores["category"] >= 0.4
+        # 50% dining spending with 30% threshold = high affinity
+        assert result.scores["affinity"] >= 0.5
 
     def test_top_cuisine_scores_full(self, engine, dining_user, italian_restaurant):
         """User's #1 cuisine should score 1.0 or close to it."""
         result = engine.score(dining_user, italian_restaurant)
         # Italian is top cuisine in both tx and quiz, should blend high
-        assert result.scores["cuisine"] >= 0.7
+        assert result.scores["match"] >= 0.7
 
     def test_unmatched_cuisine_scores_low(self, engine, dining_user, italian_restaurant):
-        """Cuisine not in preferences should score low but not zero."""
+        """Cuisine not in preferences should score zero."""
         italian_restaurant["cuisine_type"] = "french"
         result = engine.score(dining_user, italian_restaurant)
-        # Blending logic gives base score even for no match
-        assert result.scores["cuisine"] <= 0.4
+        # French not in user's preferences
+        assert result.scores["match"] == 0.0
 
-    def test_price_exact_match_scores_full(self, engine, dining_user, italian_restaurant):
-        """Exact price tier match should score 1.0."""
+    def test_compatibility_combines_price_and_energy(self, engine, dining_user, italian_restaurant):
+        """Compatibility should average price and energy scores."""
         result = engine.score(dining_user, italian_restaurant)
-        # User: moderate, Venue: $$ = match
-        assert result.scores["price"] == 1.0
+        # Price match + energy match averaged
+        # Price: moderate vs $$ = 1.0
+        # Energy: chill vibes + chill venue = partial match
+        assert 0.3 <= result.scores["compatibility"] <= 1.0
 
-    def test_energy_match_scores_well(self, engine, dining_user, italian_restaurant):
-        """Chill vibes should match chill venue."""
-        result = engine.score(dining_user, italian_restaurant)
-        # chill + romantic + intimate vibes match chill venue
-        assert result.scores["energy"] >= 0.5
+    def test_perfect_dining_match_scores_reasonably(self, engine, dining_user, italian_restaurant):
+        """Perfect dining match should score high (80-100%).
 
-    def test_context_score_for_social_match(self, engine, dining_user, italian_restaurant):
-        """Context score should be high when social preference aligns."""
+        User has 50% dining spending, matching cuisine, aligned price/energy.
+        This IS a near-perfect match and should score accordingly.
+        """
         result = engine.score(dining_user, italian_restaurant)
-        # small_group + date_night/casual_hangout should match
-        assert result.scores["context"] >= 0.5
-
-    def test_discovery_bonus_for_adventurous(self, engine, dining_user, italian_restaurant):
-        """Adventurous user should get discovery bonus for hidden_gem."""
-        result = engine.score(dining_user, italian_restaurant)
-        assert result.scores["discovery"] == 1.0
-
-    def test_perfect_dining_match_scores_high(self, engine, dining_user, italian_restaurant):
-        """Perfect dining match should score above 70%."""
-        result = engine.score(dining_user, italian_restaurant)
-        assert result.match_score >= 70
+        # Perfect matches should score high - that's the point of differentiation
+        assert 80 <= result.match_score <= 100
 
 
 class TestNonDiningVenueScoring:
@@ -127,36 +116,30 @@ class TestNonDiningVenueScoring:
             "standout": ["local_favorite", "cozy_vibes"],
         }
 
-    def test_non_dining_uses_venue_fit(self, engine, coffee_user, chill_coffee_shop):
-        """Non-dining venues should use venue_fit instead of cuisine."""
+    def test_non_dining_uses_venue_fit_for_match(self, engine, coffee_user, chill_coffee_shop):
+        """Non-dining venues should use venue_fit for match component."""
         result = engine.score(coffee_user, chill_coffee_shop)
-        assert "venue_fit" in result.scores
-        assert "cuisine" not in result.scores
+        # Match component exists
+        assert "match" in result.scores
+        assert result.scores["match"] >= 0.5
 
     def test_coffee_fit_for_solo_chill_user(self, engine, coffee_user, chill_coffee_shop):
         """Coffee shop should score high for solo user with chill vibes."""
         result = engine.score(coffee_user, chill_coffee_shop)
         # Chill vibes + solo + solo_work best_for + third_wave preference
-        assert result.scores["venue_fit"] >= 0.7
+        assert result.scores["match"] >= 0.6
 
-    def test_coffee_category_uses_mapping(self, engine, coffee_user, chill_coffee_shop):
-        """Coffee venue should match coffee spending via mapping."""
+    def test_coffee_affinity_uses_specific_spending(self, engine, coffee_user, chill_coffee_shop):
+        """Coffee venue should match coffee spending (not 'other')."""
         result = engine.score(coffee_user, chill_coffee_shop)
-        # 60% coffee spending should give high category score
-        assert result.scores["category"] >= 0.5
+        # 60% coffee spending with 30% threshold = full affinity
+        assert result.scores["affinity"] >= 0.8
 
-    def test_coffee_shop_for_chill_user_scores_high(self, engine, coffee_user, chill_coffee_shop):
-        """Chill coffee shop should score high for matching user."""
+    def test_coffee_shop_for_chill_user_scores_well(self, engine, coffee_user, chill_coffee_shop):
+        """Chill coffee shop should score well for matching user."""
         result = engine.score(coffee_user, chill_coffee_shop)
-        # This was the Ministry of Coffee problem - should now be 70%+
-        assert result.match_score >= 65
-
-    def test_routine_user_gets_local_favorite_bonus(self, engine, coffee_user, chill_coffee_shop):
-        """Routine user should get discovery bonus for local_favorite."""
-        coffee_user["exploration_style"] = "routine"
-        result = engine.score(coffee_user, chill_coffee_shop)
-        # local_favorite gives 0.9 bonus for routine users
-        assert result.scores["discovery"] >= 0.6
+        # Should score reasonably high with specific spending
+        assert result.match_score >= 55
 
 
 class TestNightlifeVenueScoring:
@@ -197,19 +180,20 @@ class TestNightlifeVenueScoring:
         """Nightclub should score high for social, energetic user."""
         result = engine.score(social_user, nightclub)
         # big_group + social/energetic vibes + group_celebration
-        assert result.scores["venue_fit"] >= 0.6
+        assert result.scores["match"] >= 0.6
 
-    def test_nightclub_context_for_group(self, engine, social_user, nightclub):
-        """Context score high for group preference + group_celebration."""
+    def test_nightlife_affinity_uses_specific_spending(self, engine, social_user, nightclub):
+        """Nightlife affinity should use nightlife + entertainment spending."""
         result = engine.score(social_user, nightclub)
-        assert result.scores["context"] >= 0.6
+        # 50% nightlife spending with 30% threshold = high affinity
+        assert result.scores["affinity"] >= 0.8
 
     def test_solo_user_low_nightlife_fit(self, engine, social_user, nightclub):
         """Solo user should score lower for nightlife."""
         social_user["social_preference"] = "solo"
         social_user["vibes"] = ["chill", "relaxed"]
         result = engine.score(social_user, nightclub)
-        assert result.scores["venue_fit"] <= 0.5
+        assert result.scores["match"] <= 0.3
 
 
 class TestNewUserScoring:
@@ -263,39 +247,29 @@ class TestNewUserScoring:
         """New user should match based on quiz cuisine preferences."""
         result = engine.score_new_user(quiz_only_user, italian_venue)
         # Italian is #1 in quiz preferences
-        assert result.scores["cuisine_or_fit"] == 1.0
+        assert result.scores["match"] == 1.0
 
-    def test_new_user_no_category_score(self, engine, quiz_only_user, italian_venue):
-        """New user scores should not have category component."""
+    def test_new_user_has_zero_affinity(self, engine, quiz_only_user, italian_venue):
+        """New user should have zero affinity (no transaction data)."""
         result = engine.score_new_user(quiz_only_user, italian_venue)
-        assert "category" not in result.scores
+        assert result.scores["affinity"] == 0.0
 
     def test_new_user_uses_venue_fit_for_non_dining(
         self, engine, quiz_only_user, coffee_venue
     ):
         """New user should use venue_fit for non-dining venues."""
         result = engine.score_new_user(quiz_only_user, coffee_venue)
-        # cuisine_or_fit should be venue_fit score
-        assert result.scores["cuisine_or_fit"] >= 0.3
+        # match component should have venue_fit score
+        assert result.scores["match"] >= 0.2
 
-    def test_new_user_context_scoring(self, engine, quiz_only_user, italian_venue):
-        """New user should get context score based on social + vibes."""
-        result = engine.score_new_user(quiz_only_user, italian_venue)
-        # small_group + date_night should give reasonable context score
-        assert result.scores["context"] >= 0.4
-
-    def test_new_user_discovery_bonus(self, engine, quiz_only_user, italian_venue):
-        """Adventurous new user should get hidden_gem bonus."""
-        result = engine.score_new_user(quiz_only_user, italian_venue)
-        assert result.scores["discovery"] == 1.0
-
-    def test_new_user_high_match_for_aligned_venue(
+    def test_new_user_reasonable_match_for_aligned_venue(
         self, engine, quiz_only_user, italian_venue
     ):
-        """Perfect match for new user should score high."""
+        """New user match for aligned venue should be reasonable."""
         result = engine.score_new_user(quiz_only_user, italian_venue)
-        # cuisine match + price + energy + context + discovery
-        assert result.match_score >= 70
+        # No affinity (40% = 0), good match (30% = 1.0), some compatibility
+        # Max possible: 0.30 + 0.15 = 45% plus some compatibility
+        assert 30 <= result.match_score <= 60
 
 
 class TestMatchReasonsGeneration:
@@ -305,62 +279,41 @@ class TestMatchReasonsGeneration:
     def engine(self):
         return MatchingEngine()
 
-    def test_generates_cuisine_reason(self, engine):
-        """Should include cuisine reason when score > 0.5."""
-        scores = {"cuisine": 1.0, "price": 1.0, "context": 0.5}
+    def test_generates_affinity_reason(self, engine):
+        """Should include affinity reason when score > 0.5."""
+        scores = {"affinity": 0.7, "match": 0.3, "compatibility": 0.5}
+        venue = {"taste_cluster": "coffee", "standout": []}
+        reasons = engine.get_match_reasons(scores, venue)
+        assert any("coffee" in r.lower() for r in reasons)
+
+    def test_generates_match_reason_cuisine(self, engine):
+        """Should include match reason for cuisine."""
+        scores = {"affinity": 0.3, "match": 0.8, "compatibility": 0.5}
         venue = {"cuisine_type": "italian", "taste_cluster": "dining", "standout": []}
         reasons = engine.get_match_reasons(scores, venue)
         assert any("italian" in r.lower() for r in reasons)
 
-    def test_generates_category_reason(self, engine):
-        """Should include category reason when score > 0.4."""
-        scores = {"category": 0.6, "price": 1.0}
-        venue = {"taste_cluster": "dining", "standout": []}
-        reasons = engine.get_match_reasons(scores, venue)
-        assert any("dining" in r.lower() for r in reasons)
-
-    def test_generates_venue_fit_reason_coffee(self, engine):
-        """Should include venue fit reason for coffee shops."""
-        scores = {"venue_fit": 0.8, "price": 1.0}
-        venue = {"taste_cluster": "coffee", "standout": []}
+    def test_generates_match_reason_coffee(self, engine):
+        """Should include match reason for coffee shops."""
+        scores = {"affinity": 0.3, "match": 0.7, "compatibility": 0.5}
+        venue = {"taste_cluster": "coffee", "cuisine_type": None, "standout": []}
         reasons = engine.get_match_reasons(scores, venue)
         assert any("vibe" in r.lower() for r in reasons)
 
-    def test_generates_price_reason(self, engine):
-        """Should include price reason when exact match."""
-        scores = {"price": 1.0, "category": 0.3}
+    def test_generates_compatibility_reason(self, engine):
+        """Should include compatibility reason when high."""
+        scores = {"affinity": 0.3, "match": 0.3, "compatibility": 0.9}
         venue = {"taste_cluster": "dining", "standout": []}
         reasons = engine.get_match_reasons(scores, venue)
-        assert any("price" in r.lower() for r in reasons)
-
-    def test_generates_context_reason_date_night(self, engine):
-        """Should include context reason for date_night."""
-        scores = {"context": 0.8, "price": 1.0}
-        venue = {"best_for": ["date_night"], "standout": []}
-        reasons = engine.get_match_reasons(scores, venue)
-        assert any("date" in r.lower() for r in reasons)
-
-    def test_generates_discovery_reason_hidden_gem(self, engine):
-        """Should mention hidden gem for high discovery score."""
-        scores = {"discovery": 1.0, "price": 0.5}
-        venue = {"standout": ["hidden_gem"]}
-        reasons = engine.get_match_reasons(scores, venue)
-        assert any("hidden gem" in r.lower() for r in reasons)
+        assert any("price" in r.lower() or "vibe" in r.lower() for r in reasons)
 
     def test_returns_max_two_reasons(self, engine):
         """Should return at most 2 reasons."""
-        scores = {
-            "cuisine": 1.0,
-            "category": 0.6,
-            "price": 1.0,
-            "context": 0.8,
-            "discovery": 1.0,
-        }
+        scores = {"affinity": 0.8, "match": 0.9, "compatibility": 0.9}
         venue = {
             "cuisine_type": "italian",
             "taste_cluster": "dining",
-            "best_for": ["date_night"],
-            "standout": ["hidden_gem"],
+            "standout": [],
         }
         reasons = engine.get_match_reasons(scores, venue)
         assert len(reasons) <= 2
@@ -407,6 +360,7 @@ class TestMoodFiltering:
             "standout": [],
         }
         results = engine.apply_mood_filter([chill_venue, lively_venue], "chill", base_user)
+        # Chill venue should rank higher due to mood boost
         assert results[0]["venue"]["id"] == "chill-1"
 
     def test_energetic_mood_boosts_lively_venues(self, engine, base_user):
@@ -433,47 +387,20 @@ class TestMoodFiltering:
         results = engine.apply_mood_filter([chill_venue, lively_venue], "energetic", base_user)
         assert results[0]["venue"]["id"] == "lively-1"
 
-    def test_romantic_mood_boosts_date_night_venues(self, engine, base_user):
-        """Romantic mood should boost date_night venues."""
-        base_user["vibes"] = ["romantic", "chill"]
-        regular_venue = {
-            "id": "regular-1",
+    def test_mood_boost_affects_sort_not_display(self, engine, base_user):
+        """Mood boost should affect sort order but not displayed score."""
+        venue = {
+            "id": "test-1",
             "taste_cluster": "coffee",
             "cuisine_type": None,
             "energy": "chill",
             "price_tier": "$$",
             "best_for": ["solo_work"],
-            "standout": [],
+            "standout": ["cozy_vibes"],
         }
-        romantic_venue = {
-            "id": "romantic-1",
-            "taste_cluster": "dining",
-            "cuisine_type": "italian",
-            "energy": "chill",
-            "price_tier": "$$$",
-            "best_for": ["date_night"],
-            "standout": ["upscale_feel"],
-        }
-        results = engine.apply_mood_filter([regular_venue, romantic_venue], "romantic", base_user)
-        assert results[0]["venue"]["id"] == "romantic-1"
-
-    def test_mood_boost_caps_at_99(self, engine, base_user):
-        """Mood boost should not exceed 99%."""
-        base_user["categories"] = {"coffee": 100}
-        base_user["vibes"] = ["chill", "relaxed", "cozy"]
-        base_user["social_preference"] = "solo"
-        base_user["coffee_preference"] = "third_wave"
-        perfect_venue = {
-            "id": "perfect-1",
-            "taste_cluster": "coffee",
-            "cuisine_type": None,
-            "energy": "chill",
-            "price_tier": "$$",
-            "best_for": ["solo_work"],
-            "standout": ["cozy_vibes", "hidden_gem"],
-        }
-        results = engine.apply_mood_filter([perfect_venue], "chill", base_user)
-        assert results[0]["match_score"] <= 99
+        results = engine.apply_mood_filter([venue], "chill", base_user)
+        # _sort_score should be higher than match_score due to mood boost
+        assert results[0]["_sort_score"] >= results[0]["match_score"]
 
 
 class TestScoreDifferentiation:
@@ -520,8 +447,8 @@ class TestScoreDifferentiation:
         italian_result = engine.score(italian_lover, italian_venue)
         french_result = engine.score(italian_lover, french_venue)
 
-        # At least 15% difference for cuisine match
-        assert italian_result.match_score > french_result.match_score + 10
+        # Italian venue should score higher due to cuisine match
+        assert italian_result.match_score > french_result.match_score + 15
 
     def test_coffee_user_prefers_coffee_over_nightlife(self, engine):
         """User with chill/solo preferences should prefer coffee over nightlife."""
@@ -604,5 +531,100 @@ class TestScoreDifferentiation:
         scores = [engine.score(user, v).match_score for v in venues]
         score_range = max(scores) - min(scores)
 
-        # Should have at least 25% spread between best and worst
-        assert score_range >= 25
+        # Should have at least 20% spread between best and worst
+        assert score_range >= 20
+
+
+class TestBroadSpenderScoring:
+    """Tests for users with broad/unclear spending patterns (high 'other')."""
+
+    @pytest.fixture
+    def engine(self):
+        return MatchingEngine()
+
+    @pytest.fixture
+    def broad_spender(self):
+        """User with mostly 'other' category (typical of many users)."""
+        return {
+            "categories": {"other": 63, "entertainment": 19, "dining": 12, "coffee": 6},
+            "top_cuisines": ["italian"],
+            "cuisine_preferences": ["italian"],
+            "vibes": ["social", "casual", "chill", "trendy"],
+            "price_tier": "moderate",
+            "exploration_style": "moderate",
+            "social_preference": "small_group",
+            "tx_weight": 0.5,
+        }
+
+    def test_other_category_not_counted_for_coffee(self, engine, broad_spender):
+        """'Other' category should not boost coffee venue affinity."""
+        coffee_venue = {
+            "id": "coffee-1",
+            "taste_cluster": "coffee",
+            "cuisine_type": None,
+            "energy": "chill",
+            "price_tier": "$$",
+            "best_for": ["solo_work"],
+            "standout": [],
+        }
+        result = engine.score(broad_spender, coffee_venue)
+        # Only 6% coffee spending, not 69% (6 + 63)
+        # 6% / 30% threshold = 0.2
+        assert result.scores["affinity"] <= 0.3
+
+    def test_other_category_not_counted_for_nightlife(self, engine, broad_spender):
+        """'Other' category should not boost nightlife venue affinity."""
+        nightclub = {
+            "id": "nightclub-1",
+            "taste_cluster": "nightlife",
+            "cuisine_type": None,
+            "energy": "lively",
+            "price_tier": "$$",
+            "best_for": ["group_celebration"],
+            "standout": [],
+        }
+        result = engine.score(broad_spender, nightclub)
+        # Only 19% entertainment (maps to nightlife), not 82% (19 + 63)
+        # 19% / 30% threshold = 0.63
+        assert result.scores["affinity"] <= 0.7
+
+    def test_broad_spender_scores_differentiated(self, engine, broad_spender):
+        """Broad spender should still see differentiated scores across venues."""
+        italian_venue = {
+            "id": "italian-1",
+            "taste_cluster": "dining",
+            "cuisine_type": "italian",
+            "energy": "chill",
+            "price_tier": "$$",
+            "best_for": ["date_night"],
+            "standout": [],
+        }
+        coffee_venue = {
+            "id": "coffee-1",
+            "taste_cluster": "coffee",
+            "cuisine_type": None,
+            "energy": "chill",
+            "price_tier": "$$",
+            "best_for": ["solo_work"],
+            "standout": [],
+        }
+        italian_result = engine.score(broad_spender, italian_venue)
+        coffee_result = engine.score(broad_spender, coffee_venue)
+
+        # Should see meaningful difference, not both at 95%+
+        assert abs(italian_result.match_score - coffee_result.match_score) >= 10
+
+    def test_broad_spender_not_all_high_scores(self, engine, broad_spender):
+        """Broad spender should NOT get 85%+ on all venue types."""
+        venues = [
+            {"id": "v1", "taste_cluster": "coffee", "cuisine_type": None, "energy": "chill", "price_tier": "$$", "best_for": [], "standout": []},
+            {"id": "v2", "taste_cluster": "dining", "cuisine_type": "italian", "energy": "chill", "price_tier": "$$", "best_for": [], "standout": []},
+            {"id": "v3", "taste_cluster": "nightlife", "cuisine_type": None, "energy": "lively", "price_tier": "$$", "best_for": [], "standout": []},
+            {"id": "v4", "taste_cluster": "bakery", "cuisine_type": None, "energy": "chill", "price_tier": "$", "best_for": [], "standout": []},
+        ]
+        scores = [engine.score(broad_spender, v).match_score for v in venues]
+
+        # At least some venues should score below 60%
+        assert min(scores) < 60
+        # Not all should be above 80%
+        assert sum(1 for s in scores if s > 80) < len(scores)

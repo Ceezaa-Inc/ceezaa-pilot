@@ -532,68 +532,89 @@ class InsightGenerator:
 
 ## Matching Engine (Rule-Based - No AI)
 
-Matches user taste profile to venues using a deterministic scoring algorithm. **No AI is used for matching.**
+Matches user taste profile to venues using a **Simplified 3-Component Model**. **No AI is used for matching.**
+
+### Philosophy: Natural Scoring
+
+- **No artificial floors**: No match = 0%
+- **Mood affects ranking, not display**: Users see true match quality
+- **Specific categories only**: "Other" spending (groceries, transfers) excluded
+
+### Weight Configuration
+
+```
+ALL VENUES (same weights):
+├── Affinity:      40% - Specific category spending (excludes "other")
+├── Match:         30% - Cuisine (dining) or venue-fit (non-dining)
+└── Compatibility: 30% - Price + Energy averaged
+```
+
+### Scoring Components
 
 ```python
 class MatchingEngine:
-    """Rank venues by taste match for a user."""
+    """Scores venues using simplified 3-component model."""
 
-    def rank_venues(
-        self,
-        user_taste: FusedTaste,
-        venues: List[Venue],
-        filters: DiscoverFilters
-    ) -> List[RankedVenue]:
+    WEIGHTS = {"affinity": 0.40, "match": 0.30, "compatibility": 0.30}
 
-        # 1. Apply hard filters first (price, distance, open now)
-        filtered = self._apply_filters(venues, filters)
+    def score(self, user_taste, venue) -> MatchResult:
+        # 1. Affinity (40%) - Category spending
+        #    Only counts specific categories (coffee, dining, etc.)
+        #    "Other" category EXCLUDED (groceries, transfers = noise)
 
-        # 2. Score each venue
-        scored = []
-        for venue in filtered:
-            score = self._calculate_match_score(user_taste, venue)
-            scored.append(RankedVenue(venue=venue, match_score=score))
+        # 2. Match (30%) - Cuisine or Venue-Fit
+        #    - Dining: Blends quiz + tx cuisine preferences
+        #    - Non-dining: Venue-type specific (coffee/nightlife/bakery)
 
-        # 3. Sort by score descending
-        scored.sort(key=lambda x: x.match_score, reverse=True)
+        # 3. Compatibility (30%) - Price + Energy averaged
+        #    - Price: Exact = 1.0, one tier off = 0.5, two+ = 0.0
+        #    - Energy: Gradual scaling based on vibe overlap ratio
 
-        return scored
-
-    def _calculate_match_score(self, taste: FusedTaste, venue: Venue) -> float:
-        score = 0.0
-
-        # Vibe match (30% weight)
-        vibe_matches = len(set(taste.vibes) & set(venue.vibe_tags))
-        score += (vibe_matches / max(len(taste.vibes), 1)) * 0.3
-
-        # Cuisine match (20% weight) - from observed transaction data
-        # Uses top_cuisines extracted from plaid_category_detailed
-        if venue.cuisine_type in taste.top_cuisines:
-            score += 0.2
-
-        # Price match (20% weight)
-        if venue.price_tier == taste.price_tier:
-            score += 0.2
-
-        # Category affinity (15% weight)
-        category_pref = taste.categories.get(venue.taste_cluster, 0)
-        score += category_pref * 0.15
-
-        # Exploration bonus for adventurous users (15% weight)
-        if taste.exploration_style == "adventurous" and "hidden_gem" in venue.vibe_tags:
-            score += 0.15
-
-        return min(score, 1.0)  # Cap at 100%
+        return MatchResult(match_score=weighted_sum, scores=components)
 ```
 
+### Category Mapping (Excludes "Other")
+
+Only specific spending categories count toward affinity:
+
+```python
+# "other", "travel", "groceries" EXCLUDED - they're noise
+VENUE_TO_USER_CATEGORIES = {
+    "coffee":    ["coffee"],
+    "dining":    ["dining", "fast_food"],
+    "nightlife": ["nightlife", "entertainment"],
+    "bakery":    ["dining", "fast_food", "coffee"],
+}
+
+# 30% threshold for full score (stricter than before)
+normalized = min(total_pct / 30.0, 1.0)
+```
+
+### Mood-Based Discovery
+
+Mood affects **ranking order**, not **displayed match percentage**:
+
+```python
+# User sees: "The Last Bookstore - 52% match"
+# But sorted by: 52% + 15% mood_boost = 67% sort priority
+```
+
+### Expected Score Ranges
+
+| User Type | Score Range |
+|-----------|-------------|
+| Coffee lover (40%+ coffee) | Coffee: 65-80%, Others: 25-45% |
+| Broad spender (high "other") | All: 25-50% |
+| Dining enthusiast (50% dining) | Dining: 70-85%, Coffee: 30-45% |
+| New user (quiz only) | Based on cuisine/fit: 30-50% |
+
 **Matching Data Sources:**
-| Signal | Source | Weight |
-|--------|--------|--------|
-| Vibes | Quiz (declared_taste.vibe_preferences) | 30% |
-| Cuisine | Transactions (user_analysis.top_cuisines from plaid_category_detailed) | 20% |
-| Price | Quiz (declared_taste.price_tier) | 20% |
-| Category | Fused (weighted quiz + transaction category breakdown) | 15% |
-| Exploration | Quiz + behavior (declared exploration style + hidden_gem preference) | 15% |
+| Signal | Source | Component |
+|--------|--------|-----------|
+| Spending | Transactions (specific categories) | Affinity |
+| Cuisine | Quiz + Transactions (blended) | Match |
+| Venue-fit | Quiz vibes + social preference | Match |
+| Price + Energy | Quiz preferences | Compatibility |
 
 ---
 
