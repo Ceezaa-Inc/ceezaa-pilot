@@ -344,8 +344,8 @@ class MatchingEngine:
         venue_cuisine = venue.get("cuisine_type")
 
         if not venue_cuisine:
-            # Non-cuisine venue - return neutral score
-            return 0.5
+            # Non-cuisine venue - no cuisine credit
+            return 0.0
 
         # Get both sources
         tx_cuisines = user_taste.get("top_cuisines", [])
@@ -361,18 +361,18 @@ class MatchingEngine:
 
         # If no tx data, use quiz only
         if not tx_cuisines:
-            return quiz_score if quiz_score > 0 else 0.3  # Base score for non-match
+            return quiz_score if quiz_score > 0 else 0.15  # Low score for non-match
 
         # If no quiz data, use tx only
         if not quiz_cuisines:
-            return tx_score if tx_score > 0 else 0.3
+            return tx_score if tx_score > 0 else 0.15
 
         # Weighted blend
         blended = (tx_score * tx_weight) + (quiz_score * quiz_weight)
 
         # Boost if either source has a match
         if tx_score > 0 or quiz_score > 0:
-            blended = max(blended, 0.4)
+            blended = max(blended, 0.25)
 
         return blended
 
@@ -423,7 +423,7 @@ class MatchingEngine:
         elif venue_cluster == "bakery":
             return self._bakery_fit_score(user_taste, venue)
 
-        return 0.5  # Neutral for unknown clusters
+        return 0.25  # Low score for unknown clusters
 
     def _coffee_fit_score(
         self, user_taste: dict[str, Any], venue: dict[str, Any]
@@ -445,7 +445,7 @@ class MatchingEngine:
         elif social_pref in ["small_group", "big_group"] and "casual_hangout" in best_for:
             score += 0.3
         else:
-            score += 0.2  # Base score
+            score += 0.1  # Low base score
 
         # Bonus for coffee preference from quiz
         coffee_pref = user_taste.get("coffee_preference")
@@ -469,9 +469,9 @@ class MatchingEngine:
         elif social_pref == "small_group":
             score += 0.3
         elif social_pref == "solo":
-            score += 0.1  # Nightlife less suitable for solo
+            score += 0.05  # Nightlife less suitable for solo
         else:
-            score += 0.25  # Default
+            score += 0.15  # Low default
 
         # Vibe alignment
         user_vibes = set(user_taste.get("vibes", []))
@@ -491,7 +491,7 @@ class MatchingEngine:
         self, user_taste: dict[str, Any], venue: dict[str, Any]
     ) -> float:
         """Score bakery venue fit based on vibes and occasion."""
-        score = 0.3  # Base score for bakeries
+        score = 0.15  # Low base score for bakeries
 
         # Vibe alignment (similar to coffee but less work-focused)
         user_vibes = set(user_taste.get("vibes", []))
@@ -521,7 +521,7 @@ class MatchingEngine:
         best_for = venue.get("best_for", [])
 
         if not best_for:
-            return 0.4  # Neutral base score
+            return 0.25  # Low score for missing best_for
 
         score = 0.0
 
@@ -542,7 +542,7 @@ class MatchingEngine:
     ) -> float:
         """Match social preference to venue occasions."""
         if not social_pref:
-            return 0.5  # Neutral
+            return 0.3  # Low neutral
 
         matching_occasions = SOCIAL_OCCASION_MAP.get(social_pref, [])
         overlap = len(set(best_for) & set(matching_occasions))
@@ -550,15 +550,15 @@ class MatchingEngine:
         if overlap >= 2:
             return 1.0
         elif overlap == 1:
-            return 0.7
-        return 0.3
+            return 0.5
+        return 0.2
 
     def _vibes_to_occasion_match(
         self, vibes: list[str], best_for: list[str]
     ) -> float:
         """Match user vibes to venue occasions."""
         if not vibes:
-            return 0.5  # Neutral
+            return 0.3  # Low neutral
 
         relevant_occasions: set[str] = set()
         for vibe in vibes:
@@ -569,5 +569,5 @@ class MatchingEngine:
         if overlap >= 2:
             return 1.0
         elif overlap == 1:
-            return 0.6
-        return 0.3
+            return 0.45
+        return 0.2
