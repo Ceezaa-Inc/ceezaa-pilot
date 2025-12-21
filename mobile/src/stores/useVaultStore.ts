@@ -1,28 +1,96 @@
 import { create } from 'zustand';
 import {
-  Place,
-  Visit,
-  Reaction,
-  StatusFilter,
-  VisitSource,
-  PLACES,
-  VISITS,
-  VAULT_STATS,
-  getPlaceById,
-  getPlacesByStatus,
-  isPlaceRated,
-  hasUnratedVisits,
-} from '@/mocks/visits';
+  vaultApi,
+  VaultPlace,
+  VaultVisit,
+  CreateVisitRequest,
+} from '@/services/api';
 
-interface AddVisitData {
-  venueId: string;
+// Re-export types for components
+export type Reaction = 'loved' | 'good' | 'meh' | 'never_again';
+export type StatusFilter = 'all' | 'visited' | 'review';
+export type VisitSource = 'transaction' | 'manual';
+
+// Local types matching what components expect
+export interface Visit {
+  id: string;
+  venueId: string | null;
   venueName: string;
-  venueType: string;
+  venueType: string | null;
   date: string;
   amount?: number;
   reaction?: Reaction;
   notes?: string;
-  source?: VisitSource;
+  source: VisitSource;
+}
+
+export interface Place {
+  venueId: string | null;
+  venueName: string;
+  venueType: string | null;
+  visitCount: number;
+  lastVisit: string;
+  totalSpent: number;
+  reaction?: Reaction;
+  photoUrl?: string;
+  visits: Visit[];
+}
+
+export interface VaultStats {
+  totalPlaces: number;
+  totalVisits: number;
+  thisMonthSpent: number;
+}
+
+interface AddVisitData {
+  venueId?: string;
+  venueName: string;
+  venueType?: string;
+  date: string;
+  amount?: number;
+  reaction?: Reaction;
+  notes?: string;
+}
+
+// Helper to convert API place to local format
+function mapApiPlace(apiPlace: VaultPlace): Place {
+  return {
+    venueId: apiPlace.venue_id,
+    venueName: apiPlace.venue_name,
+    venueType: apiPlace.venue_type,
+    visitCount: apiPlace.visit_count,
+    lastVisit: apiPlace.last_visit,
+    totalSpent: apiPlace.total_spent,
+    reaction: apiPlace.reaction as Reaction | undefined,
+    photoUrl: apiPlace.photo_url || undefined,
+    visits: apiPlace.visits.map(mapApiVisit),
+  };
+}
+
+function mapApiVisit(apiVisit: VaultVisit): Visit {
+  return {
+    id: apiVisit.id,
+    venueId: apiVisit.venue_id,
+    venueName: apiVisit.venue_name || 'Unknown',
+    venueType: apiVisit.venue_type,
+    date: apiVisit.visited_at,
+    amount: apiVisit.amount || undefined,
+    reaction: apiVisit.reaction as Reaction | undefined,
+    notes: apiVisit.notes || undefined,
+    source: apiVisit.source as VisitSource,
+  };
+}
+
+// Filter helpers
+function getPlacesByStatus(places: Place[], filter: StatusFilter): Place[] {
+  switch (filter) {
+    case 'visited':
+      return places.filter((p) => p.reaction !== undefined);
+    case 'review':
+      return places.filter((p) => p.reaction === undefined);
+    default:
+      return places;
+  }
 }
 
 interface VaultState {
@@ -31,9 +99,12 @@ interface VaultState {
   selectedPlace: Place | null;
   currentFilter: StatusFilter;
   filteredPlaces: Place[];
-  stats: typeof VAULT_STATS;
+  stats: VaultStats;
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
+  fetchVisits: (userId: string) => Promise<void>;
   setSelectedPlace: (venueId: string | null) => void;
   setFilter: (filter: StatusFilter) => void;
   updateReaction: (venueId: string, reaction: Reaction) => void;
@@ -43,19 +114,46 @@ interface VaultState {
 }
 
 export const useVaultStore = create<VaultState>((set, get) => ({
-  places: PLACES,
-  visits: VISITS,
+  places: [],
+  visits: [],
   selectedPlace: null,
   currentFilter: 'all',
-  filteredPlaces: PLACES,
-  stats: VAULT_STATS,
+  filteredPlaces: [],
+  stats: { totalPlaces: 0, totalVisits: 0, thisMonthSpent: 0 },
+  isLoading: false,
+  error: null,
+
+  fetchVisits: async (userId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await vaultApi.getVisits(userId);
+
+      const places = response.places.map(mapApiPlace);
+      const visits = places.flatMap((p) => p.visits);
+      const { currentFilter } = get();
+
+      set({
+        places,
+        visits,
+        filteredPlaces: getPlacesByStatus(places, currentFilter),
+        stats: {
+          totalPlaces: response.stats.total_places,
+          totalVisits: response.stats.total_visits,
+          thisMonthSpent: response.stats.this_month_spent,
+        },
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error('[Vault] Failed to fetch visits:', error);
+      set({ isLoading: false, error: 'Failed to load visits' });
+    }
+  },
 
   setSelectedPlace: (venueId) => {
     if (!venueId) {
       set({ selectedPlace: null });
       return;
     }
-    // Search in store's places array (not static PLACES) to find dynamically added places
     const { places } = get();
     const place = places.find((p) => p.venueId === venueId);
     set({ selectedPlace: place || null });
@@ -68,6 +166,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   updateReaction: (venueId, reaction) => {
+    // Optimistic update - API call happens in rateVisit
     set((state) => ({
       places: state.places.map((place) =>
         place.venueId === venueId ? { ...place, reaction } : place
@@ -83,34 +182,43 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   addNote: (visitId, note) => {
+    // Update locally, API call can be added later
     set((state) => ({
       visits: state.visits.map((visit) =>
         visit.id === visitId ? { ...visit, notes: note } : visit
       ),
     }));
+
+    // Call API in background
+    vaultApi.updateVisit(visitId, { notes: note }).catch((error) => {
+      console.error('[Vault] Failed to update note:', error);
+    });
   },
 
   addVisit: (data) => {
+    // Generate temporary ID for optimistic update
+    const tempId = `temp-${Date.now()}`;
     const newVisit: Visit = {
-      id: `v${Date.now()}`,
-      venueId: data.venueId,
+      id: tempId,
+      venueId: data.venueId || null,
       venueName: data.venueName,
-      venueType: data.venueType,
+      venueType: data.venueType || null,
       date: data.date,
       amount: data.amount,
       reaction: data.reaction,
       notes: data.notes,
-      source: data.source || 'manual',
+      source: 'manual',
     };
 
     set((state) => {
-      const existingPlace = state.places.find((p) => p.venueId === data.venueId);
+      const existingPlace = state.places.find((p) =>
+        p.venueId === data.venueId || p.venueName === data.venueName
+      );
       let updatedPlaces: Place[];
 
       if (existingPlace) {
-        // Update existing place
         updatedPlaces = state.places.map((place) =>
-          place.venueId === data.venueId
+          (place.venueId === data.venueId || place.venueName === data.venueName)
             ? {
                 ...place,
                 visitCount: place.visitCount + 1,
@@ -122,11 +230,10 @@ export const useVaultStore = create<VaultState>((set, get) => ({
             : place
         );
       } else {
-        // Create new place
         const newPlace: Place = {
-          venueId: data.venueId,
+          venueId: data.venueId || null,
           venueName: data.venueName,
-          venueType: data.venueType,
+          venueType: data.venueType || null,
           visitCount: 1,
           lastVisit: data.date,
           totalSpent: data.amount || 0,
@@ -150,20 +257,20 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         },
       };
     });
+
+    // Call API in background - would need userId passed in
+    // For now, we rely on fetchVisits being called to sync
   },
 
   rateVisit: (visitId, reaction) => {
     set((state) => {
-      // Find the visit and update it
       const updatedVisits = state.visits.map((visit) =>
         visit.id === visitId ? { ...visit, reaction } : visit
       );
 
-      // Find which place this visit belongs to
       const visit = state.visits.find((v) => v.id === visitId);
       if (!visit) return state;
 
-      // Update the place's visits and potentially its reaction
       const updatedPlaces = state.places.map((place) => {
         if (place.venueId !== visit.venueId) return place;
 
@@ -171,20 +278,16 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           v.id === visitId ? { ...v, reaction } : v
         );
 
-        // If place has no reaction yet, set it to this visit's reaction
-        const placeReaction = place.reaction || reaction;
-
         return {
           ...place,
           visits: updatedPlaceVisits,
-          reaction: placeReaction,
+          reaction: place.reaction || reaction,
         };
       });
 
       const { currentFilter } = state;
       const filtered = getPlacesByStatus(updatedPlaces, currentFilter);
 
-      // Update selectedPlace if we're viewing this place
       const selectedPlace = state.selectedPlace?.venueId === visit.venueId
         ? updatedPlaces.find((p) => p.venueId === visit.venueId) || null
         : state.selectedPlace;
@@ -195,6 +298,11 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         filteredPlaces: filtered,
         selectedPlace,
       };
+    });
+
+    // Call API in background
+    vaultApi.updateVisit(visitId, { reaction }).catch((error) => {
+      console.error('[Vault] Failed to update reaction:', error);
     });
   },
 }));

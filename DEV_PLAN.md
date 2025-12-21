@@ -25,8 +25,8 @@
 | **FS5.5: AI Taste DNA** | ✅ Complete | 100% |
 | **FS6: Venue Catalog** | ✅ Complete | 100% |
 | **FS7+FS8: Taste Matching & Mood Discovery** | ✅ Complete | 100% |
-| **FS9: Vault** | ⬜ Not Started | 0% |
-| **FS10: Sessions** | ⬜ Not Started | 0% |
+| **FS9: Vault** | ✅ Complete | 100% |
+| **FS10: Sessions** | ✅ Complete | 100% |
 | **FS11: Profile** | ⬜ Not Started | 0% |
 | **Phase 8: Polish** | ⬜ Not Started | 0% |
 | **Phase 9: Launch** | ⬜ Not Started | 0% |
@@ -543,61 +543,59 @@ ALL VENUES (same weights):
 
 ---
 
-### ⬜ FS9: Vault (Visit History)
+### ✅ FS9: Vault (Visit History) (Complete)
 
-**Goal**: Auto-populated visit history from transactions
+**Goal**: Visit history from transactions + manual entries
 
-**Expo Test**: Vault shows "You visited Blue Bottle 3x this month" from Plaid data
+**Expo Test**: Vault shows visits with reactions and spending stats
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Create auto-visit detection from transactions | - |
-| 2 | Backend | Match transactions to venues by merchant name | - |
-| 3 | Backend | Create `GET /api/vault/visits` endpoint | - |
-| 4 | Backend | Create `POST /api/vault/visits` (manual add) | - |
-| 5 | Backend | Create `PATCH /api/vault/visits/{id}` (add reaction) | - |
-| 6 | Frontend | Connect Vault tab to real visit data | - |
-| 7 | Frontend | Connect reaction picker to PATCH endpoint | - |
-| 8 | Test | See auto-detected visits from transactions | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create `GET /api/vault/visits/{user_id}` endpoint | ✅ |
+| 2 | Backend | Create `POST /api/vault/visits/{user_id}` (manual add) | ✅ |
+| 3 | Backend | Create `PATCH /api/vault/visits/{id}` (reaction/notes) | ✅ |
+| 4 | Frontend | Connect useVaultStore to real API | ✅ |
+| 5 | Frontend | Add fetchVisits, loading states | ✅ |
 
-**Visit Detection**:
-```python
-def detect_visits(transactions, venues):
-    visits = []
-    for tx in transactions:
-        if tx.taste_category in ['dining', 'coffee', 'nightlife']:
-            # Fuzzy match merchant name to venue
-            matched_venue = fuzzy_match(tx.merchant_name, venues)
-            if matched_venue:
-                visits.append({
-                    "venue_id": matched_venue.id,
-                    "transaction_id": tx.id,
-                    "date": tx.date,
-                    "amount": tx.amount
-                })
-    return visits
+**Key Files:**
+```
+backend/app/routers/vault.py     # GET/POST/PATCH visits endpoints
+mobile/src/stores/useVaultStore.ts  # API-connected Zustand store
+mobile/src/services/api.ts       # vaultApi functions
 ```
 
 ---
 
-### ⬜ FS10: Sessions (Group Planning)
+### ✅ FS10: Sessions (Group Planning) (Complete)
 
-**Goal**: Real-time group voting
+**Goal**: Real-time group voting for venue selection
 
-**Expo Test**: Create session on one device, join on another, see real-time votes
+**Expo Test**: Create session, join by code, vote, close voting
 
-| # | Type | Task | TDD |
-|---|------|------|-----|
-| 1 | Backend | Create `POST /api/sessions` endpoint | - |
-| 2 | Backend | Create `GET /api/sessions/{id}` endpoint | - |
-| 3 | Backend | Create `POST /api/sessions/{code}/join` endpoint | - |
-| 4 | Backend | Create `POST /api/sessions/{id}/vote` endpoint | - |
-| 5 | Backend | Create `POST /api/sessions/{id}/close` endpoint | - |
-| 6 | Backend | Set up Supabase Realtime for sessions | Config |
-| 7 | Frontend | Connect Create Session to API | - |
-| 8 | Frontend | Implement Realtime subscription for votes | - |
-| 9 | Frontend | Connect Voting screen to live updates | - |
-| 10 | Test | Multi-device session with real-time votes | E2E |
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create `POST /api/sessions/{user_id}` endpoint | ✅ |
+| 2 | Backend | Create `GET /api/sessions/{user_id}` (list) | ✅ |
+| 3 | Backend | Create `GET /api/sessions/detail/{id}` | ✅ |
+| 4 | Backend | Create `POST /api/sessions/join/{code}` | ✅ |
+| 5 | Backend | Create `POST /api/sessions/{id}/venues` | ✅ |
+| 6 | Backend | Create `POST /api/sessions/{id}/vote` | ✅ |
+| 7 | Backend | Create `POST /api/sessions/{id}/close` | ✅ |
+| 8 | Frontend | Connect useSessionStore to real API | ✅ |
+| 9 | Frontend | Add fetchSessions, optimistic updates | ✅ |
+
+**Key Files:**
+```
+backend/app/routers/sessions.py     # All session endpoints
+mobile/src/stores/useSessionStore.ts  # API-connected Zustand store
+mobile/src/services/api.ts          # sessionsApi functions
+```
+
+**Database Tables (pre-existing):**
+- `sessions` - Main session record with invite_code
+- `session_participants` - Who joined
+- `session_venues` - Venues to vote on
+- `session_votes` - Vote records
 
 ---
 

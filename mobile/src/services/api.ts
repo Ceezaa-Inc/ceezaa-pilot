@@ -252,4 +252,146 @@ export const discoverApi = {
     api.get(`/api/discover/venue/${venueId}?user_id=${userId}`),
 };
 
+// Vault types
+export interface VaultVisit {
+  id: string;
+  venue_id: string | null;
+  venue_name: string | null;
+  venue_type: string | null;
+  visited_at: string;
+  amount: number | null;
+  reaction: string | null;
+  notes: string | null;
+  source: string;
+}
+
+export interface VaultPlace {
+  venue_id: string | null;
+  venue_name: string;
+  venue_type: string | null;
+  visit_count: number;
+  last_visit: string;
+  total_spent: number;
+  reaction: string | null;
+  photo_url: string | null;
+  visits: VaultVisit[];
+}
+
+export interface VaultStats {
+  total_places: number;
+  total_visits: number;
+  this_month_spent: number;
+}
+
+export interface VaultResponse {
+  places: VaultPlace[];
+  stats: VaultStats;
+}
+
+export interface CreateVisitRequest {
+  venue_id?: string;
+  merchant_name: string;
+  visited_at: string;
+  amount?: number;
+  reaction?: string;
+  notes?: string;
+}
+
+export interface UpdateVisitRequest {
+  reaction?: string;
+  notes?: string;
+  mood_tags?: string[];
+}
+
+// Vault API
+export const vaultApi = {
+  getVisits: (userId: string): Promise<VaultResponse> =>
+    api.get(`/api/vault/visits/${userId}`),
+
+  createVisit: (userId: string, data: CreateVisitRequest): Promise<VaultVisit> =>
+    api.post(`/api/vault/visits/${userId}`, data),
+
+  updateVisit: (visitId: string, data: UpdateVisitRequest): Promise<VaultVisit> =>
+    request(`/api/vault/visits/${visitId}`, { method: 'PATCH' as any, body: data }),
+};
+
+// Session types
+export interface SessionParticipant {
+  id: string;
+  user_id: string;
+  name: string;
+  avatar: string | null;
+  is_host: boolean;
+  has_voted: boolean;
+}
+
+export interface SessionVenue {
+  venue_id: string;
+  venue_name: string;
+  venue_type: string | null;
+  photo_url: string | null;
+  votes: number;
+  voted_by: string[];
+}
+
+export interface Session {
+  id: string;
+  code: string;
+  title: string;
+  planned_date: string | null;
+  planned_time: string | null;
+  status: string;
+  host_id: string;
+  participants: SessionParticipant[];
+  venues: SessionVenue[];
+  winner_id: string | null;
+  created_at: string;
+}
+
+export interface SessionListItem {
+  id: string;
+  code: string;
+  title: string;
+  planned_date: string | null;
+  status: string;
+  participant_count: number;
+  venue_count: number;
+  created_at: string;
+}
+
+export interface SessionsListResponse {
+  active: SessionListItem[];
+  past: SessionListItem[];
+}
+
+export interface CreateSessionRequest {
+  title: string;
+  planned_date?: string;
+  planned_time?: string;
+}
+
+// Sessions API
+export const sessionsApi = {
+  getSessions: (userId: string): Promise<SessionsListResponse> =>
+    api.get(`/api/sessions/${userId}`),
+
+  createSession: (userId: string, data: CreateSessionRequest): Promise<Session> =>
+    api.post(`/api/sessions/${userId}`, data),
+
+  getSession: (sessionId: string): Promise<Session> =>
+    api.get(`/api/sessions/detail/${sessionId}`),
+
+  joinSession: (code: string, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/join/${code}?user_id=${userId}`),
+
+  addVenue: (sessionId: string, venueId: string, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/${sessionId}/venues?user_id=${userId}`, { venue_id: venueId }),
+
+  vote: (sessionId: string, venueId: string, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/${sessionId}/vote?user_id=${userId}`, { venue_id: venueId }),
+
+  closeVoting: (sessionId: string, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/${sessionId}/close?user_id=${userId}`),
+};
+
 export { ApiError };
