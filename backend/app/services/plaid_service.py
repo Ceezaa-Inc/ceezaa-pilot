@@ -170,6 +170,15 @@ class PlaidService:
             self._supabase.table("transactions").delete().in_(
                 "plaid_transaction_id", removed_ids
             ).execute()
+            # Also remove associated place_visits
+            self._supabase.table("place_visits").delete().in_(
+                "transaction_id",
+                self._supabase.table("transactions")
+                .select("id")
+                .in_("plaid_transaction_id", removed_ids)
+                .execute()
+                .data or []
+            ).execute()
 
         # Update cursor and last_synced_at in database
         self._supabase.table("linked_accounts").update(
@@ -178,6 +187,11 @@ class PlaidService:
                 "last_synced_at": datetime.utcnow().isoformat(),
             }
         ).eq("id", account_id).execute()
+
+        # Create place_visits from food/drink transactions
+        if added or modified:
+            print(f"[PlaidService] Creating place visits for user {user_id}")
+            self._create_place_visits(user_id)
 
         # Aggregate transactions after sync
         if added or modified or removed_ids:
@@ -363,3 +377,73 @@ class PlaidService:
         ).execute()
 
         return analysis_dict
+
+    def _create_place_visits(self, user_id: str) -> int:
+        """Create place_visits entries from food/drink transactions.
+
+        Only creates visits for transactions in relevant taste categories
+        (coffee, dining, fast_food, nightlife, other_food).
+        Uses upsert to avoid duplicates.
+
+        Args:
+            user_id: The user's ID
+
+        Returns:
+            Number of place visits created/updated
+        """
+        # Categories that should create place visits
+        visit_categories = {"coffee", "dining", "fast_food", "nightlife", "other_food"}
+
+        # Fetch food/drink transactions that don't have place_visits yet
+        result = (
+            self._supabase.table("transactions")
+            .select("id, user_id, merchant_name, amount, date, datetime, taste_category")
+            .eq("user_id", user_id)
+            .in_("taste_category", list(visit_categories))
+            .execute()
+        )
+        transactions = result.data or []
+
+        if not transactions:
+            return 0
+
+        # Get existing place_visits for this user to check for duplicates
+        existing_result = (
+            self._supabase.table("place_visits")
+            .select("transaction_id")
+            .eq("user_id", user_id)
+            .execute()
+        )
+        existing_tx_ids = {pv["transaction_id"] for pv in (existing_result.data or [])}
+
+        # Create place_visit records for new transactions
+        records = []
+        for tx in transactions:
+            tx_id = tx["id"]
+
+            # Skip if already has a place_visit
+            if tx_id in existing_tx_ids:
+                continue
+
+            # Determine visited_at timestamp
+            visited_at = tx.get("datetime") or tx.get("date")
+            if not visited_at:
+                continue
+
+            records.append({
+                "user_id": user_id,
+                "transaction_id": tx_id,
+                "merchant_name": tx.get("merchant_name") or "Unknown",
+                "amount": abs(float(tx.get("amount") or 0)),
+                "visited_at": visited_at,
+                "source": "transaction",
+            })
+
+        if not records:
+            return 0
+
+        # Insert new place_visits
+        self._supabase.table("place_visits").insert(records).execute()
+
+        print(f"[PlaidService] Created {len(records)} place visits for user {user_id}")
+        return len(records)

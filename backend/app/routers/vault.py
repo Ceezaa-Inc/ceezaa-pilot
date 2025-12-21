@@ -299,3 +299,81 @@ async def update_visit(
         notes=visit.get("notes"),
         source=visit.get("source", "transaction"),
     )
+
+
+class SyncResponse(BaseModel):
+    """Response for sync operation."""
+
+    created: int
+    message: str
+
+
+@router.post("/sync/{user_id}", response_model=SyncResponse)
+async def sync_visits_from_transactions(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> SyncResponse:
+    """Sync place_visits from existing transactions.
+
+    Creates place_visit entries for food/drink transactions that don't
+    already have associated visits. This is useful for backfilling data
+    or after initial transaction sync.
+    """
+    # Categories that should create place visits
+    visit_categories = ["coffee", "dining", "fast_food", "nightlife", "other_food"]
+
+    # Fetch food/drink transactions for this user
+    tx_result = (
+        supabase.table("transactions")
+        .select("id, user_id, merchant_name, amount, date, datetime, taste_category")
+        .eq("user_id", user_id)
+        .in_("taste_category", visit_categories)
+        .execute()
+    )
+    transactions = tx_result.data or []
+
+    if not transactions:
+        return SyncResponse(created=0, message="No food/drink transactions found")
+
+    # Get existing place_visits to avoid duplicates
+    existing_result = (
+        supabase.table("place_visits")
+        .select("transaction_id")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    existing_tx_ids = {pv["transaction_id"] for pv in (existing_result.data or []) if pv["transaction_id"]}
+
+    # Create place_visit records for new transactions
+    records = []
+    for tx in transactions:
+        tx_id = tx["id"]
+
+        # Skip if already has a place_visit
+        if tx_id in existing_tx_ids:
+            continue
+
+        # Determine visited_at timestamp
+        visited_at = tx.get("datetime") or tx.get("date")
+        if not visited_at:
+            continue
+
+        records.append({
+            "user_id": user_id,
+            "transaction_id": tx_id,
+            "merchant_name": tx.get("merchant_name") or "Unknown",
+            "amount": abs(float(tx.get("amount") or 0)),
+            "visited_at": visited_at,
+            "source": "transaction",
+        })
+
+    if not records:
+        return SyncResponse(created=0, message="All transactions already have visits")
+
+    # Insert new place_visits
+    supabase.table("place_visits").insert(records).execute()
+
+    return SyncResponse(
+        created=len(records),
+        message=f"Created {len(records)} place visits from transactions",
+    )
