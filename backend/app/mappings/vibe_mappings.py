@@ -62,21 +62,31 @@ def calculate_energy_match(user_vibes: list[str], venue_energy: str | None) -> f
 
 
 # Exploration style → standout bonus mapping
-# Adventurous users get bonus for hidden gems and cult followings
+# Different exploration styles prefer different venue qualities
 EXPLORATION_BONUSES: dict[str, dict[str, float]] = {
     "adventurous": {
         "hidden_gem": 1.0,
-        "cult_following": 0.7,
+        "cult_following": 0.8,
+        "local_favorite": 0.4,
+        "instagram_worthy": 0.3,
     },
     "very_adventurous": {
         "hidden_gem": 1.0,
-        "cult_following": 0.7,
+        "cult_following": 0.8,
+        "local_favorite": 0.5,
+        "instagram_worthy": 0.4,
     },
     "moderate": {
-        "hidden_gem": 0.3,
-        "cult_following": 0.0,
+        "local_favorite": 0.7,  # Moderate explorers appreciate established spots
+        "hidden_gem": 0.5,
+        "cozy_vibes": 0.5,
+        "cult_following": 0.3,
     },
-    "routine": {},  # No bonuses for routine users
+    "routine": {
+        "local_favorite": 0.9,  # Routine users love reliable, known spots
+        "cozy_vibes": 0.6,
+        "upscale_feel": 0.4,  # Known quality
+    },
 }
 
 

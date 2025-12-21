@@ -1,7 +1,7 @@
-"""MatchingEngine - Weighted Sum Model for venue-user matching.
+"""MatchingEngine - Adaptive Weighted Sum Model for venue-user matching.
 
-Uses a simple, interpretable scoring algorithm to rank venues based on
-user taste profiles. No ML, no AI - just multiplication and addition.
+Uses adaptive weights based on venue type (dining vs non-dining) for fair scoring.
+No ML, no AI - just deterministic rule-based scoring.
 """
 
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.mappings.category_mappings import calculate_category_affinity
 from app.mappings.price_mappings import calculate_price_match
 from app.mappings.vibe_mappings import calculate_energy_match, calculate_exploration_bonus
 from app.mappings.mood_mappings import calculate_mood_boost
@@ -23,76 +24,125 @@ class MatchResult:
     reasons: list[str] = field(default_factory=list)
 
 
+# Social preference to best_for occasion mapping
+SOCIAL_OCCASION_MAP: dict[str, list[str]] = {
+    "solo": ["solo_work", "quick_bite"],
+    "small_group": ["date_night", "casual_hangout", "business_lunch"],
+    "big_group": ["group_celebration", "late_night", "casual_hangout"],
+}
+
+# Vibe to occasion mapping for context scoring
+VIBE_OCCASION_MAP: dict[str, list[str]] = {
+    "romantic": ["date_night"],
+    "intimate": ["date_night", "casual_hangout"],
+    "social": ["group_celebration", "casual_hangout", "late_night"],
+    "energetic": ["group_celebration", "late_night"],
+    "chill": ["solo_work", "casual_hangout"],
+    "relaxed": ["solo_work", "casual_hangout"],
+    "upscale": ["date_night", "business_lunch"],
+    "elegant": ["date_night", "business_lunch"],
+    "casual": ["casual_hangout", "quick_bite"],
+    "fun": ["group_celebration", "late_night"],
+}
+
+# Vibes that indicate coffee shop affinity
+COFFEE_FRIENDLY_VIBES: set[str] = {"chill", "relaxed", "intimate", "homebody", "casual"}
+
+# Vibes that indicate nightlife affinity
+NIGHTLIFE_FRIENDLY_VIBES: set[str] = {"social", "energetic", "fun", "trendy", "adventurous"}
+
+
 class MatchingEngine:
-    """Scores venues using Weighted Sum Model.
+    """Scores venues using Adaptive Weighted Sum Model.
 
-    Weights for established users (sum to 1.0):
-    - Category affinity: 25%
-    - Cuisine match: 25%
-    - Price match: 20%
-    - Energy/vibe match: 15%
-    - Exploration bonus: 15%
+    Uses different weights for dining vs non-dining venues to ensure
+    fair scoring across venue types.
 
-    For new users (no transaction data), weights are rebalanced:
-    - Cuisine match: 35%
-    - Price match: 25%
-    - Energy/vibe match: 20%
-    - Exploration bonus: 20%
+    Dining Venues (have cuisine_type):
+    - Category: 20% | Cuisine: 25% | Price: 20% | Energy: 15% | Context: 15% | Discovery: 5%
+
+    Non-Dining Venues (coffee, nightlife, bakery):
+    - Category: 25% | Venue-Fit: 20% | Price: 20% | Energy: 15% | Context: 15% | Discovery: 5%
+
+    New Users (no transaction data):
+    - Cuisine/Fit: 30% | Price: 25% | Energy: 20% | Context: 15% | Discovery: 10%
     """
 
-    WEIGHTS = {
-        "category": 0.25,
+    DINING_WEIGHTS = {
+        "category": 0.20,
         "cuisine": 0.25,
         "price": 0.20,
         "energy": 0.15,
-        "exploration": 0.15,
+        "context": 0.15,
+        "discovery": 0.05,
+    }
+
+    NON_DINING_WEIGHTS = {
+        "category": 0.25,
+        "venue_fit": 0.20,
+        "price": 0.20,
+        "energy": 0.15,
+        "context": 0.15,
+        "discovery": 0.05,
     }
 
     NEW_USER_WEIGHTS = {
-        "cuisine": 0.35,
+        "cuisine_or_fit": 0.30,
         "price": 0.25,
         "energy": 0.20,
-        "exploration": 0.20,
+        "context": 0.15,
+        "discovery": 0.10,
     }
 
     def score(self, user_taste: dict[str, Any], venue: dict[str, Any]) -> MatchResult:
         """Score a venue for an established user with transaction history.
 
+        Uses adaptive weights based on venue type (dining vs non-dining).
+
         Args:
-            user_taste: User taste profile with categories, top_cuisines, vibes, etc.
+            user_taste: User taste profile with categories, vibes, price_tier, etc.
             venue: Venue profile with taste_cluster, cuisine_type, energy, etc.
 
         Returns:
             MatchResult with overall score and component scores.
         """
+        is_dining = venue.get("cuisine_type") is not None
         scores = {}
 
-        # 1. Category Affinity (25%)
+        # 1. Category Affinity (uses new category mapping)
         scores["category"] = self._category_score(user_taste, venue)
 
-        # 2. Cuisine Match (25%)
-        scores["cuisine"] = self._cuisine_score(user_taste, venue)
+        # 2. Cuisine OR Venue-Type Fit
+        if is_dining:
+            scores["cuisine"] = self._cuisine_score(user_taste, venue)
+            weights = self.DINING_WEIGHTS
+        else:
+            scores["venue_fit"] = self._venue_type_fit_score(user_taste, venue)
+            weights = self.NON_DINING_WEIGHTS
 
-        # 3. Price Match (20%)
+        # 3. Price Match
         scores["price"] = calculate_price_match(
             user_taste.get("price_tier"),
             venue.get("price_tier"),
         )
 
-        # 4. Energy/Vibe Match (15%)
+        # 4. Energy/Vibe Match
         scores["energy"] = calculate_energy_match(
             user_taste.get("vibes", []),
             venue.get("energy"),
         )
 
-        # 5. Exploration Bonus (15%)
-        scores["exploration"] = calculate_exploration_bonus(
+        # 5. Context Match (best_for + social preference)
+        scores["context"] = self._context_match_score(user_taste, venue)
+
+        # 6. Discovery Bonus (exploration style + standout)
+        scores["discovery"] = calculate_exploration_bonus(
             user_taste.get("exploration_style"),
             venue.get("standout", []),
         )
 
         # Weighted sum
-        total = sum(self.WEIGHTS[k] * scores[k] for k in self.WEIGHTS)
+        total = sum(weights.get(k, 0) * v for k, v in scores.items())
         match_score = round(total * 100)
 
         return MatchResult(
@@ -105,8 +155,7 @@ class MatchingEngine:
     ) -> MatchResult:
         """Score a venue for a new user with only quiz data (no transactions).
 
-        Uses cuisine_preferences from quiz instead of top_cuisines from transactions.
-        Skips category scoring since no transaction data exists.
+        Uses cuisine_preferences from quiz, venue-type fit for non-dining.
 
         Args:
             user_taste: User taste profile with cuisine_preferences from quiz.
@@ -115,11 +164,15 @@ class MatchingEngine:
         Returns:
             MatchResult with overall score and component scores.
         """
+        is_dining = venue.get("cuisine_type") is not None
         scores = {}
 
-        # 1. Cuisine Match (35%) - Use quiz cuisine preferences
-        quiz_cuisines = user_taste.get("cuisine_preferences", [])
-        scores["cuisine"] = self._cuisine_score_from_list(quiz_cuisines, venue)
+        # 1. Cuisine OR Venue-Type Fit (30%)
+        if is_dining:
+            quiz_cuisines = user_taste.get("cuisine_preferences", [])
+            scores["cuisine_or_fit"] = self._cuisine_score_from_list(quiz_cuisines, venue)
+        else:
+            scores["cuisine_or_fit"] = self._venue_type_fit_score(user_taste, venue)
 
         # 2. Price Match (25%)
         scores["price"] = calculate_price_match(
@@ -133,13 +186,16 @@ class MatchingEngine:
             venue.get("energy"),
         )
 
-        # 4. Exploration Bonus (20%)
-        scores["exploration"] = calculate_exploration_bonus(
+        # 4. Context Match (15%)
+        scores["context"] = self._context_match_score(user_taste, venue)
+
+        # 5. Discovery Bonus (10%)
+        scores["discovery"] = calculate_exploration_bonus(
             user_taste.get("exploration_style"),
             venue.get("standout", []),
         )
 
-        # Weighted sum with new user weights
+        # Weighted sum
         total = sum(self.NEW_USER_WEIGHTS[k] * scores[k] for k in self.NEW_USER_WEIGHTS)
         match_score = round(total * 100)
 
@@ -169,19 +225,40 @@ class MatchingEngine:
                 reasons.append(f"Matches your {cuisine} preference")
 
         # Category match reason
-        if scores.get("category", 0) > 0.3:
+        if scores.get("category", 0) > 0.4:
             cluster = venue.get("taste_cluster")
             if cluster:
                 reasons.append(f"You love {cluster} spots")
+
+        # Venue fit reason (for non-dining)
+        if scores.get("venue_fit", 0) > 0.6:
+            cluster = venue.get("taste_cluster")
+            if cluster == "coffee":
+                reasons.append("Perfect for your vibe")
+            elif cluster == "nightlife":
+                reasons.append("Great for your social style")
 
         # Price match reason
         if scores.get("price", 0) == 1.0:
             reasons.append("Right in your price range")
 
-        # Exploration/hidden gem reason
+        # Context match reason
+        if scores.get("context", 0) > 0.7:
+            best_for = venue.get("best_for", [])
+            if "date_night" in best_for:
+                reasons.append("Perfect for date night")
+            elif "solo_work" in best_for:
+                reasons.append("Great solo spot")
+            elif "group_celebration" in best_for:
+                reasons.append("Perfect for groups")
+
+        # Discovery/exploration reason
         standout = venue.get("standout", [])
-        if scores.get("exploration", 0) > 0 and "hidden_gem" in standout:
-            reasons.append("Hidden gem for adventurous eaters")
+        if scores.get("discovery", 0) > 0.5:
+            if "hidden_gem" in standout:
+                reasons.append("Hidden gem to discover")
+            elif "local_favorite" in standout:
+                reasons.append("Local favorite")
 
         # Return max 2 reasons
         return reasons[:2]
@@ -241,37 +318,63 @@ class MatchingEngine:
     def _category_score(
         self, user_taste: dict[str, Any], venue: dict[str, Any]
     ) -> float:
-        """Calculate category affinity score.
+        """Calculate category affinity score using mapped categories.
 
-        Uses user's spending percentage in the venue's taste cluster.
+        Uses bidirectional category mapping to find relevant user spending.
 
         Returns:
-            Score 0.0-1.0 (normalized from percentage).
+            Score 0.0-1.0 based on spending in relevant categories.
         """
         categories = user_taste.get("categories", {})
         taste_cluster = venue.get("taste_cluster")
 
-        if not taste_cluster or not categories:
-            return 0.0
-
-        # Get user's percentage in this category (0-100)
-        category_pct = categories.get(taste_cluster, 0)
-
-        # Normalize to 0-1
-        return category_pct / 100
+        return calculate_category_affinity(categories, taste_cluster)
 
     def _cuisine_score(
         self, user_taste: dict[str, Any], venue: dict[str, Any]
     ) -> float:
-        """Calculate cuisine match score from transaction-based top cuisines.
+        """Calculate cuisine match score blending quiz and transaction data.
 
-        Top cuisine = 1.0, #2 = 0.85, #3 = 0.70, etc.
+        Blends declared cuisine preferences with observed top_cuisines,
+        weighted by transaction volume.
 
         Returns:
             Score 0.0-1.0.
         """
-        top_cuisines = user_taste.get("top_cuisines", [])
-        return self._cuisine_score_from_list(top_cuisines, venue)
+        venue_cuisine = venue.get("cuisine_type")
+
+        if not venue_cuisine:
+            # Non-cuisine venue - return neutral score
+            return 0.5
+
+        # Get both sources
+        tx_cuisines = user_taste.get("top_cuisines", [])
+        quiz_cuisines = user_taste.get("cuisine_preferences", [])
+
+        # Get blend weight (default to quiz-heavy if not specified)
+        tx_weight = user_taste.get("tx_weight", 0.0)
+        quiz_weight = 1.0 - tx_weight
+
+        # Calculate score from each source
+        tx_score = self._cuisine_score_from_list(tx_cuisines, venue)
+        quiz_score = self._cuisine_score_from_list(quiz_cuisines, venue)
+
+        # If no tx data, use quiz only
+        if not tx_cuisines:
+            return quiz_score if quiz_score > 0 else 0.3  # Base score for non-match
+
+        # If no quiz data, use tx only
+        if not quiz_cuisines:
+            return tx_score if tx_score > 0 else 0.3
+
+        # Weighted blend
+        blended = (tx_score * tx_weight) + (quiz_score * quiz_weight)
+
+        # Boost if either source has a match
+        if tx_score > 0 or quiz_score > 0:
+            blended = max(blended, 0.4)
+
+        return blended
 
     def _cuisine_score_from_list(
         self, cuisines: list[str], venue: dict[str, Any]
@@ -290,9 +393,181 @@ class MatchingEngine:
         if not venue_cuisine or not cuisines:
             return 0.0
 
-        if venue_cuisine not in cuisines:
+        # Case-insensitive matching
+        venue_cuisine_lower = venue_cuisine.lower()
+        cuisines_lower = [c.lower() for c in cuisines]
+
+        if venue_cuisine_lower not in cuisines_lower:
             return 0.0
 
-        rank = cuisines.index(venue_cuisine)
+        rank = cuisines_lower.index(venue_cuisine_lower)
         # Top = 1.0, 2nd = 0.85, 3rd = 0.70, etc.
         return max(1.0 - (rank * 0.15), 0.0)
+
+    def _venue_type_fit_score(
+        self, user_taste: dict[str, Any], venue: dict[str, Any]
+    ) -> float:
+        """Score venue-type fit for non-dining venues.
+
+        Uses social preference, vibes, and best_for alignment.
+
+        Returns:
+            Score 0.0-1.0.
+        """
+        venue_cluster = venue.get("taste_cluster", "").lower()
+
+        if venue_cluster == "coffee":
+            return self._coffee_fit_score(user_taste, venue)
+        elif venue_cluster == "nightlife":
+            return self._nightlife_fit_score(user_taste, venue)
+        elif venue_cluster == "bakery":
+            return self._bakery_fit_score(user_taste, venue)
+
+        return 0.5  # Neutral for unknown clusters
+
+    def _coffee_fit_score(
+        self, user_taste: dict[str, Any], venue: dict[str, Any]
+    ) -> float:
+        """Score coffee venue fit based on vibes and social preference."""
+        score = 0.0
+
+        # Vibe alignment for coffee shops (chill, relaxed, intimate)
+        user_vibes = set(user_taste.get("vibes", []))
+        vibe_overlap = len(user_vibes & COFFEE_FRIENDLY_VIBES)
+        score += min(vibe_overlap * 0.2, 0.4)
+
+        # Social preference alignment
+        social_pref = user_taste.get("social_preference")
+        best_for = venue.get("best_for", [])
+
+        if social_pref == "solo" and "solo_work" in best_for:
+            score += 0.4
+        elif social_pref in ["small_group", "big_group"] and "casual_hangout" in best_for:
+            score += 0.3
+        else:
+            score += 0.2  # Base score
+
+        # Bonus for coffee preference from quiz
+        coffee_pref = user_taste.get("coffee_preference")
+        if coffee_pref == "third_wave":
+            score += 0.2  # Coffee enthusiasts get bonus
+        elif coffee_pref == "any":
+            score += 0.1
+
+        return min(score, 1.0)
+
+    def _nightlife_fit_score(
+        self, user_taste: dict[str, Any], venue: dict[str, Any]
+    ) -> float:
+        """Score nightlife venue fit based on social preference and vibes."""
+        score = 0.0
+
+        # Social preference is key for nightlife
+        social_pref = user_taste.get("social_preference")
+        if social_pref == "big_group":
+            score += 0.4
+        elif social_pref == "small_group":
+            score += 0.3
+        elif social_pref == "solo":
+            score += 0.1  # Nightlife less suitable for solo
+        else:
+            score += 0.25  # Default
+
+        # Vibe alignment
+        user_vibes = set(user_taste.get("vibes", []))
+        vibe_overlap = len(user_vibes & NIGHTLIFE_FRIENDLY_VIBES)
+        score += min(vibe_overlap * 0.15, 0.45)
+
+        # Best-for tag alignment
+        best_for = venue.get("best_for", [])
+        if social_pref == "big_group" and "group_celebration" in best_for:
+            score += 0.15
+        if "late_night" in best_for and "energetic" in user_vibes:
+            score += 0.1
+
+        return min(score, 1.0)
+
+    def _bakery_fit_score(
+        self, user_taste: dict[str, Any], venue: dict[str, Any]
+    ) -> float:
+        """Score bakery venue fit based on vibes and occasion."""
+        score = 0.3  # Base score for bakeries
+
+        # Vibe alignment (similar to coffee but less work-focused)
+        user_vibes = set(user_taste.get("vibes", []))
+        cozy_vibes = {"chill", "relaxed", "cozy", "casual"}
+        vibe_overlap = len(user_vibes & cozy_vibes)
+        score += min(vibe_overlap * 0.15, 0.3)
+
+        # Best-for alignment
+        best_for = venue.get("best_for", [])
+        if "quick_bite" in best_for:
+            score += 0.2
+        if "casual_hangout" in best_for:
+            score += 0.15
+
+        return min(score, 1.0)
+
+    def _context_match_score(
+        self, user_taste: dict[str, Any], venue: dict[str, Any]
+    ) -> float:
+        """Score context alignment using best_for tags and social preference.
+
+        This is a NEW component that uses underutilized venue attributes.
+
+        Returns:
+            Score 0.0-1.0.
+        """
+        best_for = venue.get("best_for", [])
+
+        if not best_for:
+            return 0.4  # Neutral base score
+
+        score = 0.0
+
+        # Social preference alignment (50% of context score)
+        social_pref = user_taste.get("social_preference")
+        social_match = self._social_to_best_for_match(social_pref, best_for)
+        score += social_match * 0.5
+
+        # Vibe to occasion alignment (50% of context score)
+        user_vibes = user_taste.get("vibes", [])
+        occasion_match = self._vibes_to_occasion_match(user_vibes, best_for)
+        score += occasion_match * 0.5
+
+        return min(score, 1.0)
+
+    def _social_to_best_for_match(
+        self, social_pref: str | None, best_for: list[str]
+    ) -> float:
+        """Match social preference to venue occasions."""
+        if not social_pref:
+            return 0.5  # Neutral
+
+        matching_occasions = SOCIAL_OCCASION_MAP.get(social_pref, [])
+        overlap = len(set(best_for) & set(matching_occasions))
+
+        if overlap >= 2:
+            return 1.0
+        elif overlap == 1:
+            return 0.7
+        return 0.3
+
+    def _vibes_to_occasion_match(
+        self, vibes: list[str], best_for: list[str]
+    ) -> float:
+        """Match user vibes to venue occasions."""
+        if not vibes:
+            return 0.5  # Neutral
+
+        relevant_occasions: set[str] = set()
+        for vibe in vibes:
+            relevant_occasions.update(VIBE_OCCASION_MAP.get(vibe.lower(), []))
+
+        overlap = len(set(best_for) & relevant_occasions)
+
+        if overlap >= 2:
+            return 1.0
+        elif overlap == 1:
+            return 0.6
+        return 0.3

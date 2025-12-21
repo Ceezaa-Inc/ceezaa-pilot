@@ -224,7 +224,8 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
     Tries fused_taste first, falls back to declared_taste for new users.
 
     Returns:
-        Dict with categories, top_cuisines, vibes, price_tier, exploration_style.
+        Dict with categories, top_cuisines, vibes, price_tier, exploration_style,
+        social_preference, coffee_preference, tx_weight.
         None if no taste data found.
     """
     # Try fused_taste first (has transaction data)
@@ -249,12 +250,15 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
     if not declared:
         return None
 
-    # Build user taste dict
+    # Build user taste dict with all fields needed for matching
     user_taste = {
         "vibes": declared.get("vibe_preferences", []),
         "price_tier": declared.get("price_tier"),
         "exploration_style": declared.get("exploration_style"),
         "cuisine_preferences": declared.get("cuisine_preferences", []),
+        # Additional fields for improved matching
+        "social_preference": declared.get("social_preference"),
+        "coffee_preference": declared.get("coffee_preference"),
     }
 
     fused = fused_result.data
@@ -268,10 +272,13 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
                 categories[name] = cat.get("percentage", 0)
         user_taste["categories"] = categories
         user_taste["top_cuisines"] = fused.get("top_cuisines", [])
+        # Pass tx_weight for cuisine blending
+        user_taste["tx_weight"] = fused.get("tx_weight", 0.7)
     else:
         # New user - no fused data
         user_taste["categories"] = {}
         user_taste["top_cuisines"] = []
+        user_taste["tx_weight"] = 0.0  # Quiz-only
 
     return user_taste
 
