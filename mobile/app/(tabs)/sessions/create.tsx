@@ -88,6 +88,13 @@ export default function CreateSessionScreen() {
     return t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   };
 
+  // Format time for API (24-hour format that PostgreSQL accepts)
+  const formatTimeForApi = (t: Date): string => {
+    const hours = t.getHours().toString().padStart(2, '0');
+    const minutes = t.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}:00`;
+  };
+
   const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -109,7 +116,7 @@ export default function CreateSessionScreen() {
       const session = await createSession(user.id, {
         name: name.trim(),
         date: date.toISOString().split('T')[0],
-        time: formatTime(time),
+        time: formatTimeForApi(time),
       });
 
       router.replace({
