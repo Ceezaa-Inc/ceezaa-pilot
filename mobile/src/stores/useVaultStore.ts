@@ -105,7 +105,7 @@ interface VaultState {
 
   // Actions
   fetchVisits: (userId: string) => Promise<void>;
-  setSelectedPlace: (venueId: string | null) => void;
+  setSelectedPlace: (placeId: string | null) => void;
   setFilter: (filter: StatusFilter) => void;
   updateReaction: (venueId: string, reaction: Reaction) => void;
   addNote: (visitId: string, note: string) => void;
@@ -149,13 +149,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     }
   },
 
-  setSelectedPlace: (venueId) => {
-    if (!venueId) {
+  setSelectedPlace: (placeId) => {
+    if (!placeId) {
       set({ selectedPlace: null });
       return;
     }
     const { places } = get();
-    const place = places.find((p) => p.venueId === venueId);
+    // Search by venueId first, then by venueName (for places without venueId)
+    const place = places.find((p) => p.venueId === placeId || p.venueName === placeId);
     set({ selectedPlace: place || null });
   },
 
@@ -271,8 +272,13 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const visit = state.visits.find((v) => v.id === visitId);
       if (!visit) return state;
 
+      // Helper to match place by venueId or venueName
+      const matchesVisit = (place: Place) =>
+        (visit.venueId && place.venueId === visit.venueId) ||
+        (!visit.venueId && place.venueName === visit.venueName);
+
       const updatedPlaces = state.places.map((place) => {
-        if (place.venueId !== visit.venueId) return place;
+        if (!matchesVisit(place)) return place;
 
         const updatedPlaceVisits = place.visits.map((v) =>
           v.id === visitId ? { ...v, reaction } : v
@@ -288,8 +294,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const { currentFilter } = state;
       const filtered = getPlacesByStatus(updatedPlaces, currentFilter);
 
-      const selectedPlace = state.selectedPlace?.venueId === visit.venueId
-        ? updatedPlaces.find((p) => p.venueId === visit.venueId) || null
+      const matchesSelectedPlace = state.selectedPlace && matchesVisit(state.selectedPlace);
+      const selectedPlace = matchesSelectedPlace
+        ? updatedPlaces.find(matchesVisit) || null
         : state.selectedPlace;
 
       return {
