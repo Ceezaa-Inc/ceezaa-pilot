@@ -38,7 +38,7 @@ export default function CreateSessionScreen() {
   const [selectedVenues, setSelectedVenues] = useState<SessionVenue[]>([]);
   const [showVenuePicker, setShowVenuePicker] = useState(false);
 
-  const { createSession } = useSessionStore();
+  const { createSession, addVenueToSession } = useSessionStore();
   const { user } = useAuthStore();
 
   // Get suggested venues based on selected mood
@@ -118,6 +118,11 @@ export default function CreateSessionScreen() {
         date: date.toISOString().split('T')[0],
         time: formatTimeForApi(time),
       });
+
+      // Add selected venues to the session
+      for (const venue of selectedVenues) {
+        await addVenueToSession(session.id, venue.venueId, user.id);
+      }
 
       router.replace({
         pathname: '/(tabs)/sessions/[id]',
