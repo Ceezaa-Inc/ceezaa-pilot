@@ -86,9 +86,14 @@ class CreateSessionRequest(BaseModel):
 
 
 class AddVenueRequest(BaseModel):
-    """Request to add a venue to a session."""
+    """Request to add a venue to a session.
 
-    venue_id: str
+    Either venue_id (for existing venues) or venue_name (to create new) is required.
+    """
+
+    venue_id: str | None = None     # Existing venue UUID
+    venue_name: str | None = None   # For creating new venue from vault place
+    venue_type: str | None = None   # Category/cuisine for new venue
 
 
 class VoteRequest(BaseModel):
@@ -256,7 +261,19 @@ async def add_venue_to_session(
     user_id: str,
     supabase: Client = Depends(get_supabase_client),
 ) -> SessionResponse:
-    """Add a venue to a session."""
+    """Add a venue to a session.
+
+    Accepts either:
+    - venue_id: UUID of existing venue in venues table
+    - venue_name + venue_type: Creates a new venue from vault place data
+    """
+    # Validate request
+    if not request.venue_id and not request.venue_name:
+        raise HTTPException(
+            status_code=400,
+            detail="Either venue_id or venue_name is required",
+        )
+
     # Check session exists and is voting
     session_result = (
         supabase.table("sessions")
@@ -272,20 +289,50 @@ async def add_venue_to_session(
     if session_result.data["status"] != "voting":
         raise HTTPException(status_code=400, detail="Session is no longer accepting venues")
 
-    # Check if venue exists in venues table
-    venue_check = (
-        supabase.table("venues")
-        .select("id")
-        .eq("id", request.venue_id)
-        .maybe_single()
-        .execute()
-    )
+    venue_id = request.venue_id
 
-    if not venue_check.data:
-        # Venue doesn't exist - skip adding it
-        # In a full implementation, we'd either create the venue or use a different approach
-        print(f"[Sessions] Venue {request.venue_id} not found in database, skipping")
-        return await get_session_details(session_id, supabase)
+    # If venue_id provided, check if it exists
+    if venue_id:
+        venue_check = (
+            supabase.table("venues")
+            .select("id")
+            .eq("id", venue_id)
+            .maybe_single()
+            .execute()
+        )
+        if not venue_check.data:
+            # Venue ID doesn't exist - try to create from name if provided
+            if request.venue_name:
+                venue_id = None  # Will create below
+            else:
+                print(f"[Sessions] Venue {request.venue_id} not found, skipping")
+                return await get_session_details(session_id, supabase)
+
+    # Create venue if we have venue_name but no valid venue_id
+    if not venue_id and request.venue_name:
+        # Check if venue with this name already exists
+        existing_venue = (
+            supabase.table("venues")
+            .select("id")
+            .eq("name", request.venue_name)
+            .maybe_single()
+            .execute()
+        )
+
+        if existing_venue.data:
+            venue_id = existing_venue.data["id"]
+        else:
+            # Create new venue from vault place data
+            new_venue = supabase.table("venues").insert({
+                "name": request.venue_name,
+                "taste_cluster": request.venue_type,  # Use venue_type as taste_cluster
+            }).execute()
+
+            if new_venue.data:
+                venue_id = new_venue.data[0]["id"]
+                print(f"[Sessions] Created venue {venue_id} for '{request.venue_name}'")
+            else:
+                raise HTTPException(status_code=500, detail="Failed to create venue")
 
     # Check if venue already added to session
     try:
@@ -293,7 +340,7 @@ async def add_venue_to_session(
             supabase.table("session_venues")
             .select("id")
             .eq("session_id", session_id)
-            .eq("venue_id", request.venue_id)
+            .eq("venue_id", venue_id)
             .maybe_single()
             .execute()
         )
@@ -304,7 +351,7 @@ async def add_venue_to_session(
     if not venue_already_added:
         supabase.table("session_venues").insert({
             "session_id": session_id,
-            "venue_id": request.venue_id,
+            "venue_id": venue_id,
             "added_by": user_id,
         }).execute()
 

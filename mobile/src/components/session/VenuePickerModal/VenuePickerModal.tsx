@@ -12,54 +12,60 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
-import { Venue, VENUES, getVenuesByMood } from '@/mocks/venues';
-import { MoodType } from '@/mocks/taste';
+import { Place, Reaction } from '@/stores/useVaultStore';
+import { getReactionEmoji } from '@/mocks/visits';
 
 interface VenuePickerModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectVenue: (venue: Venue) => void;
-  selectedVenueIds: string[];
-  suggestedMood?: MoodType;
+  onSelectPlace: (place: Place) => void;
+  selectedPlaceIds: string[];  // venueId or venueName
+  places: Place[];
+  reactionFilter?: Reaction | 'all';
   maxVenues?: number;
 }
 
-const getPriceString = (level: number): string => {
-  return '$'.repeat(level);
-};
+// Get unique identifier for a place
+const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
 export function VenuePickerModal({
   visible,
   onClose,
-  onSelectVenue,
-  selectedVenueIds,
-  suggestedMood,
+  onSelectPlace,
+  selectedPlaceIds,
+  places,
+  reactionFilter = 'all',
   maxVenues = 10,
 }: VenuePickerModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredVenues = useMemo(() => {
-    let venues = suggestedMood ? getVenuesByMood(suggestedMood) : VENUES;
+  const filteredPlaces = useMemo(() => {
+    let result = places;
 
+    // Filter by reaction
+    if (reactionFilter !== 'all') {
+      result = result.filter((p) => p.reaction === reactionFilter);
+    }
+
+    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      venues = venues.filter(
-        (v) =>
-          v.name.toLowerCase().includes(query) ||
-          v.cuisine?.toLowerCase().includes(query) ||
-          v.type.toLowerCase().includes(query) ||
-          v.neighborhood.toLowerCase().includes(query)
+      result = result.filter(
+        (p) =>
+          p.venueName.toLowerCase().includes(query) ||
+          p.venueType?.toLowerCase().includes(query)
       );
     }
 
-    return venues;
-  }, [searchQuery, suggestedMood]);
+    return result;
+  }, [places, searchQuery, reactionFilter]);
 
-  const isAtMaxVenues = selectedVenueIds.length >= maxVenues;
+  const isAtMaxVenues = selectedPlaceIds.length >= maxVenues;
 
-  const handleSelectVenue = (venue: Venue) => {
-    if (!selectedVenueIds.includes(venue.id) && !isAtMaxVenues) {
-      onSelectVenue(venue);
+  const handleSelectPlace = (place: Place) => {
+    const placeId = getPlaceId(place);
+    if (!selectedPlaceIds.includes(placeId) && !isAtMaxVenues) {
+      onSelectPlace(place);
     }
   };
 
@@ -73,7 +79,7 @@ export function VenuePickerModal({
             </Typography>
           </TouchableOpacity>
           <Typography variant="h4" color="primary">
-            Add Venue
+            Add from Vault
           </Typography>
           <View style={styles.headerSpacer} />
         </View>
@@ -81,7 +87,7 @@ export function VenuePickerModal({
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search venues..."
+            placeholder="Search your places..."
             placeholderTextColor={colors.text.muted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -97,49 +103,64 @@ export function VenuePickerModal({
         )}
 
         <Typography variant="caption" color="muted" style={styles.countLabel}>
-          {filteredVenues.length} venues • {selectedVenueIds.length}/{maxVenues} selected
+          {filteredPlaces.length} places • {selectedPlaceIds.length}/{maxVenues} selected
         </Typography>
 
         <ScrollView contentContainerStyle={styles.venueList} showsVerticalScrollIndicator={false}>
-          {filteredVenues.map((venue) => {
-            const isSelected = selectedVenueIds.includes(venue.id);
-            return (
-              <Card key={venue.id} variant="default" padding="md" style={styles.venueCard}>
-                <View style={styles.venueRow}>
-                  <View style={styles.imageContainer}>
-                    <Typography variant="h3">🍽️</Typography>
-                  </View>
-                  <View style={styles.venueInfo}>
-                    <Typography variant="h4" color="primary" numberOfLines={1}>
-                      {venue.name}
-                    </Typography>
-                    <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                      {venue.cuisine || venue.type} • {getPriceString(venue.priceLevel)}
-                    </Typography>
-                    <Typography variant="caption" color="muted" numberOfLines={1}>
-                      {venue.neighborhood} • {venue.matchPercentage}% match
-                    </Typography>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => handleSelectVenue(venue)}
-                    style={[
-                      styles.addButton,
-                      isSelected && styles.addButtonSelected,
-                      !isSelected && isAtMaxVenues && styles.addButtonDisabled,
-                    ]}
-                    disabled={isSelected || isAtMaxVenues}
-                  >
-                    <Typography
-                      variant="caption"
-                      color={isSelected ? 'gold' : isAtMaxVenues ? 'muted' : 'primary'}
+          {filteredPlaces.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Typography variant="body" color="muted" align="center">
+                {places.length === 0
+                  ? 'No places in your vault yet'
+                  : 'No places match your search'}
+              </Typography>
+            </View>
+          ) : (
+            filteredPlaces.map((place) => {
+              const placeId = getPlaceId(place);
+              const isSelected = selectedPlaceIds.includes(placeId);
+              return (
+                <Card key={placeId} variant="default" padding="md" style={styles.venueCard}>
+                  <View style={styles.venueRow}>
+                    <View style={styles.imageContainer}>
+                      {place.reaction ? (
+                        <Typography variant="h3">{getReactionEmoji(place.reaction)}</Typography>
+                      ) : (
+                        <Typography variant="h3">🍽️</Typography>
+                      )}
+                    </View>
+                    <View style={styles.venueInfo}>
+                      <Typography variant="h4" color="primary" numberOfLines={1}>
+                        {place.venueName}
+                      </Typography>
+                      <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
+                        {place.venueType || 'Restaurant'}
+                      </Typography>
+                      <Typography variant="caption" color="muted" numberOfLines={1}>
+                        {place.visitCount} visits • ${place.totalSpent.toFixed(0)} spent
+                      </Typography>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleSelectPlace(place)}
+                      style={[
+                        styles.addButton,
+                        isSelected && styles.addButtonSelected,
+                        !isSelected && isAtMaxVenues && styles.addButtonDisabled,
+                      ]}
+                      disabled={isSelected || isAtMaxVenues}
                     >
-                      {isSelected ? '✓ Added' : '+ Add'}
-                    </Typography>
-                  </TouchableOpacity>
-                </View>
-              </Card>
-            );
-          })}
+                      <Typography
+                        variant="caption"
+                        color={isSelected ? 'gold' : isAtMaxVenues ? 'muted' : 'primary'}
+                      >
+                        {isSelected ? '✓ Added' : '+ Add'}
+                      </Typography>
+                    </TouchableOpacity>
+                  </View>
+                </Card>
+              );
+            })
+          )}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -234,5 +255,9 @@ const styles = StyleSheet.create({
     padding: layoutSpacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.dark.border,
+  },
+  emptyState: {
+    paddingVertical: layoutSpacing.xl,
+    alignItems: 'center',
   },
 });

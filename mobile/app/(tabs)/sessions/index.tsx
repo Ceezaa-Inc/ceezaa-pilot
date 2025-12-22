@@ -23,10 +23,10 @@ export default function SessionsScreen() {
   }, [user?.id]);
 
   // Separate active and past sessions
-  const activeSessions = userSessions.filter(
-    (s) => s.status === 'voting' || s.status === 'pending'
+  const activeSessions = userSessions.filter((s) => s.status === 'voting');
+  const pastSessions = userSessions.filter(
+    (s) => s.status === 'confirmed' || s.status === 'completed' || s.status === 'cancelled'
   );
-  const pastSessions = userSessions.filter((s) => s.status === 'confirmed');
 
   const handleSessionPress = (session: Session) => {
     if (session.status === 'confirmed') {

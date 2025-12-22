@@ -7,14 +7,18 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
 import { VotingCard, ParticipantList, VenuePickerModal } from '@/components/session';
-import { useSessionStore } from '@/stores/useSessionStore';
-import { Venue, getVenuesByMood } from '@/mocks/venues';
-import { SessionVenue } from '@/mocks/sessions';
-import { MoodType } from '@/mocks/taste';
+import { useSessionStore, SessionVenue } from '@/stores/useSessionStore';
+import { useVaultStore, Place } from '@/stores/useVaultStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+// Get unique identifier for a place
+const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
 export default function VotingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currentSession, setCurrentSession, vote, closeVoting, addVenueToSession, removeVenueFromSession } = useSessionStore();
+  const { places, fetchVisits } = useVaultStore();
+  const { user } = useAuthStore();
   const [localVenues, setLocalVenues] = useState<SessionVenue[]>([]);
   const [votedVenues, setVotedVenues] = useState<Set<string>>(new Set());
   const [showVenuePicker, setShowVenuePicker] = useState(false);
@@ -25,30 +29,22 @@ export default function VotingScreen() {
     }
   }, [id]);
 
+  // Fetch vault places on mount
   useEffect(() => {
-    if (currentSession) {
-      // If session has venues, use them; otherwise generate from mood
-      if (currentSession.venues.length > 0) {
-        setLocalVenues(currentSession.venues);
-      } else if (currentSession.mood) {
-        const moodVenues = getVenuesByMood(currentSession.mood as MoodType)
-          .slice(0, 5)
-          .map((v) => ({
-            venueId: v.id,
-            venueName: v.name,
-            venueType: v.cuisine || v.type,
-            matchPercentage: v.matchPercentage,
-            votes: 0,
-            votedBy: [],
-          }));
-        setLocalVenues(moodVenues);
-      }
+    if (user?.id && places.length === 0) {
+      fetchVisits(user.id);
+    }
+  }, [user?.id, places.length, fetchVisits]);
+
+  useEffect(() => {
+    if (currentSession?.venues) {
+      setLocalVenues(currentSession.venues);
     }
   }, [currentSession]);
 
   const handleVote = (venueId: string) => {
     if (votedVenues.has(venueId)) {
-      // Unvote
+      // Unvote (local only - API doesn't support unvoting)
       setVotedVenues((prev) => {
         const next = new Set(prev);
         next.delete(venueId);
@@ -65,8 +61,8 @@ export default function VotingScreen() {
       setLocalVenues((prev) =>
         prev.map((v) => (v.venueId === venueId ? { ...v, votes: v.votes + 1 } : v))
       );
-      if (id) {
-        vote(id, venueId);
+      if (id && user?.id) {
+        vote(id, venueId, user.id);
       }
     }
   };
@@ -94,23 +90,18 @@ export default function VotingScreen() {
     }
   };
 
-  const handleAddVenue = (venue: Venue) => {
-    if (!id || localVenues.length >= 10) return;
+  const handleAddPlace = async (place: Place) => {
+    if (!id || !user?.id || localVenues.length >= 10) return;
 
-    const sessionVenue: SessionVenue = {
-      venueId: venue.id,
-      venueName: venue.name,
-      venueType: venue.cuisine || venue.type,
-      matchPercentage: venue.matchPercentage,
-      votes: 0,
-      votedBy: [],
-    };
+    // Create venue data for API
+    const venueData = place.venueId
+      ? { venue_id: place.venueId }
+      : { venue_name: place.venueName, venue_type: place.venueType || undefined };
 
-    // Add to store
-    const success = addVenueToSession(id, sessionVenue);
+    // Add to store (this calls the API)
+    const success = await addVenueToSession(id, venueData, user.id);
     if (success) {
-      // Add to local state
-      setLocalVenues((prev) => [...prev, sessionVenue]);
+      // Session will be updated via store, which updates localVenues via useEffect
     }
     setShowVenuePicker(false);
   };
@@ -142,7 +133,7 @@ export default function VotingScreen() {
     );
   }
 
-  const isHost = currentSession.hostId === 'u1';
+  const isHost = currentSession.hostId === user?.id;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -234,9 +225,9 @@ export default function VotingScreen() {
       <VenuePickerModal
         visible={showVenuePicker}
         onClose={() => setShowVenuePicker(false)}
-        onSelectVenue={handleAddVenue}
-        selectedVenueIds={localVenues.map((v) => v.venueId)}
-        suggestedMood={currentSession.mood as MoodType | undefined}
+        onSelectPlace={handleAddPlace}
+        selectedPlaceIds={localVenues.map((v) => v.venueId)}
+        places={places}
         maxVenues={10}
       />
 

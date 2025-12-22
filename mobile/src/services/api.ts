@@ -370,6 +370,12 @@ export interface CreateSessionRequest {
   planned_time?: string;
 }
 
+export interface AddVenueRequest {
+  venue_id?: string;     // Existing venue UUID
+  venue_name?: string;   // For creating new venue from vault place
+  venue_type?: string;   // Category/cuisine for new venue
+}
+
 // Sessions API
 export const sessionsApi = {
   getSessions: (userId: string): Promise<SessionsListResponse> =>
@@ -384,8 +390,8 @@ export const sessionsApi = {
   joinSession: (code: string, userId: string): Promise<Session> =>
     api.post(`/api/sessions/join/${code}?user_id=${userId}`),
 
-  addVenue: (sessionId: string, venueId: string, userId: string): Promise<Session> =>
-    api.post(`/api/sessions/${sessionId}/venues?user_id=${userId}`, { venue_id: venueId }),
+  addVenue: (sessionId: string, data: AddVenueRequest, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/${sessionId}/venues?user_id=${userId}`, data),
 
   vote: (sessionId: string, venueId: string, userId: string): Promise<Session> =>
     api.post(`/api/sessions/${sessionId}/vote?user_id=${userId}`, { venue_id: venueId }),

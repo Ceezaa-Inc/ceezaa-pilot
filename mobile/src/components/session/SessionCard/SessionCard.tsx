@@ -4,7 +4,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card } from '@/components/ui';
-import { Session } from '@/mocks/sessions';
+import { Session } from '@/stores/useSessionStore';
 
 interface SessionCardProps {
   session: Session;
@@ -81,7 +81,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
               </Typography>
             )}
             <Typography variant="caption" color="muted" numberOfLines={1}>
-              {getStatusLabel(session.status)} • {formatDate(session.date)} • {session.time}
+              {getStatusLabel(session.status)}{session.date ? ` • ${formatDate(session.date)}` : ''}{session.time ? ` • ${session.time}` : ''}
             </Typography>
           </View>
           <View style={styles.actionContainer}>

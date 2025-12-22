@@ -4,7 +4,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card } from '@/components/ui';
-import { SessionVenue } from '@/mocks/sessions';
+import { SessionVenue } from '@/stores/useSessionStore';
 
 interface VotingCardProps {
   venue: SessionVenue;

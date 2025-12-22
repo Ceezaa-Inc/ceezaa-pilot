@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -10,23 +10,41 @@ import { Typography, Button, Input, Card } from '@/components/ui';
 import { VenuePickerModal } from '@/components/session';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { MoodType, MOOD_DATA } from '@/mocks/taste';
-import { Venue, getVenuesByMood } from '@/mocks/venues';
-import { SessionVenue } from '@/mocks/sessions';
+import { useVaultStore, Place, Reaction } from '@/stores/useVaultStore';
+import { getReactionEmoji } from '@/mocks/visits';
 
-const MOODS: MoodType[] = ['chill', 'energetic', 'romantic', 'social', 'adventurous', 'cozy'];
+type ReactionFilter = Reaction | 'all';
 
-const getMoodEmoji = (mood: MoodType): string => {
-  const emojis: Record<MoodType, string> = {
-    chill: '😌',
-    energetic: '⚡',
-    romantic: '💕',
-    social: '🎉',
-    adventurous: '🌍',
-    cozy: '🕯️',
+const REACTIONS: ReactionFilter[] = ['all', 'loved', 'good', 'meh'];
+
+const getReactionLabel = (reaction: ReactionFilter): string => {
+  const labels: Record<ReactionFilter, string> = {
+    all: 'All',
+    loved: 'Loved',
+    good: 'Good',
+    meh: 'Meh',
+    never_again: 'Never Again',
   };
-  return emojis[mood];
+  return labels[reaction];
 };
+
+const getReactionFilterEmoji = (reaction: ReactionFilter): string => {
+  if (reaction === 'all') return '📍';
+  return getReactionEmoji(reaction);
+};
+
+// Selected place type for session creation
+interface SelectedPlace {
+  placeId: string;  // venueId or venueName
+  venueName: string;
+  venueType: string | null;
+  venueId: string | null;
+  visitCount: number;
+  totalSpent: number;
+}
+
+// Get unique identifier for a place
+const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
 export default function CreateSessionScreen() {
   const [name, setName] = useState('');
@@ -34,45 +52,39 @@ export default function CreateSessionScreen() {
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
-  const [selectedVenues, setSelectedVenues] = useState<SessionVenue[]>([]);
+  const [selectedReaction, setSelectedReaction] = useState<ReactionFilter>('all');
+  const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
   const [showVenuePicker, setShowVenuePicker] = useState(false);
 
   const { createSession, addVenueToSession } = useSessionStore();
   const { user } = useAuthStore();
+  const { places, fetchVisits } = useVaultStore();
 
-  // Get suggested venues based on selected mood
-  const suggestedVenues = useMemo(() => {
-    if (!selectedMood) return [];
-    return getVenuesByMood(selectedMood).slice(0, 5);
-  }, [selectedMood]);
+  // Fetch vault places on mount
+  useEffect(() => {
+    if (user?.id && places.length === 0) {
+      fetchVisits(user.id);
+    }
+  }, [user?.id, places.length, fetchVisits]);
 
-  const venueToSessionVenue = (venue: Venue): SessionVenue => ({
-    venueId: venue.id,
-    venueName: venue.name,
-    venueType: venue.cuisine || venue.type,
-    matchPercentage: venue.matchPercentage,
-    votes: 0,
-    votedBy: [],
+  const placeToSelectedPlace = (place: Place): SelectedPlace => ({
+    placeId: getPlaceId(place),
+    venueName: place.venueName,
+    venueType: place.venueType,
+    venueId: place.venueId,
+    visitCount: place.visitCount,
+    totalSpent: place.totalSpent,
   });
 
-  const handleAddVenue = (venue: Venue) => {
-    if (selectedVenues.length >= 10) return;
-    if (selectedVenues.some((v) => v.venueId === venue.id)) return;
-    setSelectedVenues((prev) => [...prev, venueToSessionVenue(venue)]);
+  const handleAddPlace = (place: Place) => {
+    if (selectedPlaces.length >= 10) return;
+    const placeId = getPlaceId(place);
+    if (selectedPlaces.some((p) => p.placeId === placeId)) return;
+    setSelectedPlaces((prev) => [...prev, placeToSelectedPlace(place)]);
   };
 
-  const handleRemoveVenue = (venueId: string) => {
-    setSelectedVenues((prev) => prev.filter((v) => v.venueId !== venueId));
-  };
-
-  const handleToggleSuggested = (venue: Venue) => {
-    const exists = selectedVenues.some((v) => v.venueId === venue.id);
-    if (exists) {
-      handleRemoveVenue(venue.id);
-    } else {
-      handleAddVenue(venue);
-    }
+  const handleRemovePlace = (placeId: string) => {
+    setSelectedPlaces((prev) => prev.filter((p) => p.placeId !== placeId));
   };
 
   const dismissPickers = () => {
@@ -110,7 +122,7 @@ export default function CreateSessionScreen() {
   };
 
   const handleCreate = async () => {
-    if (!name.trim() || selectedVenues.length === 0 || !user?.id) return;
+    if (!name.trim() || selectedPlaces.length === 0 || !user?.id) return;
 
     try {
       const session = await createSession(user.id, {
@@ -119,9 +131,14 @@ export default function CreateSessionScreen() {
         time: formatTimeForApi(time),
       });
 
-      // Add selected venues to the session
-      for (const venue of selectedVenues) {
-        await addVenueToSession(session.id, venue.venueId, user.id);
+      // Add selected places to the session
+      for (const place of selectedPlaces) {
+        // If place has venueId, use it; otherwise send venue_name for on-the-fly creation
+        const venueData = place.venueId
+          ? { venue_id: place.venueId }
+          : { venue_name: place.venueName, venue_type: place.venueType || undefined };
+
+        await addVenueToSession(session.id, venueData, user.id);
       }
 
       router.replace({
@@ -133,7 +150,7 @@ export default function CreateSessionScreen() {
     }
   };
 
-  const isValid = name.trim().length > 0 && selectedVenues.length > 0;
+  const isValid = name.trim().length > 0 && selectedPlaces.length > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -246,25 +263,24 @@ export default function CreateSessionScreen() {
 
         <View style={styles.section}>
           <Typography variant="label" color="muted">
-            What's the vibe?
+            Filter by Rating
           </Typography>
-          <View style={styles.moodGrid}>
-            {MOODS.map((mood) => (
+          <View style={styles.reactionRow}>
+            {REACTIONS.map((reaction) => (
               <TouchableOpacity
-                key={mood}
+                key={reaction}
                 onPress={() => {
                   dismissPickers();
-                  setSelectedMood(mood === selectedMood ? null : mood);
+                  setSelectedReaction(reaction);
                 }}
-                style={[styles.moodItem, mood === selectedMood && styles.moodSelected]}
+                style={[styles.reactionChip, reaction === selectedReaction && styles.reactionSelected]}
               >
-                <Typography variant="h3">{getMoodEmoji(mood)}</Typography>
+                <Typography variant="body">{getReactionFilterEmoji(reaction)}</Typography>
                 <Typography
                   variant="caption"
-                  color={mood === selectedMood ? 'gold' : 'secondary'}
-                  align="center"
+                  color={reaction === selectedReaction ? 'gold' : 'secondary'}
                 >
-                  {MOOD_DATA[mood].label}
+                  {getReactionLabel(reaction)}
                 </Typography>
               </TouchableOpacity>
             ))}
@@ -274,10 +290,10 @@ export default function CreateSessionScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Typography variant="label" color="muted">
-              Add Venues to Vote On
+              Add Places from Your Vault
             </Typography>
             <Typography variant="caption" color="muted">
-              {selectedVenues.length}/10
+              {selectedPlaces.length}/10
             </Typography>
           </View>
 
@@ -287,67 +303,30 @@ export default function CreateSessionScreen() {
               dismissPickers();
               setShowVenuePicker(true);
             }}
-            disabled={selectedVenues.length >= 10}
+            disabled={selectedPlaces.length >= 10}
           >
-            <Typography variant="body" color={selectedVenues.length >= 10 ? 'muted' : 'gold'}>
-              + Browse & Add Venues
+            <Typography variant="body" color={selectedPlaces.length >= 10 ? 'muted' : 'gold'}>
+              + Browse Your Vault
             </Typography>
           </TouchableOpacity>
 
-          {selectedMood && suggestedVenues.length > 0 && (
-            <View style={styles.suggestedSection}>
-              <Typography variant="caption" color="muted">
-                Suggested for {MOOD_DATA[selectedMood].label}:
-              </Typography>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.suggestedScroll}
-              >
-                {suggestedVenues.map((venue) => {
-                  const isSelected = selectedVenues.some((v) => v.venueId === venue.id);
-                  return (
-                    <TouchableOpacity
-                      key={venue.id}
-                      style={[styles.suggestedChip, isSelected && styles.suggestedChipSelected]}
-                      onPress={() => handleToggleSuggested(venue)}
-                    >
-                      <Typography
-                        variant="caption"
-                        color={isSelected ? 'gold' : 'secondary'}
-                        numberOfLines={1}
-                      >
-                        {venue.name}
-                      </Typography>
-                      {isSelected && (
-                        <Typography variant="caption" color="gold">
-                          ✓
-                        </Typography>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
-
-          {selectedVenues.length > 0 && (
+          {selectedPlaces.length > 0 && (
             <View style={styles.selectedVenuesList}>
               <Typography variant="caption" color="muted">
-                Selected ({selectedVenues.length}):
+                Selected ({selectedPlaces.length}):
               </Typography>
-              {selectedVenues.map((venue) => (
-                <View key={venue.venueId} style={styles.selectedVenueItem}>
+              {selectedPlaces.map((place) => (
+                <View key={place.placeId} style={styles.selectedVenueItem}>
                   <View style={styles.selectedVenueInfo}>
                     <Typography variant="body" color="primary" numberOfLines={1}>
-                      {venue.venueName}
+                      {place.venueName}
                     </Typography>
                     <Typography variant="caption" color="muted">
-                      {venue.venueType} • {venue.matchPercentage}% match
+                      {place.venueType || 'Restaurant'} • {place.visitCount} visits • ${place.totalSpent.toFixed(0)} spent
                     </Typography>
                   </View>
                   <TouchableOpacity
-                    onPress={() => handleRemoveVenue(venue.venueId)}
+                    onPress={() => handleRemovePlace(place.placeId)}
                     style={styles.removeButton}
                   >
                     <Typography variant="body" color="muted">
@@ -359,10 +338,12 @@ export default function CreateSessionScreen() {
             </View>
           )}
 
-          {selectedVenues.length === 0 && (
+          {selectedPlaces.length === 0 && (
             <Card variant="default" padding="md" style={styles.emptyVenuesBox}>
               <Typography variant="body" color="muted" align="center">
-                Add at least 1 venue to start voting
+                {places.length === 0
+                  ? 'No places in your vault yet'
+                  : 'Add at least 1 place to start voting'}
               </Typography>
             </Card>
           )}
@@ -386,9 +367,10 @@ export default function CreateSessionScreen() {
       <VenuePickerModal
         visible={showVenuePicker}
         onClose={() => setShowVenuePicker(false)}
-        onSelectVenue={handleAddVenue}
-        selectedVenueIds={selectedVenues.map((v) => v.venueId)}
-        suggestedMood={selectedMood || undefined}
+        onSelectPlace={handleAddPlace}
+        selectedPlaceIds={selectedPlaces.map((p) => p.placeId)}
+        places={places}
+        reactionFilter={selectedReaction}
         maxVenues={10}
       />
 
@@ -453,24 +435,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.dark.border,
   },
-  moodGrid: {
+  reactionRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
     gap: layoutSpacing.sm,
   },
-  moodItem: {
-    width: 100,
-    height: 100,
-    borderRadius: borderRadius.lg,
+  reactionChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: layoutSpacing.xs,
+    paddingVertical: layoutSpacing.md,
+    borderRadius: borderRadius.md,
     backgroundColor: colors.dark.surface,
     borderWidth: 1,
     borderColor: colors.dark.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: layoutSpacing.xs,
   },
-  moodSelected: {
+  reactionSelected: {
     borderColor: colors.primary.DEFAULT,
     borderWidth: 2,
     backgroundColor: colors.primary.muted,
@@ -492,27 +473,6 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.border,
     borderStyle: 'dashed',
     alignItems: 'center',
-  },
-  suggestedSection: {
-    gap: layoutSpacing.sm,
-  },
-  suggestedScroll: {
-    gap: layoutSpacing.sm,
-  },
-  suggestedChip: {
-    paddingHorizontal: layoutSpacing.md,
-    paddingVertical: layoutSpacing.sm,
-    backgroundColor: colors.dark.surface,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.xs,
-  },
-  suggestedChipSelected: {
-    borderColor: colors.primary.DEFAULT,
-    backgroundColor: colors.primary.muted,
   },
   selectedVenuesList: {
     gap: layoutSpacing.sm,

@@ -5,6 +5,7 @@ import {
   SessionListItem,
   SessionParticipant as ApiParticipant,
   SessionVenue as ApiSessionVenue,
+  AddVenueRequest,
 } from '@/services/api';
 
 // Local types matching what components expect
@@ -117,7 +118,7 @@ interface SessionState {
   createSession: (userId: string, data: CreateSessionData) => Promise<Session>;
   vote: (sessionId: string, venueId: string, userId: string) => Promise<void>;
   closeVoting: (sessionId: string, userId: string) => Promise<void>;
-  addVenueToSession: (sessionId: string, venueId: string, userId: string) => Promise<boolean>;
+  addVenueToSession: (sessionId: string, venue: AddVenueRequest, userId: string) => Promise<boolean>;
   removeVenueFromSession: (sessionId: string, venueId: string) => boolean;
   getUserSessions: () => Session[];
 }
@@ -293,9 +294,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
   },
 
-  addVenueToSession: async (sessionId, venueId, userId) => {
+  addVenueToSession: async (sessionId, venue, userId) => {
     try {
-      const response = await sessionsApi.addVenue(sessionId, venueId, userId);
+      const response = await sessionsApi.addVenue(sessionId, venue, userId);
       const session = mapApiSession(response);
 
       set((state) => ({
