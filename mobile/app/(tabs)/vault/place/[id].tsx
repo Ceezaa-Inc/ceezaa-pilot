@@ -7,8 +7,8 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 import { ReactionPicker } from '@/components/vault';
-import { useVaultStore } from '@/stores/useVaultStore';
-import { getReactionEmoji, Reaction, Visit } from '@/mocks/visits';
+import { useVaultStore, Visit, Reaction } from '@/stores/useVaultStore';
+import { getReactionEmoji } from '@/mocks/visits';
 
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
