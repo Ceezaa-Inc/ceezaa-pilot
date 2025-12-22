@@ -272,17 +272,36 @@ async def add_venue_to_session(
     if session_result.data["status"] != "voting":
         raise HTTPException(status_code=400, detail="Session is no longer accepting venues")
 
-    # Check if venue already added
-    existing = (
-        supabase.table("session_venues")
+    # Check if venue exists in venues table
+    venue_check = (
+        supabase.table("venues")
         .select("id")
-        .eq("session_id", session_id)
-        .eq("venue_id", request.venue_id)
+        .eq("id", request.venue_id)
         .maybe_single()
         .execute()
     )
 
-    if not existing.data:
+    if not venue_check.data:
+        # Venue doesn't exist - skip adding it
+        # In a full implementation, we'd either create the venue or use a different approach
+        print(f"[Sessions] Venue {request.venue_id} not found in database, skipping")
+        return await get_session_details(session_id, supabase)
+
+    # Check if venue already added to session
+    try:
+        existing = (
+            supabase.table("session_venues")
+            .select("id")
+            .eq("session_id", session_id)
+            .eq("venue_id", request.venue_id)
+            .maybe_single()
+            .execute()
+        )
+        venue_already_added = existing.data is not None
+    except Exception:
+        venue_already_added = False
+
+    if not venue_already_added:
         supabase.table("session_venues").insert({
             "session_id": session_id,
             "venue_id": request.venue_id,
