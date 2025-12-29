@@ -1,0 +1,141 @@
+{
+  "text_search": {
+    "queries": [
+      {
+        "query": "best restaurants in Los Angeles",
+        "count": 10,
+        "samples": [
+          {
+            "name": "Girl & the Goat Los Angeles",
+            "place_id": "ChIJXVodUFfHwoARe63Z7LSuUnY",
+            "rating": 4.8
+          },
+          {
+            "name": "Holbox",
+            "place_id": "ChIJMc9-jgrIwoARvFaE32ZlJzA",
+            "rating": 4.8
+          },
+          {
+            "name": "71Above",
+            "place_id": "ChIJg4Tqa7PHwoARrWA-2kwYfDE",
+            "rating": 4.5
+          }
+        ]
+      },
+      {
+        "query": "top coffee shops near USC",
+        "count": 10,
+        "samples": [
+          {
+            "name": "Jetty Coffee Roasters",
+            "place_id": "ChIJfdhvBGPHwoAREoqZB4917s0",
+            "rating": 4.9
+          },
+          {
+            "name": "Fleur Caf\u00e9",
+            "place_id": "ChIJEf0asy3HwoARckC6kk2ijfs",
+            "rating": 4.6
+          },
+          {
+            "name": "Nature's Brew by Bacari",
+            "place_id": "ChIJJ37_XOzHwoARJSuwIwVv-NE",
+            "rating": 4.5
+          }
+        ]
+      },
+      {
+        "query": "popular bars in Downtown LA",
+        "count": 6,
+        "samples": [
+          {
+            "name": "Perch",
+            "place_id": "ChIJqbKnF0vGwoARREUrVhYGqTU",
+            "rating": 4.4
+          },
+          {
+            "name": "Death & Co Los Angeles",
+            "place_id": "ChIJsTrlusrHwoARFlL8c4sNFjo",
+            "rating": 4.5
+          },
+          {
+            "name": "EightyTwo",
+            "place_id": "ChIJYRxXCTnGwoARRisFMg-cGS8",
+            "rating": 4.5
+          }
+        ]
+      }
+    ],
+    "total_venues": 26,
+    "sample_place_id": "ChIJXVodUFfHwoARe63Z7LSuUnY"
+  },
+  "place_details": {
+    "success": true,
+    "place_id": "ChIJXVodUFfHwoARe63Z7LSuUnY",
+    "name": "Girl & the Goat Los Angeles",
+    "photo_name": "places/ChIJXVodUFfHwoARe63Z7LSuUnY/photos/AZLasHr0RLg-jvLVV1uX97sDfIyCTR0Pj0zflqC6M3kr41PjYjFs99Sf45MbKIlB1lZQnpUVQSm4bl5aF3MW62FX4PExkiYcmjmsD4q_7_XDMRAVAXtcb72j5ugCZxFQ4UXdu-CWqwf-MyyUBxTtj-CNkvKc0m7LRU3yW7iybWXiQlRycrLCdPsEmBUrgHYY8n0Tk7qoZNeuaOCfAR_n-tl3B667yiOAiduiWyzz6z4hh2j-lH3Hvrv4O8w0hd2wYVkZGBhN6t5fqV244LdXGN5lwfTFfBgm6osTpiTAk8uPvFq8AQ",
+    "has_ai_summary": true,
+    "fields_available": [
+      "id",
+      "types",
+      "formattedAddress",
+      "location",
+      "rating",
+      "googleMapsUri",
+      "websiteUri",
+      "regularOpeningHours",
+      "priceLevel",
+      "userRatingCount",
+      "displayName",
+      "primaryTypeDisplayName",
+      "takeout",
+      "delivery",
+      "dineIn",
+      "reservable",
+      "servesBreakfast",
+      "servesLunch",
+      "servesDinner",
+      "servesBeer",
+      "servesWine",
+      "currentOpeningHours",
+      "primaryType",
+      "editorialSummary",
+      "reviews",
+      "photos",
+      "outdoorSeating",
+      "liveMusic",
+      "goodForGroups",
+      "generativeSummary",
+      "priceRange"
+    ]
+  },
+  "find_place": {
+    "passed": 3,
+    "failed": 0,
+    "samples": [
+      {
+        "merchant": "Starbucks",
+        "place_id": "ChIJnaTeoefHwoARGAIck1cMjx0",
+        "name": "Starbucks"
+      },
+      {
+        "merchant": "Republique LA",
+        "place_id": "ChIJqaA5zt-4woARHGIEp3XlsZo",
+        "name": "R\u00e9publique Caf\u00e9 Bakery & R\u00e9publique Restaurant"
+      }
+    ]
+  },
+  "photo": {
+    "success": true,
+    "content_type": "image/jpeg",
+    "size": 46752,
+    "photo_name": "places/ChIJXVodUFfHwoARe63Z7LSuUnY/photos/AZLasHr0RLg-jvLVV1uX97sDfIyCTR0Pj0zflqC6M3kr41PjYjFs99Sf45MbKIlB1lZQnpUVQSm4bl5aF3MW62FX4PExkiYcmjmsD4q_7_XDMRAVAXtcb72j5ugCZxFQ4UXdu-CWqwf-MyyUBxTtj-CNkvKc0m7LRU3yW7iybWXiQlRycrLCdPsEmBUrgHYY8n0Tk7qoZNeuaOCfAR_n-tl3B667yiOAiduiWyzz6z4hh2j-lH3Hvrv4O8w0hd2wYVkZGBhN6t5fqV244LdXGN5lwfTFfBgm6osTpiTAk8uPvFq8AQ"
+  },
+  "nearby_search": {
+    "success": true,
+    "count": 10,
+    "location": {
+      "latitude": 34.0224,
+      "longitude": -118.2851
+    }
+  }
+}

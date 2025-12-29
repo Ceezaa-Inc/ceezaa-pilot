@@ -191,18 +191,17 @@ async def get_taste_profile(
             price_tier=data.get("price_tier"),
         )
 
-        # Fetch observed taste for AI context
+        # Fetch observed taste for AI context - use execute() to avoid 406 on zero rows
         observed_data = {}
         try:
-            analysis_result = (
+            analysis_list = (
                 supabase.table("user_analysis")
                 .select("categories")
                 .eq("user_id", user_id)
-                .maybe_single()
                 .execute()
             )
-            if analysis_result and analysis_result.data:
-                observed_data["categories"] = analysis_result.data.get("categories", {})
+            if analysis_list.data:
+                observed_data["categories"] = analysis_list.data[0].get("categories", {})
         except Exception:
             pass  # Continue without observed data
 
@@ -282,15 +281,16 @@ async def get_observed_taste(
             supabase.table("user_analysis")
             .select("*")
             .eq("user_id", user_id)
-            .maybe_single()
             .execute()
         )
-        print(f"[Taste] Observed query result: {result.data}")
+        # Get first row if exists (avoid maybe_single 406 error on zero rows)
+        data_row = result.data[0] if result.data else None
+        print(f"[Taste] Observed query result: {data_row}")
     except Exception as e:
         print(f"[Taste] DB error for observed {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Error fetching observed taste")
 
-    if not result.data:
+    if not data_row:
         print(f"[Taste] No observed data for {user_id}, returning empty")
         # Return empty data structure for users without transactions
         return ObservedTasteResponse(
@@ -304,7 +304,7 @@ async def get_observed_taste(
             confidence=0.0,
         )
 
-    data = result.data
+    data = data_row
     total_txns = data.get("total_transactions", 0)
 
     # Parse categories from JSONB, filtering out non-recommendation categories
@@ -388,18 +388,18 @@ async def get_fused_taste(
         .execute()
     )
 
-    # Fetch user_analysis (observed)
+    # Fetch user_analysis (observed) - use execute() to avoid 406 on zero rows
     try:
-        observed_result = (
+        observed_list = (
             supabase.table("user_analysis")
             .select("*")
             .eq("user_id", user_id)
-            .maybe_single()
             .execute()
         )
+        observed_data_row = observed_list.data[0] if observed_list.data else None
     except Exception as e:
         print(f"[Taste] Error fetching user_analysis: {e}")
-        observed_result = None
+        observed_data_row = None
 
     # Build DeclaredTaste
     declared_data = declared_result.data if declared_result else {}
@@ -412,7 +412,7 @@ async def get_fused_taste(
     )
 
     # Build UserAnalysis from DB data (may be empty if no transactions analyzed yet)
-    observed_data = observed_result.data if observed_result and observed_result.data else {}
+    observed_data = observed_data_row if observed_data_row else {}
     user_analysis = UserAnalysis(user_id=user_id)
     user_analysis.total_transactions = observed_data.get("total_transactions", 0)
 
@@ -748,31 +748,31 @@ async def get_dna(
     # No DNA for today - generate new traits
     print(f"[DNA] Generating new DNA for user: {user_id}")
 
-    # Fetch user_analysis (transaction data)
-    analysis_result = (
+    # Fetch user_analysis (transaction data) - use execute() to avoid 406 on zero rows
+    analysis_list = (
         supabase.table("user_analysis")
         .select("*")
         .eq("user_id", user_id)
-        .maybe_single()
         .execute()
     )
+    analysis_row = analysis_list.data[0] if analysis_list.data else None
 
-    # Fetch declared_taste (quiz data)
-    declared_result = (
+    # Fetch declared_taste (quiz data) - use execute() to avoid 406 on zero rows
+    declared_list = (
         supabase.table("declared_taste")
         .select("*")
         .eq("user_id", user_id)
-        .maybe_single()
         .execute()
     )
+    declared_row = declared_list.data[0] if declared_list.data else None
 
-    if not analysis_result.data and not declared_result.data:
+    if not analysis_row and not declared_row:
         print(f"[DNA] No user data found, returning empty")
         return DNAListResponse(traits=[], generated_at=None)
 
     # Combine data for generator
-    analysis = analysis_result.data or {}
-    declared = declared_result.data or {}
+    analysis = analysis_row or {}
+    declared = declared_row or {}
 
     user_data = {
         # Transaction data
