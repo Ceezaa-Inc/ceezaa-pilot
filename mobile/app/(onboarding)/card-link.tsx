@@ -15,6 +15,7 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
 import { plaidService } from '@/services/plaid';
 import { useAuthStore } from '@/stores';
+import { tasteApi } from '@/services/api';
 
 const BENEFITS = [
   {
@@ -117,9 +118,39 @@ export default function CardLinkScreen() {
     }
   }, [userId]);
 
-  const handleSkip = () => {
-    router.replace('/(tabs)/pulse');
-  };
+  // Use cached data for testing (bypasses Plaid linking)
+  // Uses the seeded dev user ID from 008_seed_dev_user.sql
+  const DEV_USER_ID = '00000000-0000-0000-0000-000000000001';
+
+  const handleUseCache = useCallback(async () => {
+    setIsSyncing(true);
+    setSyncMessage('Checking cached data...');
+
+    try {
+      // Fetch fused taste via backend API (bypasses RLS)
+      const fusedTaste = await tasteApi.getFused(DEV_USER_ID);
+
+      console.log('[CardLink] Cache check result:', { fusedTaste, userId: DEV_USER_ID });
+
+      if (!fusedTaste || !fusedTaste.categories || fusedTaste.categories.length === 0) {
+        Alert.alert('No cached data', 'No fused taste data found for dev user.');
+        setIsSyncing(false);
+        return;
+      }
+
+      console.log('[CardLink] Using cached fused_taste data for dev user');
+      setSyncMessage('Loading your taste profile...');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setIsSyncing(false);
+      // Pass dev user ID as query param so enhanced-reveal uses it
+      router.push(`/(onboarding)/enhanced-reveal?dev_user=${DEV_USER_ID}`);
+    } catch (err) {
+      console.error('[CardLink] Cache check failed:', err);
+      Alert.alert('Error', 'Failed to load cached data. Make sure dev user has transaction data.');
+      setIsSyncing(false);
+    }
+  }, []);
 
   // Show syncing progress overlay
   if (isSyncing) {
@@ -186,10 +217,10 @@ export default function CardLinkScreen() {
           onPress={handleLinkCard}
         />
         <Button
-          label="Skip for now"
+          label="Use Cache (Dev)"
           variant="ghost"
           fullWidth
-          onPress={handleSkip}
+          onPress={handleUseCache}
         />
       </View>
     </SafeAreaView>

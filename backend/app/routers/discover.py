@@ -6,13 +6,16 @@ and optional mood filtering.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel
 from supabase import Client
 
 from app.dependencies import get_supabase_client
 from app.intelligence.matching_engine import MatchingEngine
+from app.intelligence.venue_tagger import VenueTagger
 from app.mappings.mood_mappings import get_available_moods
+from app.services.google_places_service import GooglePlacesService
 
 router = APIRouter(prefix="/api/discover", tags=["discover"])
 
@@ -338,7 +341,6 @@ async def get_venue_detail(
     )
 
     if not venue_result.data:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Venue not found")
 
     venue = _db_to_venue_dict(venue_result.data)
@@ -380,4 +382,179 @@ async def get_venue_detail(
         photo_url=photo_url,
         lat=venue.get("lat"),
         lng=venue.get("lng"),
+    )
+
+
+class SeedRequest(BaseModel):
+    """Request model for seeding venues."""
+
+    city: str
+    lat: float
+    lng: float
+
+
+class SeedResponse(BaseModel):
+    """Response model for seed operation."""
+
+    seeded: int
+    skipped: int
+    city: str
+
+
+@router.post("/seed", response_model=SeedResponse)
+async def seed_venues(
+    request: SeedRequest,
+    supabase: Client = Depends(get_supabase_client),
+) -> SeedResponse:
+    """Seed venues for a city using Google Places API.
+
+    Called on user signup or when a new city needs venues.
+    Uses text search to find popular restaurants, coffee shops, and bars.
+
+    Args:
+        request: City name and coordinates for seeding.
+
+    Returns:
+        Count of venues seeded and skipped.
+    """
+    print(f"[Discover] Seeding venues for {request.city}")
+
+    places_service = GooglePlacesService(supabase)
+    venue_tagger = VenueTagger()
+
+    # Search queries for different venue types
+    queries = [
+        f"best restaurants in {request.city}",
+        f"top coffee shops in {request.city}",
+        f"popular bars in {request.city}",
+        f"best cafes in {request.city}",
+        f"trendy restaurants in {request.city}",
+    ]
+
+    seeded = 0
+    skipped = 0
+
+    for query in queries:
+        matches = places_service.search_venues(
+            query=query,
+            lat=request.lat,
+            lng=request.lng,
+            radius=10000.0,  # 10km radius
+            max_results=20,
+        )
+
+        for match in matches:
+            # Check if venue already exists
+            existing = places_service.get_venue_by_place_id(match.place_id)
+            if existing:
+                skipped += 1
+                continue
+
+            # Get full place details
+            details = places_service.get_place_details(match.place_id)
+            if not details:
+                continue
+
+            # Run AI tagging
+            venue_data = {
+                "name": details.name,
+                "category": details.primary_type or "restaurant",
+                "categories": details.types[:5] if details.types else [],
+                "rating": details.rating,
+                "price": _price_level_to_string(details.price_level),
+                "reviews": details.reviews,
+            }
+
+            try:
+                profile = venue_tagger.tag(venue_data)
+            except Exception as e:
+                print(f"[Discover] VenueTagger failed for {details.name}: {e}")
+                profile = None
+
+            # Create venue
+            venue = places_service.create_or_update_venue(
+                details,
+                city=request.city,
+                source="discover",
+            )
+
+            # Update with AI tags if available
+            if profile and venue.get("id"):
+                supabase.table("venues").update({
+                    "taste_cluster": profile.taste_cluster,
+                    "cuisine_type": profile.cuisine_type,
+                    "energy": profile.energy,
+                    "tagline": profile.tagline,
+                    "best_for": profile.best_for,
+                    "standout": profile.standout,
+                }).eq("id", venue["id"]).execute()
+
+            seeded += 1
+
+    print(f"[Discover] Seeded {seeded} venues, skipped {skipped} for {request.city}")
+
+    return SeedResponse(
+        seeded=seeded,
+        skipped=skipped,
+        city=request.city,
+    )
+
+
+def _price_level_to_string(price_level: int | None) -> str | None:
+    """Convert price level int to string."""
+    if price_level is None:
+        return None
+    return {0: "Free", 1: "$", 2: "$$", 3: "$$$", 4: "$$$$"}.get(price_level)
+
+
+@router.get("/photo/{place_id}/{photo_index}")
+async def get_venue_photo(
+    place_id: str,
+    photo_index: int = 0,
+    width: int = Query(400, ge=100, le=1600),
+    supabase: Client = Depends(get_supabase_client),
+) -> Response:
+    """Proxy photo requests to hide API key.
+
+    Args:
+        place_id: Google Place ID
+        photo_index: Index of photo in photo_references array (default 0)
+        width: Max width in pixels (default 400)
+
+    Returns:
+        JPEG image response
+    """
+    # Get venue to find photo reference
+    result = (
+        supabase.table("venues")
+        .select("photo_references")
+        .eq("google_place_id", place_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Venue not found")
+
+    photo_refs = result.data.get("photo_references") or []
+    if not photo_refs or photo_index >= len(photo_refs):
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    # Fetch photo from Google
+    places_service = GooglePlacesService(supabase)
+
+    # The photo_references store the photo name suffix
+    # We need to construct the full path
+    photo_name = f"places/{place_id}/photos/{photo_refs[photo_index]}"
+    photo_bytes = places_service.fetch_photo(place_id, photo_name, width)
+
+    if not photo_bytes:
+        raise HTTPException(status_code=404, detail="Failed to fetch photo")
+
+    return Response(
+        content=photo_bytes,
+        media_type="image/jpeg",
+        headers={
+            "Cache-Control": "public, max-age=86400",  # Cache for 24 hours
+        },
     )

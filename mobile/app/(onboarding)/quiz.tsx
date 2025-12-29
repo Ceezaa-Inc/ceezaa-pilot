@@ -75,7 +75,7 @@ export default function QuizScreen() {
   const submitQuiz = async (finalAnswers: Record<number, string>) => {
     if (!user?.id) {
       console.error('[Quiz] No user ID available');
-      router.push('/(onboarding)/initial-taste');
+      router.push('/(onboarding)/experience-preview');
       return;
     }
 
@@ -93,11 +93,11 @@ export default function QuizScreen() {
       const result = await onboardingApi.submitQuiz(user.id, quizAnswers);
       console.log('[Quiz] Profile created:', result.profile_title);
 
-      router.push('/(onboarding)/initial-taste');
+      router.push('/(onboarding)/experience-preview');
     } catch (error) {
       console.error('[Quiz] Submit error:', error);
-      // Still navigate to taste screen even if API fails
-      router.push('/(onboarding)/initial-taste');
+      // Still navigate to experience preview even if API fails
+      router.push('/(onboarding)/experience-preview');
     } finally {
       setIsSubmitting(false);
     }

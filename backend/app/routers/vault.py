@@ -46,6 +46,7 @@ class PlaceResponse(BaseModel):
     total_spent: float
     reaction: str | None
     photo_url: str | None
+    google_place_id: str | None  # For photo proxy
     visits: list[VisitResponse]
 
 
@@ -98,7 +99,7 @@ async def get_visits(
     # Fetch visits with venue info via join
     result = (
         supabase.table("place_visits")
-        .select("*, venues(id, name, taste_cluster, photo_references)")
+        .select("*, venues(id, name, taste_cluster, photo_references, google_place_id)")
         .eq("user_id", user_id)
         .order("visited_at", desc=True)
         .execute()
@@ -121,6 +122,7 @@ async def get_visits(
         place_key = venue_id or merchant_name
         venue_name = venue["name"] if venue else merchant_name
         venue_type = venue["taste_cluster"] if venue else None
+        google_place_id = venue.get("google_place_id") if venue else None
         photo_url = None
         if venue and venue.get("photo_references"):
             photo_url = venue["photo_references"][0]
@@ -136,6 +138,7 @@ async def get_visits(
                 "total_spent": 0.0,
                 "reaction": None,
                 "photo_url": photo_url,
+                "google_place_id": google_place_id,
                 "visits": [],
             }
 

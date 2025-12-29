@@ -1,52 +1,103 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { router } from 'expo-router';
+import { View, StyleSheet, Animated, ScrollView } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Typography, Card, LoadingSpinner } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
 import { useTasteStore, useAuthStore } from '@/stores';
+import { tasteApi, ObservedTasteProfile } from '@/services/api';
+
+// Category color mapping
+const CATEGORY_COLORS: Record<string, string> = {
+  adventurous: '#8B5CF6',
+  comfort: '#F59E0B',
+  social: '#EC4899',
+  quick: '#10B981',
+  refined: '#6366F1',
+  healthy: '#22C55E',
+  indulgent: '#EF4444',
+  default: '#6B7280',
+};
+
+// Category emoji mapping
+const CATEGORY_EMOJIS: Record<string, string> = {
+  adventurous: '🌍',
+  comfort: '🏠',
+  social: '👥',
+  quick: '⚡',
+  refined: '✨',
+  healthy: '🥗',
+  indulgent: '🍫',
+  default: '🍽️',
+};
+
+interface CategoryBreakdown {
+  name: string;
+  count: number;
+  merchants: string[];
+  color: string;
+  emoji: string;
+}
 
 export default function EnhancedRevealScreen() {
-  const { traits, categories, fetchFusedProfile } = useTasteStore();
+  const { profile, fetchFusedProfile } = useTasteStore();
   const { user } = useAuthStore();
+  const { dev_user } = useLocalSearchParams<{ dev_user?: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.9));
+  const [categoryBreakdowns, setCategoryBreakdowns] = useState<CategoryBreakdown[]>([]);
+
+  // Use dev user ID if provided (from "Use Cache" button), otherwise use logged-in user
+  const effectiveUserId = dev_user || user?.id;
 
   useEffect(() => {
-    const loadFusedProfile = async () => {
-      if (user?.id) {
+    const loadData = async () => {
+      if (effectiveUserId) {
         try {
-          console.log('[EnhancedReveal] Fetching fused profile for:', user.id);
-          await fetchFusedProfile(user.id);
+          console.log('[EnhancedReveal] Fetching data for:', effectiveUserId);
+
+          // Fetch both fused and observed taste in parallel
+          const [, observedTaste] = await Promise.all([
+            fetchFusedProfile(effectiveUserId),
+            tasteApi.getObserved(effectiveUserId).catch(() => null),
+          ]);
+
+          // Process observed taste for category breakdowns
+          if (observedTaste?.categories) {
+            const breakdowns: CategoryBreakdown[] = Object.entries(observedTaste.categories)
+              .map(([name, data]) => ({
+                name,
+                count: data.count,
+                merchants: data.merchants || [],
+                color: CATEGORY_COLORS[name.toLowerCase()] || CATEGORY_COLORS.default,
+                emoji: CATEGORY_EMOJIS[name.toLowerCase()] || CATEGORY_EMOJIS.default,
+              }))
+              .filter((b) => b.count > 0)
+              .sort((a, b) => b.count - a.count);
+
+            setCategoryBreakdowns(breakdowns);
+          }
         } catch (error) {
-          console.error('[EnhancedReveal] Failed to fetch fused profile:', error);
+          console.error('[EnhancedReveal] Failed to fetch data:', error);
         }
       }
 
       // Show reveal animation after loading
       setIsLoading(false);
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
     };
 
-    loadFusedProfile();
-  }, [user?.id]);
+    loadData();
+  }, [effectiveUserId]);
 
   const handleGetStarted = () => {
-    router.replace('/(tabs)/pulse');
+    router.push('/(onboarding)/location');
   };
 
   if (isLoading) {
@@ -55,10 +106,10 @@ export default function EnhancedRevealScreen() {
         <View style={styles.loadingContainer}>
           <LoadingSpinner size="large" />
           <Typography variant="h3" color="primary" align="center" style={styles.loadingText}>
-            Combining your data...
+            Analyzing your taste...
           </Typography>
           <Typography variant="body" color="secondary" align="center">
-            Quiz answers + Transaction history
+            Quiz + Transaction history
           </Typography>
         </View>
       </SafeAreaView>
@@ -67,51 +118,96 @@ export default function EnhancedRevealScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Animated.View
-        style={[
-          styles.content,
-          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
-        ]}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Typography variant="h2" color="primary" align="center">
-            Your Enhanced Profile
-          </Typography>
-          <Typography variant="body" color="gold" align="center">
-            ✨ Now powered by real data
-          </Typography>
-        </View>
-
-        <Card variant="elevated" padding="lg" style={styles.tasteCard}>
-          <TasteRing size={160} showCard={false} onPress={() => {}} />
-
-          <View style={styles.traits}>
-            {traits.map((trait) => (
-              <View key={trait.name} style={styles.traitRow}>
-                <Typography variant="bodySmall" color="secondary" style={styles.traitLabel}>
-                  {trait.emoji} {trait.name}
-                </Typography>
-                <View style={styles.traitBar}>
-                  <View
-                    style={[
-                      styles.traitFill,
-                      { width: `${trait.score}%`, backgroundColor: trait.color },
-                    ]}
-                  />
-                </View>
-                <Typography variant="caption" color="muted">
-                  {trait.score}%
-                </Typography>
-              </View>
-            ))}
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <View style={styles.header}>
+            <Typography variant="h2" color="primary" align="center">
+              Your Taste Profile
+            </Typography>
+            <Typography variant="body" color="gold" align="center">
+              ✨ Powered by real dining data
+            </Typography>
           </View>
-        </Card>
-      </Animated.View>
+
+          {/* Taste Ring Card */}
+          <Card variant="elevated" padding="lg" style={styles.ringCard}>
+            <TasteRing size={140} showCard={false} onPress={() => {}} />
+            <View style={styles.profileInfo}>
+              <Typography variant="h3" color="primary" align="center">
+                {profile.title}
+              </Typography>
+              <Typography variant="bodySmall" color="secondary" align="center">
+                {profile.tagline}
+              </Typography>
+            </View>
+          </Card>
+
+          {/* Category Breakdowns */}
+          {categoryBreakdowns.length > 0 && (
+            <View style={styles.breakdownSection}>
+              <Typography variant="h4" color="primary" style={styles.sectionTitle}>
+                Your Dining Patterns
+              </Typography>
+
+              {categoryBreakdowns.slice(0, 4).map((category) => (
+                <CategoryCard key={category.name} category={category} />
+              ))}
+            </View>
+          )}
+        </Animated.View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <Button label="Start Exploring" fullWidth onPress={handleGetStarted} />
       </View>
     </SafeAreaView>
+  );
+}
+
+interface CategoryCardProps {
+  category: CategoryBreakdown;
+}
+
+function CategoryCard({ category }: CategoryCardProps) {
+  const displayMerchants = category.merchants.slice(0, 2);
+  const remainingCount = Math.max(0, category.merchants.length - 2);
+
+  return (
+    <Card variant="default" padding="md" style={styles.categoryCard}>
+      <View style={styles.categoryHeader}>
+        <View style={styles.categoryTitleRow}>
+          <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
+          <Typography variant="h4" color="primary">
+            {category.emoji} {category.name}
+          </Typography>
+        </View>
+        <View style={styles.countBadge}>
+          <Typography variant="caption" style={styles.countText}>
+            {category.count} visits
+          </Typography>
+        </View>
+      </View>
+
+      <View style={styles.merchantList}>
+        {displayMerchants.map((merchant, index) => (
+          <View key={index} style={styles.merchantRow}>
+            <View style={styles.merchantBullet} />
+            <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
+              {merchant}
+            </Typography>
+          </View>
+        ))}
+        {remainingCount > 0 && (
+          <Typography variant="caption" color="muted" style={styles.moreText}>
+            +{remainingCount} more places
+          </Typography>
+        )}
+      </View>
+    </Card>
   );
 }
 
@@ -129,44 +225,82 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: layoutSpacing.lg,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: layoutSpacing.lg,
     paddingTop: layoutSpacing.lg,
+    paddingBottom: layoutSpacing.md,
   },
   header: {
     marginBottom: layoutSpacing.lg,
     gap: layoutSpacing.xs,
   },
-  tasteCard: {
+  ringCard: {
     alignItems: 'center',
-    gap: layoutSpacing.lg,
+    gap: layoutSpacing.md,
   },
-  traits: {
-    width: '100%',
+  profileInfo: {
+    gap: layoutSpacing.xs,
+  },
+  breakdownSection: {
+    marginTop: layoutSpacing.lg,
     gap: layoutSpacing.sm,
   },
-  traitRow: {
+  sectionTitle: {
+    marginBottom: layoutSpacing.xs,
+  },
+  categoryCard: {
+    gap: layoutSpacing.sm,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: layoutSpacing.sm,
   },
-  traitLabel: {
-    width: 120,
-  },
-  traitBar: {
-    flex: 1,
+  categoryDot: {
+    width: 8,
     height: 8,
-    backgroundColor: colors.dark.surfaceAlt,
     borderRadius: 4,
-    overflow: 'hidden',
   },
-  traitFill: {
-    height: '100%',
-    borderRadius: 4,
+  countBadge: {
+    backgroundColor: colors.dark.surfaceAlt,
+    paddingHorizontal: layoutSpacing.sm,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  countText: {
+    color: colors.primary.DEFAULT,
+    fontWeight: '600',
+  },
+  merchantList: {
+    marginLeft: layoutSpacing.lg,
+    gap: 4,
+  },
+  merchantRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+  },
+  merchantBullet: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.dark.border,
+  },
+  moreText: {
+    marginTop: 4,
+    marginLeft: layoutSpacing.sm,
   },
   footer: {
     paddingHorizontal: layoutSpacing.lg,
     paddingBottom: layoutSpacing.lg,
+    paddingTop: layoutSpacing.sm,
   },
 });

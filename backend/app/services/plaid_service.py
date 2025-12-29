@@ -9,7 +9,9 @@ from supabase import Client
 
 from app.mappings.plaid_categories import get_taste_category, get_cuisine
 from app.services.plaid_client import sync_transactions
+from app.services.google_places_service import GooglePlacesService
 from app.intelligence.aggregation_engine import AggregationEngine, UserAnalysis
+from app.intelligence.venue_tagger import VenueTagger
 from app.models.plaid import ProcessedTransaction
 
 
@@ -60,6 +62,14 @@ class PlaidService:
             supabase: Supabase client instance for database operations
         """
         self._supabase = supabase
+        self._places_service = GooglePlacesService(supabase)
+        self._venue_tagger: VenueTagger | None = None
+
+    def _get_venue_tagger(self) -> VenueTagger:
+        """Lazy-load VenueTagger (expensive due to Anthropic client)."""
+        if self._venue_tagger is None:
+            self._venue_tagger = VenueTagger()
+        return self._venue_tagger
 
     def link_account(
         self,
@@ -259,6 +269,8 @@ class PlaidService:
             loc = tx.location
             city = loc.city if loc else None
             state = loc.region if loc else None
+            location_lat = loc.lat if loc else None
+            location_lng = loc.lon if loc else None
 
             # Get time info from datetime or date
             tx_datetime = tx.datetime
@@ -285,6 +297,8 @@ class PlaidService:
                 "day_type": day_type,
                 "location_city": city,
                 "location_state": state,
+                "location_lat": location_lat,
+                "location_lng": location_lng,
             })
 
         # Upsert to handle duplicates (based on plaid_transaction_id unique constraint)
@@ -446,4 +460,158 @@ class PlaidService:
         self._supabase.table("place_visits").insert(records).execute()
 
         print(f"[PlaidService] Created {len(records)} place visits for user {user_id}")
+
+        # Match venues for new place visits (in background-friendly way)
+        self._match_venues_for_user(user_id)
+
         return len(records)
+
+    def _match_venues_for_user(self, user_id: str) -> int:
+        """Match venues for place_visits that don't have venue_id set.
+
+        Uses Google Places API to find matching venues from merchant names.
+        Creates venues if they don't exist and links them to place_visits.
+
+        Args:
+            user_id: The user's ID
+
+        Returns:
+            Number of venues matched
+        """
+        # Get place_visits without venue_id, joined with transaction location data
+        result = (
+            self._supabase.table("place_visits")
+            .select("id, merchant_name, transaction_id")
+            .eq("user_id", user_id)
+            .is_("venue_id", "null")
+            .execute()
+        )
+        visits = result.data or []
+
+        if not visits:
+            return 0
+
+        # Get transaction location data for these visits
+        tx_ids = [v["transaction_id"] for v in visits if v.get("transaction_id")]
+        if tx_ids:
+            tx_result = (
+                self._supabase.table("transactions")
+                .select("id, location_lat, location_lng, location_city")
+                .in_("id", tx_ids)
+                .execute()
+            )
+            tx_locations = {tx["id"]: tx for tx in (tx_result.data or [])}
+        else:
+            tx_locations = {}
+
+        matched_count = 0
+
+        for visit in visits:
+            merchant_name = visit.get("merchant_name")
+            if not merchant_name:
+                continue
+
+            # Get location from transaction
+            tx_id = visit.get("transaction_id")
+            tx_loc = tx_locations.get(tx_id, {}) if tx_id else {}
+            lat = float(tx_loc["location_lat"]) if tx_loc.get("location_lat") else None
+            lng = float(tx_loc["location_lng"]) if tx_loc.get("location_lng") else None
+            city = tx_loc.get("location_city") or "Unknown"
+
+            # Try to match venue
+            venue_id = self._match_or_create_venue(merchant_name, lat, lng, city)
+
+            if venue_id:
+                # Update place_visit with venue_id
+                self._supabase.table("place_visits").update(
+                    {"venue_id": venue_id}
+                ).eq("id", visit["id"]).execute()
+                matched_count += 1
+
+        if matched_count > 0:
+            print(f"[PlaidService] Matched {matched_count} venues for user {user_id}")
+
+        return matched_count
+
+    def _match_or_create_venue(
+        self,
+        merchant_name: str,
+        lat: float | None,
+        lng: float | None,
+        city: str,
+    ) -> str | None:
+        """Match merchant to Google Place and create venue if needed.
+
+        Args:
+            merchant_name: Merchant name from Plaid
+            lat: Transaction latitude
+            lng: Transaction longitude
+            city: City name for venue record
+
+        Returns:
+            Venue UUID if matched/created, None otherwise
+        """
+        # Find place using Google Places API (uses cache)
+        match = self._places_service.find_place(merchant_name, lat, lng)
+        if not match:
+            return None
+
+        # Check if venue already exists
+        existing = self._places_service.get_venue_by_place_id(match.place_id)
+        if existing:
+            return existing["id"]
+
+        # Get full place details
+        details = self._places_service.get_place_details(match.place_id)
+        if not details:
+            return None
+
+        # Run AI tagging
+        venue_data = self._build_venue_tagger_input(details)
+        try:
+            profile = self._get_venue_tagger().tag(venue_data)
+        except Exception as e:
+            print(f"[PlaidService] VenueTagger failed for {merchant_name}: {e}")
+            profile = None
+
+        # Create venue with combined data
+        venue = self._places_service.create_or_update_venue(
+            details,
+            city=city,
+            source="transaction",
+        )
+
+        # Update with AI tags if available
+        if profile and venue.get("id"):
+            self._supabase.table("venues").update({
+                "taste_cluster": profile.taste_cluster,
+                "cuisine_type": profile.cuisine_type,
+                "energy": profile.energy,
+                "tagline": profile.tagline,
+                "best_for": profile.best_for,
+                "standout": profile.standout,
+            }).eq("id", venue["id"]).execute()
+
+        return venue.get("id")
+
+    def _build_venue_tagger_input(self, details) -> dict:
+        """Build input dict for VenueTagger from PlaceDetails.
+
+        Args:
+            details: PlaceDetails from Google Places API
+
+        Returns:
+            Dict formatted for VenueTagger.tag()
+        """
+        # Map price_level to price string
+        price_map = {0: "Free", 1: "$", 2: "$$", 3: "$$$", 4: "$$$$"}
+        price = price_map.get(details.price_level) if details.price_level else None
+
+        return {
+            "name": details.name,
+            "category": details.primary_type or "restaurant",
+            "categories": details.types[:5] if details.types else [],
+            "rating": details.rating,
+            "price": price,
+            "reviews": details.reviews,
+        }

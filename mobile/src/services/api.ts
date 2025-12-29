@@ -109,10 +109,35 @@ export interface FusedTasteProfile {
   profile_tagline: string;
   categories: FusedCategory[];
   vibes: string[];
+  top_cuisines: string[];
   exploration_ratio: number;
   confidence: number;
   quiz_weight: number;
   tx_weight: number;
+}
+
+// Observed taste types (transaction-based)
+export interface ObservedCategoryBreakdown {
+  count: number;
+  total_spend: number;
+  merchants: string[];
+}
+
+export interface TopMerchant {
+  merchant_id: string;
+  merchant_name: string;
+  count: number;
+}
+
+export interface ObservedTasteProfile {
+  categories: Record<string, ObservedCategoryBreakdown>;
+  time_buckets: Record<string, number>;
+  day_types: Record<string, number>;
+  top_merchants: TopMerchant[];
+  total_transactions: number;
+  first_transaction_at: string | null;
+  last_transaction_at: string | null;
+  confidence: number;
 }
 
 // Ring visualization types
@@ -171,6 +196,9 @@ export const tasteApi = {
 
   getFused: (userId: string): Promise<FusedTasteProfile> =>
     api.get(`/api/taste/fused/${userId}`),
+
+  getObserved: (userId: string): Promise<ObservedTasteProfile> =>
+    api.get(`/api/taste/observed/${userId}`),
 
   getRing: (userId: string): Promise<TasteRingData> =>
     api.get(`/api/taste/ring/${userId}`),
@@ -232,6 +260,19 @@ export interface DiscoverFeedParams {
   offset?: number;
 }
 
+// Seed request/response types
+export interface SeedRequest {
+  city: string;
+  lat: number;
+  lng: number;
+}
+
+export interface SeedResponse {
+  seeded: number;
+  skipped: number;
+  city: string;
+}
+
 // Discover API
 export const discoverApi = {
   getMoods: (): Promise<MoodsResponse> => api.get('/api/discover/moods'),
@@ -250,6 +291,20 @@ export const discoverApi = {
 
   getVenue: (venueId: string, userId: string): Promise<DiscoverVenue> =>
     api.get(`/api/discover/venue/${venueId}?user_id=${userId}`),
+
+  seedVenues: (data: SeedRequest): Promise<SeedResponse> =>
+    api.post('/api/discover/seed', data),
+
+  /**
+   * Get photo URL for a venue using the photo proxy.
+   * This hides the Google API key from the client.
+   *
+   * @param googlePlaceId - Google Place ID
+   * @param photoIndex - Index of photo (default 0)
+   * @param width - Max width in pixels (default 400)
+   */
+  getPhotoUrl: (googlePlaceId: string, photoIndex = 0, width = 400): string =>
+    `${API_BASE_URL}/api/discover/photo/${googlePlaceId}/${photoIndex}?width=${width}`,
 };
 
 // Vault types
@@ -274,6 +329,7 @@ export interface VaultPlace {
   total_spent: number;
   reaction: string | null;
   photo_url: string | null;
+  google_place_id: string | null;  // For photo proxy
   visits: VaultVisit[];
 }
 
