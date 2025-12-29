@@ -101,23 +101,23 @@ async def get_or_generate_profile_title(
     Returns:
         Tuple of (title, tagline)
     """
-    # Check cache first (unless force refresh)
+    # Check cache first (unless force refresh) - use execute() to avoid 406 on zero rows
     if not force_refresh:
         try:
-            cache_result = (
+            cache_list = (
                 supabase.table("daily_profile_titles")
                 .select("title, tagline, expires_at")
                 .eq("user_id", user_id)
-                .maybe_single()
                 .execute()
             )
-            if cache_result.data:
+            if cache_list.data:
+                cache_row = cache_list.data[0]
                 expires_at = datetime.fromisoformat(
-                    cache_result.data["expires_at"].replace("Z", "+00:00")
+                    cache_row["expires_at"].replace("Z", "+00:00")
                 )
                 if expires_at > datetime.now(timezone.utc):
                     print(f"[Taste] Using cached profile title for {user_id}")
-                    return cache_result.data["title"], cache_result.data["tagline"]
+                    return cache_row["title"], cache_row["tagline"]
         except Exception as e:
             print(f"[Taste] Cache check error: {e}")
 
@@ -163,23 +163,21 @@ async def get_taste_profile(
 
     # Fetch declared_taste from database
     try:
-        result = (
+        result_list = (
             supabase.table("declared_taste")
             .select("*")
             .eq("user_id", user_id)
-            .maybe_single()
             .execute()
         )
-        print(f"[Taste] Query result: {result.data}")
+        data = result_list.data[0] if result_list.data else None
+        print(f"[Taste] Query result: {data}")
     except Exception as e:
         print(f"[Taste] DB error for {user_id}: {e}")
         raise HTTPException(status_code=404, detail="Taste profile not found")
 
-    if not result.data:
+    if not data:
         print(f"[Taste] No profile found for {user_id}")
         raise HTTPException(status_code=404, detail="Taste profile not found")
-
-    data = result.data
 
     try:
         # Convert DB data to DeclaredTaste
@@ -379,14 +377,14 @@ async def get_fused_taste(
     """
     print(f"[Taste] Fetching fused taste for user: {user_id}")
 
-    # Fetch declared_taste
-    declared_result = (
+    # Fetch declared_taste - use execute() for consistency
+    declared_list = (
         supabase.table("declared_taste")
         .select("*")
         .eq("user_id", user_id)
-        .maybe_single()
         .execute()
     )
+    declared_result_row = declared_list.data[0] if declared_list.data else None
 
     # Fetch user_analysis (observed) - use execute() to avoid 406 on zero rows
     try:
@@ -402,7 +400,7 @@ async def get_fused_taste(
         observed_data_row = None
 
     # Build DeclaredTaste
-    declared_data = declared_result.data if declared_result else {}
+    declared_data = declared_result_row if declared_result_row else {}
     declared_taste = DeclaredTaste(
         vibe_preferences=declared_data.get("vibe_preferences") or [],
         cuisine_preferences=declared_data.get("cuisine_preferences") or [],
