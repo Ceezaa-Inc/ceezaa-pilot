@@ -13,9 +13,10 @@ from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
 from app.intelligence.ring_builder import RingBuilder
 from app.intelligence.insight_generator import InsightGenerator, Insight
 from app.intelligence.dna_generator import DNAGenerator, DNATrait
+from app.intelligence.profile_titles import AIProfileTitleGenerator
 from app.mappings.plaid_categories import NON_RECOMMENDATION_CATEGORIES
 from decimal import Decimal
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 
 router = APIRouter(prefix="/api/taste", tags=["taste"])
 
@@ -76,15 +77,87 @@ def get_profile_mapper() -> ProfileTitleMapper:
     return ProfileTitleMapper()
 
 
+def get_ai_title_generator() -> AIProfileTitleGenerator:
+    """Dependency for AIProfileTitleGenerator."""
+    return AIProfileTitleGenerator()
+
+
+async def get_or_generate_profile_title(
+    user_id: str,
+    supabase: Client,
+    ai_generator: AIProfileTitleGenerator,
+    user_data: dict,
+    force_refresh: bool = False,
+) -> tuple[str, str]:
+    """Get cached AI profile title or generate new one.
+
+    Args:
+        user_id: User's ID
+        supabase: Supabase client
+        ai_generator: AI title generator
+        user_data: Combined quiz + transaction data
+        force_refresh: If True, regenerate even if cached
+
+    Returns:
+        Tuple of (title, tagline)
+    """
+    # Check cache first (unless force refresh)
+    if not force_refresh:
+        try:
+            cache_result = (
+                supabase.table("daily_profile_titles")
+                .select("title, tagline, expires_at")
+                .eq("user_id", user_id)
+                .maybe_single()
+                .execute()
+            )
+            if cache_result.data:
+                expires_at = datetime.fromisoformat(
+                    cache_result.data["expires_at"].replace("Z", "+00:00")
+                )
+                if expires_at > datetime.now(timezone.utc):
+                    print(f"[Taste] Using cached profile title for {user_id}")
+                    return cache_result.data["title"], cache_result.data["tagline"]
+        except Exception as e:
+            print(f"[Taste] Cache check error: {e}")
+
+    # Generate new title with AI
+    print(f"[Taste] Generating AI profile title for {user_id}")
+    title, tagline = ai_generator.generate(user_data)
+
+    # Store in cache (upsert)
+    try:
+        supabase.table("daily_profile_titles").upsert(
+            {
+                "user_id": user_id,
+                "title": title,
+                "tagline": tagline,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "expires_at": (
+                    datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
+                    + timedelta(days=1)
+                ).isoformat(),
+            },
+            on_conflict="user_id",
+        ).execute()
+        print(f"[Taste] Cached profile title: {title}")
+    except Exception as e:
+        print(f"[Taste] Cache store error: {e}")
+
+    return title, tagline
+
+
 @router.get("/profile/{user_id}", response_model=TasteProfileResponse)
 async def get_taste_profile(
     user_id: str,
     supabase: Client = Depends(get_supabase_client),
     profile_mapper: ProfileTitleMapper = Depends(get_profile_mapper),
+    ai_generator: AIProfileTitleGenerator = Depends(get_ai_title_generator),
 ) -> TasteProfileResponse:
     """Get taste profile for a user.
 
     Returns profile title, tagline, traits, and preferences.
+    Uses AI-generated titles with daily caching.
     """
     print(f"[Taste] Fetching profile for user: {user_id}")
 
@@ -117,10 +190,37 @@ async def get_taste_profile(
             social_preference=data.get("social_preference"),
             price_tier=data.get("price_tier"),
         )
-        print(f"[Taste] DeclaredTaste created: {declared_taste}")
 
-        # Get profile title and traits
-        title, tagline = profile_mapper.get_title(declared_taste)
+        # Fetch observed taste for AI context
+        observed_data = {}
+        try:
+            analysis_result = (
+                supabase.table("user_analysis")
+                .select("categories")
+                .eq("user_id", user_id)
+                .maybe_single()
+                .execute()
+            )
+            if analysis_result.data:
+                observed_data["categories"] = analysis_result.data.get("categories", {})
+        except Exception:
+            pass  # Continue without observed data
+
+        # Build user_data for AI generation
+        user_data = {
+            "exploration_style": declared_taste.exploration_style,
+            "vibe_preferences": declared_taste.vibe_preferences,
+            "social_preference": declared_taste.social_preference,
+            "price_tier": declared_taste.price_tier,
+            **observed_data,
+        }
+
+        # Get AI-generated title with caching
+        title, tagline = await get_or_generate_profile_title(
+            user_id, supabase, ai_generator, user_data
+        )
+
+        # Calculate traits (rule-based)
         traits = profile_mapper.calculate_traits(declared_taste)
         print(f"[Taste] Title: {title}, Traits: {len(traits)}")
 

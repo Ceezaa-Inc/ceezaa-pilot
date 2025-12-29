@@ -1,18 +1,55 @@
 """Profile Title Mapper - Maps taste attributes to profile titles and traits.
 
-This is a rule-based mapper (no AI). Uses deterministic lookups
-from profile_title_mappings.py to generate titles and trait scores.
+Supports both rule-based lookups (fallback) and AI-generated titles
+using Claude Haiku with daily caching.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
+
+import anthropic
+from pydantic import BaseModel
 
 from app.intelligence.quiz_processor import DeclaredTaste
 from app.mappings.profile_title_mappings import (
     get_dominant_vibe,
     get_profile_title,
 )
+
+
+class ProfileTitleResponse(BaseModel):
+    """Response from Claude containing profile title and tagline."""
+
+    title: str  # 2-3 words max (e.g., "Urban Explorer")
+    tagline: str  # 3-6 words (e.g., "Discovering hidden gems everywhere")
+
+
+# System prompt for AI profile title generation
+PROFILE_TITLE_PROMPT = """You generate a personalized profile title and tagline for a user based on their dining habits.
+
+## Rules
+- Title: 2-3 words, catchy and memorable (e.g., "Urban Explorer", "Cozy Connoisseur", "Night Owl")
+- Tagline: 3-6 words, describes their dining personality
+- Tone: celebratory, making them feel understood
+- Base it on their actual spending patterns, not generic phrases
+
+## Examples
+
+Input: Coffee 45%, Dining 30%, Fast Food 15%. Adventurous explorer. Trendy vibes, group dining.
+Output: title="Caffeine Adventurer", tagline="Exploring cafes with friends"
+
+Input: Dining 60%, Coffee 25%. Routine explorer. Cozy vibes, solo dining, moderate prices.
+Output: title="Solo Gourmand", tagline="Quality meals, your own pace"
+
+Input: Fast Food 50%, Coffee 30%. Budget conscious, big groups, energetic vibes.
+Output: title="Social Snacker", tagline="Good food, great company"
+
+Input: Nightlife 40%, Dining 35%. Premium prices, trendy vibes, small groups.
+Output: title="Night Sophisticate", tagline="Where evenings come alive"
+
+Return a title and tagline that captures this person's unique dining personality."""
 
 
 @dataclass
@@ -165,3 +202,122 @@ class ProfileTitleMapper:
 
         base_score = 30 + vibe_score + exploration_bonus
         return min(100, max(0, base_score))
+
+
+class AIProfileTitleGenerator:
+    """Generates AI-powered profile titles using Claude Haiku with caching."""
+
+    def __init__(self) -> None:
+        """Initialize with Anthropic client."""
+        self._client = anthropic.Anthropic()
+        self._rule_mapper = ProfileTitleMapper()
+
+    def generate(self, user_data: dict[str, Any]) -> tuple[str, str]:
+        """Generate profile title and tagline from user data.
+
+        Args:
+            user_data: Combined quiz + transaction data including:
+                - categories: spending breakdown (from observed taste)
+                - exploration_style: from quiz
+                - vibe_preferences: from quiz
+                - social_preference: from quiz
+                - price_tier: from quiz
+
+        Returns:
+            Tuple of (title, tagline)
+        """
+        try:
+            user_prompt = self._build_prompt(user_data)
+
+            response = self._client.messages.create(
+                model="claude-haiku-4-20250514",
+                max_tokens=100,
+                system=PROFILE_TITLE_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+
+            # Parse structured response
+            result = self._client.messages.create(
+                model="claude-haiku-4-20250514",
+                max_tokens=100,
+                system=PROFILE_TITLE_PROMPT,
+                messages=[
+                    {"role": "user", "content": user_prompt},
+                    {"role": "assistant", "content": response.content[0].text},
+                    {
+                        "role": "user",
+                        "content": "Now return this as JSON with 'title' and 'tagline' keys only.",
+                    },
+                ],
+            )
+
+            # Try to parse JSON from response
+            import json
+
+            text = result.content[0].text.strip()
+            # Handle markdown code blocks
+            if "```" in text:
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
+                text = text.strip()
+
+            data = json.loads(text)
+            return data.get("title", "Taste Explorer"), data.get(
+                "tagline", "Discovering your perfect spots"
+            )
+
+        except Exception:
+            # Fallback to rule-based on any error
+            return self._fallback_title(user_data)
+
+    def _build_prompt(self, user_data: dict[str, Any]) -> str:
+        """Build user prompt from user data."""
+        parts = []
+
+        # Category breakdown
+        categories = user_data.get("categories", {})
+        if categories:
+            total = sum(c.get("count", 0) for c in categories.values())
+            if total > 0:
+                breakdown = []
+                for name, data in sorted(
+                    categories.items(),
+                    key=lambda x: x[1].get("count", 0),
+                    reverse=True,
+                )[:4]:
+                    pct = round(data.get("count", 0) / total * 100)
+                    if pct > 0:
+                        breakdown.append(f"{name} {pct}%")
+                if breakdown:
+                    parts.append(", ".join(breakdown))
+
+        # Quiz data
+        exploration = user_data.get("exploration_style")
+        if exploration:
+            parts.append(f"{exploration.replace('_', ' ')} explorer")
+
+        vibes = user_data.get("vibe_preferences", [])
+        if vibes:
+            parts.append(f"{', '.join(vibes[:3])} vibes")
+
+        social = user_data.get("social_preference")
+        if social:
+            parts.append(f"{social.replace('_', ' ')} dining")
+
+        price = user_data.get("price_tier")
+        if price:
+            parts.append(f"{price} prices")
+
+        return ". ".join(parts) if parts else "General food lover"
+
+    def _fallback_title(self, user_data: dict[str, Any]) -> tuple[str, str]:
+        """Fallback to rule-based title generation."""
+        # Create a minimal DeclaredTaste for rule-based lookup
+        declared = DeclaredTaste(
+            exploration_style=user_data.get("exploration_style", "moderate"),
+            vibe_preferences=user_data.get("vibe_preferences", []),
+            price_tier=user_data.get("price_tier"),
+            social_preference=user_data.get("social_preference"),
+        )
+        return self._rule_mapper.get_title(declared)

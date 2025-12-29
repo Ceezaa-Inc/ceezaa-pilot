@@ -268,7 +268,8 @@ class AggregationEngine:
         self, txn: ProcessedTransaction, analysis: UserAnalysis
     ) -> None:
         """Update merchant visit counts and top merchants list."""
-        merchant_key = txn.merchant_id or txn.merchant_name
+        # Use merchant_name as primary key for human-readable display
+        merchant_key = txn.merchant_name or txn.merchant_id
         if not merchant_key:
             return
 
