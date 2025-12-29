@@ -170,9 +170,16 @@ export default function VaultScreen() {
 }
 
 function StatCard({ value, label }: { value: string; label: string }) {
+  // Use smaller variant for monetary values to prevent overflow
+  const isMonetary = value.startsWith('$');
   return (
     <Card variant="outlined" padding="md" style={styles.statCard}>
-      <Typography variant="h3" color="gold" align="center">
+      <Typography
+        variant={isMonetary ? 'body' : 'h3'}
+        color="gold"
+        align="center"
+        numberOfLines={1}
+      >
         {value}
       </Typography>
       <Typography variant="caption" color="secondary" align="center">
@@ -219,7 +226,9 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+    minHeight: 56,
   },
   filters: {
     gap: layoutSpacing.sm,

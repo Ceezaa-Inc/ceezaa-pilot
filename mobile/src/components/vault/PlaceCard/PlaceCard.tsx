@@ -1,10 +1,31 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card } from '@/components/ui';
-import { Place, getReactionEmoji } from '@/mocks/visits';
+import { Place } from '@/stores/useVaultStore';
+import { getReactionEmoji } from '@/mocks/visits';
+
+// Venue type emoji mapping for fallback when no photo
+const VENUE_TYPE_EMOJIS: Record<string, string> = {
+  'Coffee Shop': '☕',
+  'Restaurant': '🍽️',
+  'Fast Food': '🍔',
+  'Bar': '🍸',
+  'Bakery': '🥐',
+  'Cafe': '☕',
+  coffee: '☕',
+  dining: '🍽️',
+  fast_food: '🍔',
+  nightlife: '🍸',
+  default: '🍴',
+};
+
+function getVenueEmoji(venueType: string | null | undefined): string {
+  if (!venueType) return VENUE_TYPE_EMOJIS.default;
+  return VENUE_TYPE_EMOJIS[venueType] || VENUE_TYPE_EMOJIS.default;
+}
 
 interface PlaceCardProps {
   place: Place;
@@ -27,28 +48,40 @@ export function PlaceCard({ place, onPress }: PlaceCardProps) {
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
+  // Build the visit info string, handling null venueType gracefully
+  const visitInfo = place.venueType
+    ? `${place.venueType} • ${place.visitCount} ${place.visitCount === 1 ? 'visit' : 'visits'}`
+    : `${place.visitCount} ${place.visitCount === 1 ? 'visit' : 'visits'}`;
+
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card variant="default" padding="md">
         <View style={styles.row}>
-          <View style={[styles.reactionBadge, !place.reaction && styles.reactionBadgeUnrated]}>
-            {place.reaction ? (
+          <View style={[styles.badge, place.reaction && styles.badgeWithReaction]}>
+            {place.photoUrl ? (
+              <Image source={{ uri: place.photoUrl }} style={styles.photo} />
+            ) : place.reaction ? (
               <Text style={styles.reactionEmoji}>{getReactionEmoji(place.reaction)}</Text>
             ) : (
-              <Typography variant="h3" color="gold">?</Typography>
+              <Text style={styles.venueEmoji}>{getVenueEmoji(place.venueType)}</Text>
             )}
           </View>
           <View style={styles.info}>
-            <Typography variant="h4" color="primary">
+            <Typography variant="h4" color="primary" numberOfLines={1}>
               {place.venueName}
             </Typography>
             <Typography variant="bodySmall" color="secondary">
-              {place.venueType} • {place.visitCount} {place.visitCount === 1 ? 'visit' : 'visits'}
+              {visitInfo}
             </Typography>
             <Typography variant="caption" color="muted">
               Last: {formatLastVisit(place.lastVisit)}
             </Typography>
           </View>
+          {place.reaction && (
+            <View style={styles.reactionIndicator}>
+              <Text style={styles.smallReaction}>{getReactionEmoji(place.reaction)}</Text>
+            </View>
+          )}
           <View style={styles.chevron}>
             <Typography variant="body" color="muted">
               ›
@@ -66,27 +99,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.md,
   },
-  reactionBadge: {
+  badge: {
     width: 56,
     height: 56,
     borderRadius: borderRadius.md,
     backgroundColor: colors.dark.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
-  reactionBadgeUnrated: {
-    borderWidth: 2,
-    borderColor: colors.primary.DEFAULT,
-    borderStyle: 'dashed',
+  badgeWithReaction: {
+    backgroundColor: colors.dark.surfaceAlt,
+  },
+  photo: {
+    width: 56,
+    height: 56,
+    borderRadius: borderRadius.md,
   },
   reactionEmoji: {
     fontSize: 28,
     lineHeight: 36,
     textAlign: 'center',
   },
+  venueEmoji: {
+    fontSize: 24,
+    lineHeight: 32,
+    textAlign: 'center',
+  },
   info: {
     flex: 1,
     gap: 2,
+  },
+  reactionIndicator: {
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  smallReaction: {
+    fontSize: 18,
+    lineHeight: 24,
   },
   chevron: {
     paddingLeft: layoutSpacing.sm,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -15,9 +15,56 @@ const formatCurrency = (amount: number): string => {
   return amount.toFixed(2);
 };
 
+// Group visits by date
+interface DayGroup {
+  dateKey: string;
+  displayDate: string;
+  totalAmount: number;
+  visitCount: number;
+  visits: Visit[];
+}
+
+function groupVisitsByDay(visits: Visit[]): DayGroup[] {
+  const groups: Record<string, Visit[]> = {};
+
+  visits.forEach((visit) => {
+    const dateKey = visit.date.split('T')[0]; // YYYY-MM-DD
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(visit);
+  });
+
+  return Object.entries(groups)
+    .sort(([a], [b]) => b.localeCompare(a)) // Most recent first
+    .map(([dateKey, dayVisits]) => {
+      const date = new Date(dateKey);
+      const displayDate = date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+      const totalAmount = dayVisits.reduce((sum, v) => sum + (v.amount || 0), 0);
+
+      return {
+        dateKey,
+        displayDate,
+        totalAmount,
+        visitCount: dayVisits.length,
+        visits: dayVisits,
+      };
+    });
+}
+
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { selectedPlace, setSelectedPlace, updateReaction, rateVisit } = useVaultStore();
+  const { selectedPlace, setSelectedPlace, updateReaction } = useVaultStore();
+
+  // Group visits by day
+  const dayGroups = useMemo(
+    () => (selectedPlace ? groupVisitsByDay(selectedPlace.visits) : []),
+    [selectedPlace?.visits]
+  );
 
   useEffect(() => {
     if (id) {
@@ -45,15 +92,6 @@ export default function PlaceDetailScreen() {
     }
   };
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -74,20 +112,22 @@ export default function PlaceDetailScreen() {
               )}
             </View>
             <View style={styles.titleInfo}>
-              <Typography variant="h2" color="primary">
+              <Typography variant="h2" color="primary" numberOfLines={1}>
                 {selectedPlace.venueName}
               </Typography>
-              <Typography variant="body" color="secondary">
-                {selectedPlace.venueType}
-              </Typography>
+              {selectedPlace.venueType && (
+                <Typography variant="body" color="secondary">
+                  {selectedPlace.venueType}
+                </Typography>
+              )}
             </View>
           </View>
         </View>
 
-        {/* Stats Row */}
+        {/* Stats Row - using body variant for amounts to prevent overflow */}
         <View style={styles.statsRow}>
           <Card variant="outlined" padding="md" style={styles.statCard}>
-            <Typography variant="h3" color="gold" align="center">
+            <Typography variant="h4" color="gold" align="center">
               {selectedPlace.visitCount}
             </Typography>
             <Typography variant="caption" color="muted" align="center">
@@ -95,7 +135,7 @@ export default function PlaceDetailScreen() {
             </Typography>
           </Card>
           <Card variant="outlined" padding="md" style={styles.statCard}>
-            <Typography variant="h3" color="gold" align="center">
+            <Typography variant="body" color="gold" align="center" numberOfLines={1}>
               ${formatCurrency(selectedPlace.totalSpent)}
             </Typography>
             <Typography variant="caption" color="muted" align="center">
@@ -103,7 +143,7 @@ export default function PlaceDetailScreen() {
             </Typography>
           </Card>
           <Card variant="outlined" padding="md" style={styles.statCard}>
-            <Typography variant="h3" color="gold" align="center">
+            <Typography variant="body" color="gold" align="center" numberOfLines={1}>
               ${formatCurrency(selectedPlace.totalSpent / selectedPlace.visitCount)}
             </Typography>
             <Typography variant="caption" color="muted" align="center">
@@ -112,10 +152,10 @@ export default function PlaceDetailScreen() {
           </Card>
         </View>
 
-        {/* Reaction Section */}
+        {/* Rating Section - Single place-level rating only */}
         <View style={styles.section}>
           <Typography variant="label" color="muted" style={styles.sectionLabel}>
-            Your Rating
+            How was it?
           </Typography>
           <ReactionPicker
             selected={selectedPlace.reaction}
@@ -124,18 +164,17 @@ export default function PlaceDetailScreen() {
           />
         </View>
 
-        {/* Visit History */}
+        {/* Visit History - Grouped by day */}
         <View style={styles.section}>
           <Typography variant="label" color="muted" style={styles.sectionLabel}>
             Visit History
           </Typography>
           <View style={styles.timeline}>
-            {selectedPlace.visits.map((visit, index) => (
-              <VisitCard
-                key={visit.id}
-                visit={visit}
-                isLast={index === selectedPlace.visits.length - 1}
-                onRateVisit={rateVisit}
+            {dayGroups.map((group, index) => (
+              <DayCard
+                key={group.dateKey}
+                group={group}
+                isLast={index === dayGroups.length - 1}
               />
             ))}
           </View>
@@ -145,73 +184,43 @@ export default function PlaceDetailScreen() {
   );
 }
 
-interface VisitCardProps {
-  visit: Visit;
+interface DayCardProps {
+  group: DayGroup;
   isLast: boolean;
-  onRateVisit: (visitId: string, reaction: Reaction) => void;
 }
 
-function VisitCard({ visit, isLast, onRateVisit }: VisitCardProps) {
-  const [showRatingPicker, setShowRatingPicker] = useState(false);
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const handleRateVisit = (reaction: Reaction) => {
-    onRateVisit(visit.id, reaction);
-    setShowRatingPicker(false);
-  };
-
+function DayCard({ group, isLast }: DayCardProps) {
   return (
     <View style={styles.visitContainer}>
       <View style={styles.timelineDot}>
-        <View style={[styles.dot, !visit.reaction && styles.dotUnrated]} />
+        <View style={styles.dot} />
         {!isLast && <View style={styles.timelineLine} />}
       </View>
       <Card variant="default" padding="md" style={styles.visitCard}>
         <View style={styles.visitHeader}>
           <Typography variant="bodySmall" color="secondary">
-            {formatDate(visit.date)}
+            {group.displayDate}
           </Typography>
-          <View style={styles.visitReaction}>
-            {visit.reaction ? (
-              <Text style={styles.visitReactionEmoji}>{getReactionEmoji(visit.reaction)}</Text>
-            ) : (
-              <TouchableOpacity
-                style={styles.rateButton}
-                onPress={() => setShowRatingPicker(!showRatingPicker)}
-              >
-                <Typography variant="caption" color="gold">
-                  {showRatingPicker ? 'Cancel' : 'Rate'}
-                </Typography>
-              </TouchableOpacity>
-            )}
-          </View>
+          {group.visitCount > 1 && (
+            <View style={styles.visitCountBadge}>
+              <Typography variant="caption" color="muted">
+                {group.visitCount} visits
+              </Typography>
+            </View>
+          )}
         </View>
-        {visit.amount && (
+        {group.totalAmount > 0 && (
           <Typography variant="h4" color="gold">
-            ${formatCurrency(visit.amount)}
+            ${formatCurrency(group.totalAmount)}
           </Typography>
         )}
-        {visit.notes && (
-          <Typography variant="bodySmall" color="muted" style={styles.visitNotes}>
-            "{visit.notes}"
-          </Typography>
-        )}
-        {showRatingPicker && (
-          <View style={styles.ratingPickerContainer}>
-            <ReactionPicker
-              selected={undefined}
-              onChange={handleRateVisit}
-              showLabels={false}
-            />
-          </View>
+        {/* Show notes from visits if any */}
+        {group.visits.map((visit) =>
+          visit.notes ? (
+            <Typography key={visit.id} variant="bodySmall" color="muted" style={styles.visitNotes}>
+              "{visit.notes}"
+            </Typography>
+          ) : null
         )}
       </Card>
     </View>
@@ -257,7 +266,9 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+    minHeight: 60,
   },
   section: {
     gap: layoutSpacing.sm,
@@ -283,11 +294,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary.DEFAULT,
     marginTop: layoutSpacing.md,
   },
-  dotUnrated: {
-    backgroundColor: colors.primary.muted,
-    borderWidth: 2,
-    borderColor: colors.primary.DEFAULT,
-  },
   timelineLine: {
     flex: 1,
     width: 2,
@@ -304,27 +310,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  visitReaction: {
-    minHeight: 28,
-    justifyContent: 'center',
-  },
-  visitReactionEmoji: {
-    fontSize: 20,
-    lineHeight: 28,
-  },
-  rateButton: {
+  visitCountBadge: {
+    backgroundColor: colors.dark.surfaceAlt,
     paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: layoutSpacing.xs,
+    paddingVertical: 2,
     borderRadius: borderRadius.full,
-    backgroundColor: colors.primary.muted,
-    borderWidth: 1,
-    borderColor: colors.primary.DEFAULT,
-  },
-  ratingPickerContainer: {
-    marginTop: layoutSpacing.md,
-    paddingTop: layoutSpacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.dark.border,
   },
   visitNotes: {
     marginTop: layoutSpacing.xs,
