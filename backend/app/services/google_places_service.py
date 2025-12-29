@@ -570,6 +570,35 @@ class GooglePlacesService:
         price_tier_map = {0: "free", 1: "$", 2: "$$", 3: "$$$", 4: "$$$$"}
         price_tier = price_tier_map.get(details.price_level) if details.price_level else None
 
+        # Map primary_type to taste_cluster (default until AI tagging updates it)
+        type_to_cluster = {
+            "coffee_shop": "coffee",
+            "cafe": "coffee",
+            "restaurant": "restaurant",
+            "fast_food_restaurant": "fast_food",
+            "bar": "bar",
+            "bakery": "bakery",
+            "ice_cream_shop": "dessert",
+            "pizza_restaurant": "restaurant",
+            "american_restaurant": "restaurant",
+            "italian_restaurant": "restaurant",
+            "mexican_restaurant": "restaurant",
+            "japanese_restaurant": "restaurant",
+            "chinese_restaurant": "restaurant",
+            "indian_restaurant": "restaurant",
+            "thai_restaurant": "restaurant",
+            "vietnamese_restaurant": "restaurant",
+            "korean_restaurant": "restaurant",
+            "mediterranean_restaurant": "restaurant",
+            "seafood_restaurant": "restaurant",
+            "steak_house": "restaurant",
+            "breakfast_restaurant": "restaurant",
+            "brunch_restaurant": "restaurant",
+            "vegetarian_restaurant": "restaurant",
+            "vegan_restaurant": "restaurant",
+        }
+        taste_cluster = type_to_cluster.get(details.primary_type, "restaurant")
+
         record = {
             "google_place_id": details.place_id,
             "name": details.name,
@@ -577,6 +606,7 @@ class GooglePlacesService:
             "lat": details.lat,
             "lng": details.lng,
             "city": city,
+            "taste_cluster": taste_cluster,
             "google_rating": details.rating,
             "google_review_count": details.review_count,
             "google_price_level": details.price_level,
