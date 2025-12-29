@@ -28,6 +28,7 @@
 | **FS9: Vault** | ✅ Complete | 100% |
 | **FS10: Sessions** | ✅ Complete | 100% |
 | **FS11: Profile** | ⬜ Not Started | 0% |
+| **FS12: Google Places Pipeline** | 🔄 In Progress | 80% |
 | **Phase 8: Polish** | ⬜ Not Started | 0% |
 | **Phase 9: Launch** | ⬜ Not Started | 0% |
 
@@ -596,6 +597,51 @@ mobile/src/services/api.ts          # sessionsApi functions
 - `session_participants` - Who joined
 - `session_venues` - Venues to vote on
 - `session_votes` - Vote records
+
+---
+
+### 🔄 FS12: Google Places Venue Pipeline
+
+**Goal**: Replace Apify-based venue import with real-time Google Places API
+
+**Expo Test**: Grant location → see nearby venues seeded from Google Places with photos
+
+| # | Type | Task | Status |
+|---|------|------|--------|
+| 1 | Backend | Create `GooglePlacesService` in `services/` | ✅ |
+| 2 | Backend | Implement text search endpoint | ✅ |
+| 3 | Backend | Implement place details fetch | ✅ |
+| 4 | Backend | Create photo proxy endpoint | ✅ |
+| 5 | Backend | Create `POST /api/discover/seed` endpoint | ✅ |
+| 6 | Frontend | Add location permission to onboarding | ✅ |
+| 7 | Frontend | Wire up seeding on location grant | ✅ |
+| 8 | Backend | Fix API key env var (AliasChoices) | ✅ |
+| 9 | Frontend | Update Discover feed to use new venues | ⬜ |
+| 10 | Frontend | Update Vault to use Google Places photos | ⬜ |
+
+**Key Files:**
+```
+backend/app/
+├── services/
+│   └── google_places_service.py   # GooglePlacesService class
+├── routers/
+│   └── discover.py                # /seed, /photos/{place_id} endpoints
+└── config.py                      # GOOGLE_PLACES_API_KEY with alias
+
+mobile/
+├── app/(onboarding)/
+│   └── location.tsx               # Location permission + seeding
+└── src/stores/
+    └── useLocationStore.ts        # Permission, location, seedVenues
+```
+
+**Seed Categories:**
+- Restaurant, Cafe, Bar, Bakery, Fast Food
+
+**Photos Proxy:**
+- Frontend calls: `/api/discover/photos/{place_id}`
+- Backend fetches from Google Places with API key (kept server-side)
+- Returns JPEG image directly (not JSON)
 
 ---
 

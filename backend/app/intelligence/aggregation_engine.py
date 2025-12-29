@@ -246,10 +246,9 @@ class AggregationEngine:
         stats.count += 1
         stats.total_spend += Decimal(str(txn.amount))
 
-        # Track merchant in this category
-        merchant_key = txn.merchant_id or txn.merchant_name
-        if merchant_key:
-            stats.merchants.add(merchant_key)
+        # Track merchant name in this category (use name for display, not ID)
+        if txn.merchant_name:
+            stats.merchants.add(txn.merchant_name)
 
     def _update_time_bucket(
         self, txn: ProcessedTransaction, analysis: UserAnalysis

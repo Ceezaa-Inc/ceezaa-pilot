@@ -10,6 +10,11 @@ import { ReactionPicker } from '@/components/vault';
 import { useVaultStore, Visit, Reaction } from '@/stores/useVaultStore';
 import { getReactionEmoji } from '@/mocks/visits';
 
+// Format currency to 2 decimal places
+const formatCurrency = (amount: number): string => {
+  return amount.toFixed(2);
+};
+
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { selectedPlace, setSelectedPlace, updateReaction, rateVisit } = useVaultStore();
@@ -91,7 +96,7 @@ export default function PlaceDetailScreen() {
           </Card>
           <Card variant="outlined" padding="md" style={styles.statCard}>
             <Typography variant="h3" color="gold" align="center">
-              ${selectedPlace.totalSpent}
+              ${formatCurrency(selectedPlace.totalSpent)}
             </Typography>
             <Typography variant="caption" color="muted" align="center">
               Total Spent
@@ -99,7 +104,7 @@ export default function PlaceDetailScreen() {
           </Card>
           <Card variant="outlined" padding="md" style={styles.statCard}>
             <Typography variant="h3" color="gold" align="center">
-              ${Math.round(selectedPlace.totalSpent / selectedPlace.visitCount)}
+              ${formatCurrency(selectedPlace.totalSpent / selectedPlace.visitCount)}
             </Typography>
             <Typography variant="caption" color="muted" align="center">
               Avg / Visit
@@ -191,7 +196,7 @@ function VisitCard({ visit, isLast, onRateVisit }: VisitCardProps) {
         </View>
         {visit.amount && (
           <Typography variant="h4" color="gold">
-            ${visit.amount}
+            ${formatCurrency(visit.amount)}
           </Typography>
         )}
         {visit.notes && (

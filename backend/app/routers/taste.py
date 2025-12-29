@@ -13,6 +13,7 @@ from app.intelligence.aggregation_engine import UserAnalysis, CategoryStats
 from app.intelligence.ring_builder import RingBuilder
 from app.intelligence.insight_generator import InsightGenerator, Insight
 from app.intelligence.dna_generator import DNAGenerator, DNATrait
+from app.mappings.plaid_categories import NON_RECOMMENDATION_CATEGORIES
 from decimal import Decimal
 from datetime import date, datetime
 
@@ -206,9 +207,12 @@ async def get_observed_taste(
     data = result.data
     total_txns = data.get("total_transactions", 0)
 
-    # Parse categories from JSONB
+    # Parse categories from JSONB, filtering out non-recommendation categories
     categories = {}
     for cat_name, cat_data in data.get("categories", {}).items():
+        # Skip categories that shouldn't be shown (groceries, other_food, other)
+        if cat_name in NON_RECOMMENDATION_CATEGORIES:
+            continue
         categories[cat_name] = CategoryBreakdown(
             count=cat_data.get("count", 0),
             total_spend=cat_data.get("total_spend", 0.0),

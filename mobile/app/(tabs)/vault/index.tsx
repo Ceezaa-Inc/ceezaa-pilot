@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -7,19 +7,57 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 import { PlaceCard, AddVisitModal } from '@/components/vault';
-import { useVaultStore, StatusFilter } from '@/stores/useVaultStore';
+import { useVaultStore, StatusFilter, Place } from '@/stores/useVaultStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+
+// Format currency to 2 decimal places
+const formatCurrency = (amount: number): string => {
+  return amount.toFixed(2);
+};
+
+// Group places by month of last visit
+interface MonthGroup {
+  key: string;
+  label: string;
+  places: Place[];
+}
+
+function groupPlacesByMonth(places: Place[]): MonthGroup[] {
+  const groups: Record<string, Place[]> = {};
+
+  places.forEach((place) => {
+    const date = new Date(place.lastVisit);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(place);
+  });
+
+  // Sort by key (year-month) descending
+  return Object.entries(groups)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, monthPlaces]) => {
+      const [year, month] = key.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      return { key, label, places: monthPlaces };
+    });
+}
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'visited', label: 'Visited' },
-  { key: 'review', label: 'Review' },
+  { key: 'visited', label: 'Rated' },
+  { key: 'review', label: 'Unrated' },
 ];
 
 export default function VaultScreen() {
   const { filteredPlaces, currentFilter, setFilter, stats, addVisit, fetchVisits } = useVaultStore();
   const { user } = useAuthStore();
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Group places by month
+  const monthGroups = useMemo(() => groupPlacesByMonth(filteredPlaces), [filteredPlaces]);
 
   useEffect(() => {
     if (user?.id) {
@@ -35,8 +73,7 @@ export default function VaultScreen() {
   };
 
   // Generate a unique key for each place (venueId or fallback to venueName)
-  const getPlaceKey = (place: typeof filteredPlaces[0]) =>
-    place.venueId || place.venueName;
+  const getPlaceKey = (place: Place) => place.venueId || place.venueName;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -44,27 +81,22 @@ export default function VaultScreen() {
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <View style={styles.titleInfo}>
-              <Typography variant="h2" color="primary">
-                Your Vault
-              </Typography>
+              <View style={styles.titleWithEmoji}>
+                <Text style={styles.headerEmoji}>📖</Text>
+                <Typography variant="h2" color="primary">
+                  My Food Diary
+                </Typography>
+              </View>
               <Typography variant="body" color="secondary">
-                Every place tells a story
+                Your dining memories
               </Typography>
             </View>
-            <View style={styles.headerButtons}>
-              <Button
-                label="DB Venues"
-                variant="ghost"
-                size="sm"
-                onPress={() => router.push('/(tabs)/vault/temp-venues')}
-              />
-              <Button
-                label="+ Add"
-                variant="secondary"
-                size="sm"
-                onPress={() => setShowAddModal(true)}
-              />
-            </View>
+            <Button
+              label="+ Add"
+              variant="secondary"
+              size="sm"
+              onPress={() => setShowAddModal(true)}
+            />
           </View>
         </View>
 
@@ -72,7 +104,7 @@ export default function VaultScreen() {
         <View style={styles.stats}>
           <StatCard value={String(stats.totalPlaces)} label="Places" />
           <StatCard value={String(stats.totalVisits)} label="Visits" />
-          <StatCard value={`$${stats.thisMonthSpent ?? 0}`} label="This Month" />
+          <StatCard value={`$${formatCurrency(stats.thisMonthSpent ?? 0)}`} label="This Month" />
         </View>
 
         {/* Filters */}
@@ -97,7 +129,7 @@ export default function VaultScreen() {
           ))}
         </ScrollView>
 
-        {/* Places List */}
+        {/* Places List - Grouped by Month */}
         <View style={styles.places}>
           {filteredPlaces.length === 0 ? (
             <View style={styles.emptyState}>
@@ -106,12 +138,23 @@ export default function VaultScreen() {
               </Typography>
             </View>
           ) : (
-            filteredPlaces.map((place) => (
-              <PlaceCard
-                key={getPlaceKey(place)}
-                place={place}
-                onPress={() => handlePlacePress(getPlaceKey(place))}
-              />
+            monthGroups.map((group) => (
+              <View key={group.key} style={styles.monthSection}>
+                <View style={styles.monthHeader}>
+                  <View style={styles.monthDivider} />
+                  <Typography variant="label" color="muted" style={styles.monthLabel}>
+                    {group.label}
+                  </Typography>
+                  <View style={styles.monthDivider} />
+                </View>
+                {group.places.map((place) => (
+                  <PlaceCard
+                    key={getPlaceKey(place)}
+                    place={place}
+                    onPress={() => handlePlacePress(getPlaceKey(place))}
+                  />
+                ))}
+              </View>
             ))
           )}
         </View>
@@ -161,9 +204,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: layoutSpacing.xs,
   },
-  headerButtons: {
+  titleWithEmoji: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: layoutSpacing.sm,
+  },
+  headerEmoji: {
+    fontSize: 24,
   },
   stats: {
     flexDirection: 'row',
@@ -191,7 +238,25 @@ const styles = StyleSheet.create({
     borderColor: colors.primary.DEFAULT,
   },
   places: {
+    gap: layoutSpacing.lg,
+  },
+  monthSection: {
     gap: layoutSpacing.sm,
+  },
+  monthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.md,
+    paddingVertical: layoutSpacing.sm,
+  },
+  monthDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.dark.border,
+  },
+  monthLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   emptyState: {
     paddingVertical: layoutSpacing.xl,

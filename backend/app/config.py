@@ -3,6 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,7 +32,10 @@ class Settings(BaseSettings):
     plaid_env: Literal["sandbox", "development", "production"] = "sandbox"
 
     # Google Places
-    google_places_api_key: str = ""
+    google_places_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("GOOGLE_PLACES_API_KEY", "PLACES_API_KEY"),
+    )
 
     # OpenAI
     openai_api_key: str = ""

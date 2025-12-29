@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Animated, ScrollView } from 'react-native';
+import { View, StyleSheet, Animated, ScrollView, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
@@ -9,29 +9,44 @@ import { TasteRing } from '@/components/pulse/TasteRing';
 import { useTasteStore, useAuthStore } from '@/stores';
 import { tasteApi, ObservedTasteProfile } from '@/services/api';
 
-// Category color mapping
+// Category color mapping (matches backend TASTE_CATEGORIES)
 const CATEGORY_COLORS: Record<string, string> = {
-  adventurous: '#8B5CF6',
-  comfort: '#F59E0B',
-  social: '#EC4899',
-  quick: '#10B981',
-  refined: '#6366F1',
-  healthy: '#22C55E',
-  indulgent: '#EF4444',
+  coffee: '#8B4513',
+  dining: '#6366F1',
+  fast_food: '#F59E0B',
+  nightlife: '#EC4899',
+  entertainment: '#8B5CF6',
+  fitness: '#22C55E',
   default: '#6B7280',
 };
 
-// Category emoji mapping
+// Category emoji mapping (matches backend TASTE_CATEGORIES)
 const CATEGORY_EMOJIS: Record<string, string> = {
-  adventurous: '🌍',
-  comfort: '🏠',
-  social: '👥',
-  quick: '⚡',
-  refined: '✨',
-  healthy: '🥗',
-  indulgent: '🍫',
-  default: '🍽️',
+  coffee: '☕',
+  dining: '🍽️',
+  fast_food: '🍔',
+  nightlife: '🍸',
+  entertainment: '🎬',
+  fitness: '💪',
+  default: '🍴',
 };
+
+// Categories to filter out from display
+const HIDDEN_CATEGORIES = new Set(['groceries', 'other_food', 'other']);
+
+// Human-readable category names
+const CATEGORY_DISPLAY_NAMES: Record<string, string> = {
+  coffee: 'Coffee & Cafes',
+  dining: 'Restaurants',
+  fast_food: 'Fast Food',
+  nightlife: 'Nightlife',
+  entertainment: 'Entertainment',
+  fitness: 'Fitness',
+};
+
+function formatCategoryName(name: string): string {
+  return CATEGORY_DISPLAY_NAMES[name.toLowerCase()] || name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 interface CategoryBreakdown {
   name: string;
@@ -67,8 +82,9 @@ export default function EnhancedRevealScreen() {
           // Process observed taste for category breakdowns
           if (observedTaste?.categories) {
             const breakdowns: CategoryBreakdown[] = Object.entries(observedTaste.categories)
+              .filter(([name]) => !HIDDEN_CATEGORIES.has(name.toLowerCase()))
               .map(([name, data]) => ({
-                name,
+                name: formatCategoryName(name),
                 count: data.count,
                 merchants: data.merchants || [],
                 color: CATEGORY_COLORS[name.toLowerCase()] || CATEGORY_COLORS.default,
@@ -150,10 +166,10 @@ export default function EnhancedRevealScreen() {
           {categoryBreakdowns.length > 0 && (
             <View style={styles.breakdownSection}>
               <Typography variant="h4" color="primary" style={styles.sectionTitle}>
-                Your Dining Patterns
+                Your Top Categories
               </Typography>
 
-              {categoryBreakdowns.slice(0, 4).map((category) => (
+              {categoryBreakdowns.slice(0, 5).map((category) => (
                 <CategoryCard key={category.name} category={category} />
               ))}
             </View>
@@ -180,9 +196,9 @@ function CategoryCard({ category }: CategoryCardProps) {
     <Card variant="default" padding="md" style={styles.categoryCard}>
       <View style={styles.categoryHeader}>
         <View style={styles.categoryTitleRow}>
-          <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
+          <Text style={styles.categoryEmoji}>{category.emoji}</Text>
           <Typography variant="h4" color="primary">
-            {category.emoji} {category.name}
+            {category.name}
           </Typography>
         </View>
         <View style={styles.countBadge}>
@@ -192,21 +208,23 @@ function CategoryCard({ category }: CategoryCardProps) {
         </View>
       </View>
 
-      <View style={styles.merchantList}>
-        {displayMerchants.map((merchant, index) => (
-          <View key={index} style={styles.merchantRow}>
-            <View style={styles.merchantBullet} />
-            <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-              {merchant}
+      {displayMerchants.length > 0 && (
+        <View style={styles.merchantList}>
+          {displayMerchants.map((merchant, index) => (
+            <View key={index} style={styles.merchantRow}>
+              <View style={styles.merchantBullet} />
+              <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
+                {merchant}
+              </Typography>
+            </View>
+          ))}
+          {remainingCount > 0 && (
+            <Typography variant="caption" color="muted" style={styles.moreText}>
+              +{remainingCount} more places
             </Typography>
-          </View>
-        ))}
-        {remainingCount > 0 && (
-          <Typography variant="caption" color="muted" style={styles.moreText}>
-            +{remainingCount} more places
-          </Typography>
-        )}
-      </View>
+          )}
+        </View>
+      )}
     </Card>
   );
 }
@@ -264,10 +282,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.sm,
   },
-  categoryDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  categoryEmoji: {
+    fontSize: 20,
   },
   countBadge: {
     backgroundColor: colors.dark.surfaceAlt,
