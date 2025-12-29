@@ -201,7 +201,7 @@ async def get_taste_profile(
                 .maybe_single()
                 .execute()
             )
-            if analysis_result.data:
+            if analysis_result and analysis_result.data:
                 observed_data["categories"] = analysis_result.data.get("categories", {})
         except Exception:
             pass  # Continue without observed data
@@ -389,16 +389,20 @@ async def get_fused_taste(
     )
 
     # Fetch user_analysis (observed)
-    observed_result = (
-        supabase.table("user_analysis")
-        .select("*")
-        .eq("user_id", user_id)
-        .maybe_single()
-        .execute()
-    )
+    try:
+        observed_result = (
+            supabase.table("user_analysis")
+            .select("*")
+            .eq("user_id", user_id)
+            .maybe_single()
+            .execute()
+        )
+    except Exception as e:
+        print(f"[Taste] Error fetching user_analysis: {e}")
+        observed_result = None
 
     # Build DeclaredTaste
-    declared_data = declared_result.data or {}
+    declared_data = declared_result.data if declared_result else {}
     declared_taste = DeclaredTaste(
         vibe_preferences=declared_data.get("vibe_preferences") or [],
         cuisine_preferences=declared_data.get("cuisine_preferences") or [],
@@ -407,8 +411,8 @@ async def get_fused_taste(
         price_tier=declared_data.get("price_tier"),
     )
 
-    # Build UserAnalysis from DB data
-    observed_data = observed_result.data or {}
+    # Build UserAnalysis from DB data (may be empty if no transactions analyzed yet)
+    observed_data = observed_result.data if observed_result and observed_result.data else {}
     user_analysis = UserAnalysis(user_id=user_id)
     user_analysis.total_transactions = observed_data.get("total_transactions", 0)
 
