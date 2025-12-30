@@ -35,11 +35,25 @@ class VenueResponse(BaseModel):
     match_score: int
     match_reasons: list[str]
     google_rating: float | None
+    google_review_count: int | None
     formatted_address: str | None
     photo_url: str | None
     photo_urls: list[str]  # All venue photos for carousel
     lat: float | None
     lng: float | None
+    # Rich Places API data
+    google_maps_uri: str | None
+    website_uri: str | None
+    editorial_summary: str | None
+    generative_summary: str | None
+    opening_hours: dict | None
+    # Atmosphere features
+    dine_in: bool | None
+    delivery: bool | None
+    takeout: bool | None
+    reservable: bool | None
+    good_for_groups: bool | None
+    outdoor_seating: bool | None
 
 
 class DiscoverFeedResponse(BaseModel):
@@ -219,11 +233,25 @@ async def get_discover_feed(
                 match_score=item["match_score"],
                 match_reasons=item.get("reasons", []),
                 google_rating=venue.get("google_rating"),
+                google_review_count=venue.get("google_review_count"),
                 formatted_address=venue.get("formatted_address"),
                 photo_url=photo_url,
                 photo_urls=photo_refs,
                 lat=venue.get("lat"),
                 lng=venue.get("lng"),
+                # Rich Places API data
+                google_maps_uri=venue.get("google_maps_uri"),
+                website_uri=venue.get("website_uri"),
+                editorial_summary=venue.get("editorial_summary"),
+                generative_summary=venue.get("generative_summary"),
+                opening_hours=venue.get("opening_hours"),
+                # Atmosphere features
+                dine_in=venue.get("dine_in"),
+                delivery=venue.get("delivery"),
+                takeout=venue.get("takeout"),
+                reservable=venue.get("reservable"),
+                good_for_groups=venue.get("good_for_groups"),
+                outdoor_seating=venue.get("outdoor_seating"),
             )
         )
 
@@ -322,10 +350,24 @@ def _db_to_venue_dict(db_record: dict) -> dict:
         "standout": db_record.get("standout") or [],
         "tagline": db_record.get("tagline"),
         "google_rating": db_record.get("google_rating"),
+        "google_review_count": db_record.get("google_review_count"),
         "formatted_address": db_record.get("formatted_address"),
         "photo_references": db_record.get("photo_references") or [],
         "lat": db_record.get("lat"),
         "lng": db_record.get("lng"),
+        # Rich Places API data
+        "google_maps_uri": db_record.get("google_maps_uri"),
+        "website_uri": db_record.get("website_uri"),
+        "editorial_summary": db_record.get("editorial_summary"),
+        "generative_summary": db_record.get("generative_summary"),
+        "opening_hours": db_record.get("opening_hours"),
+        # Atmosphere features
+        "dine_in": db_record.get("dine_in"),
+        "delivery": db_record.get("delivery"),
+        "takeout": db_record.get("takeout"),
+        "reservable": db_record.get("reservable"),
+        "good_for_groups": db_record.get("good_for_groups"),
+        "outdoor_seating": db_record.get("outdoor_seating"),
     }
 
 
@@ -393,11 +435,25 @@ async def get_venue_detail(
         match_score=match_score,
         match_reasons=match_reasons,
         google_rating=venue.get("google_rating"),
+        google_review_count=venue.get("google_review_count"),
         formatted_address=venue.get("formatted_address"),
         photo_url=photo_url,
         photo_urls=photo_refs,
         lat=venue.get("lat"),
         lng=venue.get("lng"),
+        # Rich Places API data
+        google_maps_uri=venue.get("google_maps_uri"),
+        website_uri=venue.get("website_uri"),
+        editorial_summary=venue.get("editorial_summary"),
+        generative_summary=venue.get("generative_summary"),
+        opening_hours=venue.get("opening_hours"),
+        # Atmosphere features
+        dine_in=venue.get("dine_in"),
+        delivery=venue.get("delivery"),
+        takeout=venue.get("takeout"),
+        reservable=venue.get("reservable"),
+        good_for_groups=venue.get("good_for_groups"),
+        outdoor_seating=venue.get("outdoor_seating"),
     )
 
 

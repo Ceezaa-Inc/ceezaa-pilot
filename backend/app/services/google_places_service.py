@@ -602,7 +602,7 @@ class GooglePlacesService:
         record = {
             "google_place_id": details.place_id,
             "name": details.name,
-            "formatted_address": details.formatted_address,
+            "formatted_address": details.formatted_address.strip() if details.formatted_address else None,
             "lat": details.lat,
             "lng": details.lng,
             "city": city,

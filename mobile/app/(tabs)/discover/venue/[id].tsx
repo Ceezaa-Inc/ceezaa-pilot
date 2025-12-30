@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,94 +6,40 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  FlatList,
   Dimensions,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import Carousel from 'react-native-reanimated-carousel';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
-import { getVenueById, formatHoursForDisplay, Venue } from '@/mocks/venues';
 import { discoverApi, DiscoverVenue } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_HEIGHT = 250;
-
-type VenueDisplay = {
-  name: string;
-  cuisineType: string;
-  priceString: string;
-  neighborhood: string;
-  rating: number | null;
-  reviewCount: number | null;
-  matchScore: number;
-  address: string;
-  tagline: string | null;
-  tags: string[];
-  features: string[];
-  bestFor: string[];
-  photoUrls: string[];
-};
-
-function getMockVenueDisplay(venue: Venue): VenueDisplay {
-  return {
-    name: venue.name,
-    cuisineType: venue.cuisine || venue.type,
-    priceString: '$'.repeat(venue.priceLevel),
-    neighborhood: venue.neighborhood,
-    rating: venue.rating,
-    reviewCount: venue.reviewCount,
-    matchScore: venue.matchPercentage,
-    address: venue.address,
-    tagline: null,
-    tags: venue.tags,
-    features: venue.features,
-    bestFor: venue.moods,
-    photoUrls: venue.image ? [venue.image] : [],
-  };
-}
-
-function getApiVenueDisplay(venue: DiscoverVenue): VenueDisplay {
-  return {
-    name: venue.name,
-    cuisineType: venue.cuisine_type || venue.taste_cluster || 'Restaurant',
-    priceString: venue.price_tier || '$$',
-    neighborhood: venue.formatted_address?.split(',')[0] || '',
-    rating: venue.google_rating,
-    reviewCount: null,
-    matchScore: venue.match_score,
-    address: venue.formatted_address || '',
-    tagline: venue.tagline,
-    tags: [],
-    features: [],
-    bestFor: venue.best_for || [],
-    photoUrls: venue.photo_urls || [],
-  };
-}
+const HERO_HEIGHT = 300;
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const userId = user?.id || 'test-user';
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiVenue, setApiVenue] = useState<DiscoverVenue | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [venue, setVenue] = useState<DiscoverVenue | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hoursExpanded, setHoursExpanded] = useState(false);
 
-  // First try mock venue
-  const mockVenue = getVenueById(id || '');
-
-  // If no mock venue, fetch from API
   useEffect(() => {
-    if (!mockVenue && id) {
+    if (id) {
       setIsLoading(true);
-      discoverApi.getVenue(id, userId)
-        .then((venue) => {
-          setApiVenue(venue);
+      discoverApi
+        .getVenue(id, userId)
+        .then((data) => {
+          setVenue(data);
           setError(null);
         })
         .catch((err) => {
@@ -103,39 +49,42 @@ export default function VenueDetailScreen() {
           setIsLoading(false);
         });
     }
-  }, [id, mockVenue, userId]);
+  }, [id, userId]);
 
-  // Determine display data
-  const display: VenueDisplay | null = mockVenue
-    ? getMockVenueDisplay(mockVenue)
-    : apiVenue
-      ? getApiVenueDisplay(apiVenue)
-      : null;
+  const openGoogleMaps = () => {
+    if (venue?.google_maps_uri) {
+      Linking.openURL(venue.google_maps_uri);
+    } else if (venue?.formatted_address) {
+      const query = encodeURIComponent(venue.formatted_address);
+      Linking.openURL(`https://maps.google.com/?q=${query}`);
+    }
+  };
 
+  const openWebsite = () => {
+    if (venue?.website_uri) {
+      Linking.openURL(venue.website_uri);
+    }
+  };
+
+  // Loading state
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Typography variant="body" color="primary">
-              ← Back
-            </Typography>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.emptyState}>
-          <ActivityIndicator color={colors.primary.DEFAULT} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={colors.primary.DEFAULT} size="large" />
         </View>
       </SafeAreaView>
     );
   }
 
-  if (!display || error) {
+  // Error state
+  if (!venue || error) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Typography variant="body" color="primary">
-              ← Back
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Typography variant="h4" color="primary">
+              ←
             </Typography>
           </TouchableOpacity>
         </View>
@@ -148,165 +97,151 @@ export default function VenueDetailScreen() {
     );
   }
 
-  const handleScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
-    const slideIndex = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
-    setCurrentImageIndex(slideIndex);
+  // Derived display data
+  const photoUrls = venue.photo_urls || [];
+  const summary = venue.generative_summary || venue.editorial_summary || venue.tagline;
+  const cuisineDisplay = venue.cuisine_type || venue.taste_cluster || 'Restaurant';
+  const priceDisplay = venue.price_tier || '$$';
+
+  // Build amenities list
+  const amenities = [
+    { icon: '🍽', label: 'Dine-in', active: venue.dine_in },
+    { icon: '🚗', label: 'Delivery', active: venue.delivery },
+    { icon: '📦', label: 'Takeout', active: venue.takeout },
+    { icon: '📅', label: 'Reservable', active: venue.reservable },
+    { icon: '👥', label: 'Groups', active: venue.good_for_groups },
+    { icon: '🌳', label: 'Outdoor', active: venue.outdoor_seating },
+  ].filter((a) => a.active);
+
+  // Parse hours status
+  const getHoursStatus = () => {
+    if (!venue.opening_hours) return null;
+    const isOpen = venue.opening_hours.openNow;
+    return isOpen ? 'Open now' : 'Closed';
   };
+
+  const hoursStatus = getHoursStatus();
+  const weekdayHours = venue.opening_hours?.weekdayDescriptions || [];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
         {/* Hero Image Carousel */}
         <View style={styles.heroContainer}>
-          {display.photoUrls.length > 0 ? (
-            <FlatList
-              data={display.photoUrls}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => (
-                <Image source={{ uri: item }} style={styles.heroImage} resizeMode="cover" />
+          {photoUrls.length > 0 ? (
+            <>
+              <Carousel
+                data={photoUrls}
+                width={SCREEN_WIDTH}
+                height={HERO_HEIGHT}
+                onSnapToItem={setCurrentImageIndex}
+                renderItem={({ item }) => (
+                  <Image
+                    source={{ uri: item }}
+                    style={styles.heroImage}
+                    resizeMode="cover"
+                  />
+                )}
+              />
+              {/* Pagination Dots */}
+              {photoUrls.length > 1 && (
+                <View style={styles.paginationDots}>
+                  {photoUrls.map((_, index) => (
+                    <View
+                      key={index}
+                      style={[styles.dot, currentImageIndex === index && styles.dotActive]}
+                    />
+                  ))}
+                </View>
               )}
-            />
+            </>
           ) : (
             <View style={styles.heroPlaceholder}>
               <Typography variant="h1">🍽️</Typography>
             </View>
           )}
-          <TouchableOpacity style={styles.backButtonOverlay} onPress={() => router.back()}>
+
+          {/* Floating Back Button */}
+          <TouchableOpacity style={styles.floatingBack} onPress={() => router.back()}>
             <Typography variant="body" color="primary">
               ←
             </Typography>
           </TouchableOpacity>
-          <View style={styles.matchBadge}>
-            <Typography variant="h4" color="gold">
-              {display.matchScore}% Match
-            </Typography>
-          </View>
-          {/* Pagination Dots */}
-          {display.photoUrls.length > 1 && (
-            <View style={styles.paginationDots}>
-              {display.photoUrls.map((_, index) => (
-                <View
-                  key={index}
-                  style={[styles.dot, currentImageIndex === index && styles.dotActive]}
-                />
-              ))}
-            </View>
-          )}
         </View>
 
         <View style={styles.content}>
-          {/* Header Info */}
-          <View style={styles.headerInfo}>
-            <Typography variant="h2" color="primary">
-              {display.name}
-            </Typography>
-            {display.tagline && (
-              <Typography variant="body" color="secondary">
-                {display.tagline}
-              </Typography>
-            )}
-            <View style={styles.metaRow}>
-              <Typography variant="body" color="secondary">
-                {display.cuisineType} • {display.priceString} • {display.neighborhood}
-              </Typography>
-            </View>
-            {display.rating && (
-              <View style={styles.ratingRow}>
+          {/* Venue Name */}
+          <Typography variant="h2" color="primary">
+            {venue.name}
+          </Typography>
+
+          {/* Compact Info Bar */}
+          <View style={styles.infoBar}>
+            {venue.google_rating && (
+              <>
                 <Typography variant="body" color="gold">
-                  ★ {display.rating}
+                  ★ {venue.google_rating}
                 </Typography>
-                {display.reviewCount && (
+                {venue.google_review_count && (
                   <Typography variant="bodySmall" color="muted">
-                    ({display.reviewCount} reviews)
+                    ({venue.google_review_count.toLocaleString()})
                   </Typography>
                 )}
-              </View>
+                <Typography variant="body" color="muted">
+                  ·
+                </Typography>
+              </>
             )}
+            <Typography variant="body" color="secondary">
+              {priceDisplay}
+            </Typography>
+            <Typography variant="body" color="muted">
+              ·
+            </Typography>
+            <Typography variant="body" color="secondary">
+              {cuisineDisplay}
+            </Typography>
           </View>
 
-          {/* Tags */}
-          {display.tags.length > 0 && (
-            <View style={styles.tagsContainer}>
-              {display.tags.map((tag) => (
-                <View key={tag} style={styles.tag}>
-                  <Typography variant="caption" color="secondary">
-                    {tag}
-                  </Typography>
-                </View>
-              ))}
-            </View>
+          {/* AI Summary */}
+          {summary && (
+            <Typography variant="body" color="secondary" style={styles.summary}>
+              {summary}
+            </Typography>
           )}
 
-          {/* Details Card */}
-          {display.address && (
-            <Card variant="default" padding="md" style={styles.detailsCard}>
-              <View style={styles.detailRow}>
-                <Typography variant="body" color="muted">
-                  📍 Address
-                </Typography>
-                <Typography variant="body" color="primary" style={styles.addressText}>
-                  {display.address}
-                </Typography>
-              </View>
-            </Card>
-          )}
-
-          {/* Hours Section - only for mock venues */}
-          {mockVenue && (
-            <View style={styles.section}>
-              <Typography variant="label" color="muted">
-                Hours
+          {/* Match Card */}
+          <Card variant="default" padding="md" style={styles.matchCard}>
+            <View style={styles.matchHeader}>
+              <Typography variant="h3" color="gold">
+                {venue.match_score}% Match
               </Typography>
-              <Card variant="default" padding="md" style={styles.hoursCard}>
-                {formatHoursForDisplay(mockVenue.hours).map((item, index) => (
-                  <View key={index} style={styles.hoursRow}>
-                    <Typography variant="bodySmall" color="secondary">
-                      {item.label}
-                    </Typography>
-                    <Typography
-                      variant="bodySmall"
-                      color={item.time === 'Closed' ? 'muted' : 'primary'}
-                    >
-                      {item.time}
-                    </Typography>
-                  </View>
-                ))}
-              </Card>
             </View>
-          )}
-
-          {/* Features */}
-          {display.features.length > 0 && (
-            <View style={styles.section}>
-              <Typography variant="label" color="muted">
-                Features
-              </Typography>
-              <View style={styles.featuresGrid}>
-                {display.features.map((feature) => (
-                  <View key={feature} style={styles.featureItem}>
-                    <Typography variant="bodySmall" color="secondary">
-                      ✓ {feature}
+            {venue.match_reasons.length > 0 && (
+              <View style={styles.matchReasons}>
+                {venue.match_reasons.slice(0, 3).map((reason, index) => (
+                  <View key={index} style={styles.matchReasonRow}>
+                    <Typography variant="body" color="gold">
+                      ✓
+                    </Typography>
+                    <Typography variant="bodySmall" color="secondary" style={styles.matchReasonText}>
+                      {reason}
                     </Typography>
                   </View>
                 ))}
               </View>
-            </View>
-          )}
+            )}
+          </Card>
 
           {/* Best For */}
-          {display.bestFor.length > 0 && (
+          {venue.best_for.length > 0 && (
             <View style={styles.section}>
               <Typography variant="label" color="muted">
-                Best For
+                BEST FOR
               </Typography>
-              <View style={styles.moodsRow}>
-                {display.bestFor.map((item) => (
-                  <View key={item} style={styles.moodChip}>
+              <View style={styles.chipRow}>
+                {venue.best_for.map((item) => (
+                  <View key={item} style={styles.chip}>
                     <Typography variant="caption" color="primary">
                       {item.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                     </Typography>
@@ -315,12 +250,99 @@ export default function VenueDetailScreen() {
               </View>
             </View>
           )}
+
+          {/* Amenities */}
+          {amenities.length > 0 && (
+            <View style={styles.section}>
+              <Typography variant="label" color="muted">
+                AMENITIES
+              </Typography>
+              <View style={styles.amenitiesGrid}>
+                {amenities.map((amenity) => (
+                  <View key={amenity.label} style={styles.amenityItem}>
+                    <Typography variant="body">{amenity.icon}</Typography>
+                    <Typography variant="bodySmall" color="secondary">
+                      {amenity.label}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Hours */}
+          {venue.opening_hours && (
+            <View style={styles.section}>
+              <Typography variant="label" color="muted">
+                HOURS
+              </Typography>
+              <TouchableOpacity
+                style={styles.hoursRow}
+                onPress={() => setHoursExpanded(!hoursExpanded)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.hoursStatus}>
+                  <Typography
+                    variant="body"
+                    color={venue.opening_hours.openNow ? 'success' : 'error'}
+                  >
+                    {hoursStatus}
+                  </Typography>
+                  <Typography variant="bodySmall" color="muted">
+                    {hoursExpanded ? '▲' : '▼'}
+                  </Typography>
+                </View>
+              </TouchableOpacity>
+              {hoursExpanded && weekdayHours.length > 0 && (
+                <View style={styles.hoursExpanded}>
+                  {weekdayHours.map((day, index) => (
+                    <Typography key={index} variant="bodySmall" color="secondary">
+                      {day}
+                    </Typography>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Address Row */}
+          {venue.formatted_address && (
+            <TouchableOpacity style={styles.addressRow} onPress={openGoogleMaps} activeOpacity={0.7}>
+              <Typography variant="body" color="primary">
+                📍
+              </Typography>
+              <Typography variant="body" color="secondary" style={styles.addressText}>
+                {venue.formatted_address}
+              </Typography>
+              <Typography variant="body" color="muted">
+                →
+              </Typography>
+            </TouchableOpacity>
+          )}
+
+          {/* Website Link */}
+          {venue.website_uri && (
+            <TouchableOpacity style={styles.websiteRow} onPress={openWebsite} activeOpacity={0.7}>
+              <Typography variant="body" color="primary">
+                🌐
+              </Typography>
+              <Typography variant="body" color="secondary" style={styles.addressText}>
+                Visit website
+              </Typography>
+              <Typography variant="body" color="muted">
+                →
+              </Typography>
+            </TouchableOpacity>
+          )}
+
+          {/* Spacer for bottom CTA */}
+          <View style={styles.bottomSpacer} />
         </View>
       </ScrollView>
 
       {/* Bottom CTA */}
       <View style={styles.bottomCTA}>
-        <Button label="Book a Table" fullWidth onPress={() => {}} />
+        <Button label="Check it out" fullWidth onPress={openGoogleMaps} />
       </View>
     </SafeAreaView>
   );
@@ -330,6 +352,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.dark.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    padding: layoutSpacing.lg,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: layoutSpacing.xl,
   },
   heroContainer: {
     height: HERO_HEIGHT,
@@ -346,7 +388,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backButtonOverlay: {
+  floatingBack: {
     position: 'absolute',
     top: layoutSpacing.md,
     left: layoutSpacing.md,
@@ -356,97 +398,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dark.background,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  matchBadge: {
-    position: 'absolute',
-    bottom: layoutSpacing.md,
-    right: layoutSpacing.md,
-    paddingHorizontal: layoutSpacing.md,
-    paddingVertical: layoutSpacing.sm,
-    backgroundColor: colors.primary.muted,
-    borderRadius: borderRadius.md,
-  },
-  content: {
-    padding: layoutSpacing.lg,
-    gap: layoutSpacing.lg,
-  },
-  headerInfo: {
-    gap: layoutSpacing.xs,
-  },
-  metaRow: {
-    flexDirection: 'row',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.sm,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: layoutSpacing.sm,
-  },
-  tag: {
-    paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: 4,
-    backgroundColor: colors.dark.surface,
-    borderRadius: borderRadius.sm,
-  },
-  detailsCard: {
-    gap: layoutSpacing.md,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: layoutSpacing.md,
-  },
-  addressText: {
-    flex: 1,
-    textAlign: 'right',
-  },
-  hoursCard: {
-    gap: layoutSpacing.sm,
-  },
-  hoursRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  section: {
-    gap: layoutSpacing.sm,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: layoutSpacing.sm,
-  },
-  featureItem: {
-    width: '48%',
-  },
-  moodsRow: {
-    flexDirection: 'row',
-    gap: layoutSpacing.sm,
-  },
-  moodChip: {
-    paddingHorizontal: layoutSpacing.md,
-    paddingVertical: layoutSpacing.sm,
-    backgroundColor: colors.primary.muted,
-    borderRadius: borderRadius.full,
-  },
-  bottomCTA: {
-    padding: layoutSpacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.dark.border,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: layoutSpacing.xl,
-  },
-  header: {
-    padding: layoutSpacing.lg,
   },
   paginationDots: {
     position: 'absolute',
@@ -469,5 +420,106 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  content: {
+    padding: layoutSpacing.lg,
+    gap: layoutSpacing.md,
+  },
+  infoBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+    flexWrap: 'wrap',
+  },
+  summary: {
+    lineHeight: 22,
+  },
+  matchCard: {
+    backgroundColor: colors.primary.muted,
+    gap: layoutSpacing.sm,
+  },
+  matchHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  matchReasons: {
+    gap: layoutSpacing.xs,
+  },
+  matchReasonRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: layoutSpacing.sm,
+  },
+  matchReasonText: {
+    flex: 1,
+  },
+  section: {
+    gap: layoutSpacing.sm,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: layoutSpacing.sm,
+  },
+  chip: {
+    paddingHorizontal: layoutSpacing.md,
+    paddingVertical: layoutSpacing.sm,
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.full,
+  },
+  amenitiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: layoutSpacing.md,
+  },
+  amenityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.xs,
+    width: '45%',
+  },
+  hoursRow: {
+    paddingVertical: layoutSpacing.sm,
+  },
+  hoursStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+  },
+  hoursExpanded: {
+    gap: 4,
+    paddingTop: layoutSpacing.sm,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+    paddingVertical: layoutSpacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+  },
+  websiteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+    paddingVertical: layoutSpacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+  },
+  addressText: {
+    flex: 1,
+  },
+  bottomSpacer: {
+    height: 80,
+  },
+  bottomCTA: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: layoutSpacing.lg,
+    backgroundColor: colors.dark.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
   },
 });

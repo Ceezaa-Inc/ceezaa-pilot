@@ -240,11 +240,28 @@ export interface DiscoverVenue {
   match_score: number;
   match_reasons: string[];
   google_rating: number | null;
+  google_review_count: number | null;
   formatted_address: string | null;
   photo_url: string | null;
   photo_urls: string[];  // All venue photos for carousel
   lat: number | null;
   lng: number | null;
+  // Rich Places API data
+  google_maps_uri: string | null;
+  website_uri: string | null;
+  editorial_summary: string | null;
+  generative_summary: string | null;
+  opening_hours: {
+    weekdayDescriptions?: string[];
+    openNow?: boolean;
+  } | null;
+  // Atmosphere features
+  dine_in: boolean | null;
+  delivery: boolean | null;
+  takeout: boolean | null;
+  reservable: boolean | null;
+  good_for_groups: boolean | null;
+  outdoor_seating: boolean | null;
 }
 
 export interface DiscoverFeedResponse {
