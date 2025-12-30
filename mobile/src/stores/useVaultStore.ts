@@ -108,6 +108,7 @@ interface VaultState {
   stats: VaultStats;
   isLoading: boolean;
   error: string | null;
+  hasFetched: boolean;
 
   // Actions
   fetchVisits: (userId: string) => Promise<void>;
@@ -128,6 +129,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   stats: { totalPlaces: 0, totalVisits: 0, thisMonthSpent: 0 },
   isLoading: false,
   error: null,
+  hasFetched: false,
 
   fetchVisits: async (userId: string) => {
     set({ isLoading: true, error: null });
@@ -148,10 +150,11 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           thisMonthSpent: response.stats.this_month_spent,
         },
         isLoading: false,
+        hasFetched: true,
       });
     } catch (error) {
       console.error('[Vault] Failed to fetch visits:', error);
-      set({ isLoading: false, error: 'Failed to load visits' });
+      set({ isLoading: false, error: 'Failed to load visits', hasFetched: true });
     }
   },
 

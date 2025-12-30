@@ -17,7 +17,7 @@ const formatCurrency = (amount: number): string => {
 export default function PulseScreen() {
   const { insights, fetchFusedProfile, fetchInsights, hasFetched, hasFetchedInsights, isLoadingInsights } = useTasteStore();
   const { user } = useAuthStore();
-  const { stats } = useVaultStore();
+  const { stats, fetchVisits, hasFetched: hasFetchedVault } = useVaultStore();
 
   // Fetch data when screen comes into focus
   useFocusEffect(
@@ -32,8 +32,13 @@ export default function PulseScreen() {
         if (!hasFetchedInsights) {
           fetchInsights(user.id);
         }
+
+        // Fetch vault stats if not already fetched
+        if (!hasFetchedVault) {
+          fetchVisits(user.id);
+        }
       }
-    }, [user?.id, hasFetched, hasFetchedInsights])
+    }, [user?.id, hasFetched, hasFetchedInsights, hasFetchedVault])
   );
 
   const navigateToVault = () => {
