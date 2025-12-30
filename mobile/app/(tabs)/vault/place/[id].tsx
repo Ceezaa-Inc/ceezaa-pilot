@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -23,6 +23,21 @@ const formatVenueType = (type: string | null | undefined): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+// Venue type emoji mapping for fallback when no photo
+const VENUE_TYPE_EMOJIS: Record<string, string> = {
+  coffee: '☕',
+  dining: '🍽️',
+  fast_food: '🍔',
+  nightlife: '🍸',
+  bakery: '🥐',
+  default: '🍴',
+};
+
+function getVenueEmoji(venueType: string | null | undefined): string {
+  if (!venueType) return VENUE_TYPE_EMOJIS.default;
+  return VENUE_TYPE_EMOJIS[venueType] || VENUE_TYPE_EMOJIS.default;
+}
 
 // Group visits by date
 interface DayGroup {
@@ -122,11 +137,11 @@ export default function PlaceDetailScreen() {
           </View>
 
           <View style={styles.titleRow}>
-            <View style={styles.reactionBadge}>
-              {selectedPlace.reaction ? (
-                <Text style={styles.reactionEmoji}>{getReactionEmoji(selectedPlace.reaction)}</Text>
+            <View style={styles.venueBadge}>
+              {selectedPlace.photoUrl ? (
+                <Image source={{ uri: selectedPlace.photoUrl }} style={styles.venuePhoto} />
               ) : (
-                <Typography variant="h3" color="gold">?</Typography>
+                <Text style={styles.venueEmoji}>{getVenueEmoji(selectedPlace.venueType)}</Text>
               )}
             </View>
             <View style={styles.titleInfo}>
@@ -277,13 +292,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.md,
   },
-  reactionBadge: {
+  venueBadge: {
     width: 64,
     height: 64,
     borderRadius: borderRadius.lg,
     backgroundColor: colors.dark.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  venuePhoto: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.lg,
   },
   titleInfo: {
     flex: 1,
@@ -350,7 +371,7 @@ const styles = StyleSheet.create({
     marginTop: layoutSpacing.xs,
     fontStyle: 'italic',
   },
-  reactionEmoji: {
+  venueEmoji: {
     fontSize: 32,
     lineHeight: 40,
     textAlign: 'center',
