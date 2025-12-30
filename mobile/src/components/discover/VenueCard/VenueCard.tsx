@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
@@ -55,6 +55,7 @@ function getVenueDisplay(venue: VenueData) {
       tagline: venue.tagline || 'A local favorite',
       subtitle: `${cuisineOrCluster} • ${priceDisplay}`,
       matchScore: venue.match_score,
+      photoUrl: venue.photo_url,
     };
   } else {
     // Mock venue format
@@ -63,19 +64,29 @@ function getVenueDisplay(venue: VenueData) {
       tagline: `${venue.neighborhood} gem`,
       subtitle: `${venue.cuisine || venue.type} • ${'$'.repeat(venue.priceLevel)}`,
       matchScore: venue.matchPercentage,
+      photoUrl: venue.image,
     };
   }
 }
 
 export function VenueCard({ venue, onPress }: VenueCardProps) {
   const display = getVenueDisplay(venue);
+  const [imageError, setImageError] = useState(false);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
       <Card variant="default" padding="md" style={styles.card}>
         <View style={styles.row}>
           <View style={styles.imageContainer}>
-            <Typography variant="h3">🍽️</Typography>
+            {display.photoUrl && !imageError ? (
+              <Image
+                source={{ uri: display.photoUrl }}
+                style={styles.image}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <Typography variant="h3">🍽️</Typography>
+            )}
           </View>
           <View style={styles.info}>
             <Typography variant="h4" color="primary" numberOfLines={1}>
@@ -115,6 +126,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dark.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  image: {
+    width: 56,
+    height: 56,
+    borderRadius: borderRadius.md,
   },
   info: {
     flex: 1,
