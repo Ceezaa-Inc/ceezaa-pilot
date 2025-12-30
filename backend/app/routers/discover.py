@@ -280,7 +280,7 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
         supabase.table("fused_taste")
         .select("*")
         .eq("user_id", user_id)
-        .maybe_single()
+        .limit(1)
         .execute()
     )
 
@@ -288,11 +288,11 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
         supabase.table("declared_taste")
         .select("*")
         .eq("user_id", user_id)
-        .maybe_single()
+        .limit(1)
         .execute()
     )
 
-    declared = declared_result.data
+    declared = declared_result.data[0] if declared_result.data else None
 
     if not declared:
         return None
@@ -308,7 +308,7 @@ async def _get_user_taste(user_id: str, supabase: Client) -> dict | None:
         "coffee_preference": declared.get("coffee_preference"),
     }
 
-    fused = fused_result.data
+    fused = fused_result.data[0] if fused_result.data else None
     if fused:
         # Parse categories from fused taste (list of dicts with name, percentage)
         categories_list = fused.get("categories", [])
