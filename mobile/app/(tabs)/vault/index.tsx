@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -52,7 +52,7 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
 ];
 
 export default function VaultScreen() {
-  const { filteredPlaces, currentFilter, setFilter, stats, addVisit, fetchVisits } = useVaultStore();
+  const { filteredPlaces, currentFilter, setFilter, stats, addVisit, fetchVisits, isLoading } = useVaultStore();
   const { user } = useAuthStore();
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -82,7 +82,6 @@ export default function VaultScreen() {
           <View style={styles.titleRow}>
             <View style={styles.titleInfo}>
               <View style={styles.titleWithEmoji}>
-                <Text style={styles.headerEmoji}>📖</Text>
                 <Typography variant="h2" color="primary">
                   My Food Diary
                 </Typography>
@@ -131,7 +130,14 @@ export default function VaultScreen() {
 
         {/* Places List - Grouped by Month */}
         <View style={styles.places}>
-          {filteredPlaces.length === 0 ? (
+          {isLoading ? (
+            <View style={styles.loadingState}>
+              <ActivityIndicator size="large" color={colors.primary.DEFAULT} />
+              <Typography variant="body" color="secondary" style={styles.loadingText}>
+                Loading your food diary...
+              </Typography>
+            </View>
+          ) : filteredPlaces.length === 0 ? (
             <View style={styles.emptyState}>
               <Typography variant="body" color="muted" align="center">
                 No places found with this filter
@@ -269,5 +275,14 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     paddingVertical: layoutSpacing.xl,
+  },
+  loadingState: {
+    paddingVertical: layoutSpacing.xl * 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: layoutSpacing.md,
+  },
+  loadingText: {
+    marginTop: layoutSpacing.sm,
   },
 });

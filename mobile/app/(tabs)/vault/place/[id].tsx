@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -6,7 +6,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
-import { ReactionPicker } from '@/components/vault';
+import { ReactionPicker, AddVisitModal } from '@/components/vault';
 import { useVaultStore, Visit, Reaction } from '@/stores/useVaultStore';
 import { getReactionEmoji } from '@/mocks/visits';
 
@@ -58,7 +58,8 @@ function groupVisitsByDay(visits: Visit[]): DayGroup[] {
 
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { selectedPlace, setSelectedPlace, updateReaction } = useVaultStore();
+  const { selectedPlace, setSelectedPlace, updateReaction, addVisit } = useVaultStore();
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Group visits by day
   const dayGroups = useMemo(
@@ -97,11 +98,19 @@ export default function PlaceDetailScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Typography variant="body" color="primary">
-              ← Back
-            </Typography>
-          </TouchableOpacity>
+          <View style={styles.headerNav}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Typography variant="body" color="primary">
+                ← Back
+              </Typography>
+            </TouchableOpacity>
+            <Button
+              label="+ Add Visit"
+              variant="secondary"
+              size="sm"
+              onPress={() => setShowAddModal(true)}
+            />
+          </View>
 
           <View style={styles.titleRow}>
             <View style={styles.reactionBadge}>
@@ -180,6 +189,13 @@ export default function PlaceDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <AddVisitModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAddVisit={addVisit}
+        preselectedVenue={selectedPlace}
+      />
     </SafeAreaView>
   );
 }
@@ -238,6 +254,11 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: layoutSpacing.md,
+  },
+  headerNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   backButton: {
     marginBottom: layoutSpacing.xs,
