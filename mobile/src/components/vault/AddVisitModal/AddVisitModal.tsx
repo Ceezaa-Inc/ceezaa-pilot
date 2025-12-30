@@ -18,8 +18,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
-import { ReactionPicker } from '@/components/vault';
-import { useVaultStore, Place, Reaction, AddVisitData } from '@/stores/useVaultStore';
+import { useVaultStore, Place, AddVisitData } from '@/stores/useVaultStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { discoverApi, DiscoverVenue } from '@/services/api';
 
@@ -114,8 +113,6 @@ export function AddVisitModal({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
-  const [rateNow, setRateNow] = useState(false);
-  const [reaction, setReaction] = useState<Reaction | undefined>(undefined);
 
   // Discover venues state
   const [discoverVenues, setDiscoverVenues] = useState<DiscoverVenue[]>([]);
@@ -232,8 +229,6 @@ export function AddVisitModal({
     setShowDatePicker(false);
     setAmount('');
     setNotes('');
-    setRateNow(false);
-    setReaction(undefined);
     onClose();
   };
 
@@ -257,7 +252,6 @@ export function AddVisitModal({
       date: formatDateForApi(date),
       amount: amount ? parseFloat(amount) : undefined,
       notes: notes.trim() || undefined,
-      reaction: rateNow ? reaction : undefined,
       photoUrl: selectedVenue.photoUrl || undefined,
     };
 
@@ -265,8 +259,7 @@ export function AddVisitModal({
     handleClose();
   };
 
-  // Require reaction when rateNow is enabled
-  const isValidForm = selectedVenue && date && (!rateNow || reaction);
+  const isValidForm = selectedVenue && date;
 
   return (
     <RNModal visible={visible} animationType="slide" presentationStyle="pageSheet">
@@ -503,7 +496,7 @@ export function AddVisitModal({
                       placeholderTextColor={colors.text.muted}
                       value={amount}
                       onChangeText={setAmount}
-                      keyboardType="decimal-pad"
+                      keyboardType="number-pad"
                     />
                   </View>
                 </View>
@@ -524,33 +517,6 @@ export function AddVisitModal({
                   />
                 </View>
 
-                {/* Rate Now Toggle */}
-                <View style={styles.inputGroup}>
-                  <TouchableOpacity
-                    style={styles.rateNowToggle}
-                    onPress={() => setRateNow(!rateNow)}
-                    activeOpacity={0.7}
-                  >
-                    <Typography variant="body" color="primary">
-                      Rate this visit now?
-                    </Typography>
-                    <View style={[styles.toggleIndicator, rateNow && styles.toggleActive]}>
-                      <Typography variant="caption" color={rateNow ? 'gold' : 'muted'}>
-                        {rateNow ? 'Yes' : 'No'}
-                      </Typography>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Reaction Picker */}
-                {rateNow && (
-                  <View style={styles.inputGroup}>
-                    <Typography variant="label" color="muted" style={styles.inputLabel}>
-                      Your Reaction
-                    </Typography>
-                    <ReactionPicker selected={reaction} onChange={setReaction} showLabels />
-                  </View>
-                )}
               </ScrollView>
 
               {/* Add Button */}
@@ -717,26 +683,6 @@ const styles = StyleSheet.create({
   notesInput: {
     minHeight: 80,
     textAlignVertical: 'top',
-  },
-  rateNowToggle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.dark.surface,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: layoutSpacing.md,
-    paddingVertical: layoutSpacing.md,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
-  },
-  toggleIndicator: {
-    paddingHorizontal: layoutSpacing.md,
-    paddingVertical: layoutSpacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.dark.surfaceAlt,
-  },
-  toggleActive: {
-    backgroundColor: colors.primary.muted,
   },
   footer: {
     padding: layoutSpacing.lg,

@@ -48,7 +48,6 @@ export interface AddVisitData {
   venueType?: string;
   date: string;
   amount?: number;
-  reaction?: Reaction;
   notes?: string;
   photoUrl?: string;
 }
@@ -211,7 +210,6 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       venueType: data.venueType || null,
       date: data.date,
       amount: data.amount,
-      reaction: data.reaction,
       notes: data.notes,
       source: 'manual',
     };
@@ -221,6 +219,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         p.venueId === data.venueId || p.venueName === data.venueName
       );
       let updatedPlaces: Place[];
+      let updatedSelectedPlace = state.selectedPlace;
 
       if (existingPlace) {
         updatedPlaces = state.places.map((place) =>
@@ -231,11 +230,24 @@ export const useVaultStore = create<VaultState>((set, get) => ({
                 lastVisit: data.date > place.lastVisit ? data.date : place.lastVisit,
                 totalSpent: place.totalSpent + (data.amount || 0),
                 visits: [newVisit, ...place.visits],
-                reaction: data.reaction || place.reaction,
                 photoUrl: data.photoUrl || place.photoUrl,
               }
             : place
         );
+
+        // Update selectedPlace if the visit is for the currently selected place
+        if (state.selectedPlace &&
+            (state.selectedPlace.venueId === data.venueId ||
+             state.selectedPlace.venueName === data.venueName)) {
+          updatedSelectedPlace = {
+            ...state.selectedPlace,
+            visitCount: state.selectedPlace.visitCount + 1,
+            lastVisit: data.date > state.selectedPlace.lastVisit ? data.date : state.selectedPlace.lastVisit,
+            totalSpent: state.selectedPlace.totalSpent + (data.amount || 0),
+            visits: [newVisit, ...state.selectedPlace.visits],
+            photoUrl: data.photoUrl || state.selectedPlace.photoUrl,
+          };
+        }
       } else {
         const newPlace: Place = {
           venueId: data.venueId || null,
@@ -244,7 +256,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           visitCount: 1,
           lastVisit: data.date,
           totalSpent: data.amount || 0,
-          reaction: data.reaction,
+          reaction: undefined,
           photoUrl: data.photoUrl,
           visits: [newVisit],
         };
@@ -258,6 +270,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         visits: [newVisit, ...state.visits],
         places: updatedPlaces,
         filteredPlaces: filtered,
+        selectedPlace: updatedSelectedPlace,
         stats: {
           ...state.stats,
           totalPlaces: updatedPlaces.length,
@@ -272,7 +285,6 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       merchant_name: data.venueName,
       visited_at: data.date,
       amount: data.amount,
-      reaction: data.reaction,
       notes: data.notes,
     }).then((created) => {
       // Update temp ID with real ID from response
