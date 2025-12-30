@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  FlatList,
+  Dimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -9,6 +18,9 @@ import { Typography, Card, Button } from '@/components/ui';
 import { getVenueById, formatHoursForDisplay, Venue } from '@/mocks/venues';
 import { discoverApi, DiscoverVenue } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const HERO_HEIGHT = 250;
 
 type VenueDisplay = {
   name: string;
@@ -23,6 +35,7 @@ type VenueDisplay = {
   tags: string[];
   features: string[];
   bestFor: string[];
+  photoUrls: string[];
 };
 
 function getMockVenueDisplay(venue: Venue): VenueDisplay {
@@ -39,6 +52,7 @@ function getMockVenueDisplay(venue: Venue): VenueDisplay {
     tags: venue.tags,
     features: venue.features,
     bestFor: venue.moods,
+    photoUrls: venue.image ? [venue.image] : [],
   };
 }
 
@@ -56,6 +70,7 @@ function getApiVenueDisplay(venue: DiscoverVenue): VenueDisplay {
     tags: [],
     features: [],
     bestFor: venue.best_for || [],
+    photoUrls: venue.photo_urls || [],
   };
 }
 
@@ -67,6 +82,7 @@ export default function VenueDetailScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiVenue, setApiVenue] = useState<DiscoverVenue | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // First try mock venue
   const mockVenue = getVenueById(id || '');
@@ -132,12 +148,34 @@ export default function VenueDetailScreen() {
     );
   }
 
+  const handleScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+    const slideIndex = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+    setCurrentImageIndex(slideIndex);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero Image Placeholder */}
-        <View style={styles.heroImage}>
-          <Typography variant="h1">🍽️</Typography>
+        {/* Hero Image Carousel */}
+        <View style={styles.heroContainer}>
+          {display.photoUrls.length > 0 ? (
+            <FlatList
+              data={display.photoUrls}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item }) => (
+                <Image source={{ uri: item }} style={styles.heroImage} resizeMode="cover" />
+              )}
+            />
+          ) : (
+            <View style={styles.heroPlaceholder}>
+              <Typography variant="h1">🍽️</Typography>
+            </View>
+          )}
           <TouchableOpacity style={styles.backButtonOverlay} onPress={() => router.back()}>
             <Typography variant="body" color="primary">
               ←
@@ -148,6 +186,17 @@ export default function VenueDetailScreen() {
               {display.matchScore}% Match
             </Typography>
           </View>
+          {/* Pagination Dots */}
+          {display.photoUrls.length > 1 && (
+            <View style={styles.paginationDots}>
+              {display.photoUrls.map((_, index) => (
+                <View
+                  key={index}
+                  style={[styles.dot, currentImageIndex === index && styles.dotActive]}
+                />
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.content}>
@@ -282,12 +331,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.dark.background,
   },
+  heroContainer: {
+    height: HERO_HEIGHT,
+    position: 'relative',
+  },
   heroImage: {
-    height: 200,
+    width: SCREEN_WIDTH,
+    height: HERO_HEIGHT,
+  },
+  heroPlaceholder: {
+    width: SCREEN_WIDTH,
+    height: HERO_HEIGHT,
     backgroundColor: colors.dark.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
   backButtonOverlay: {
     position: 'absolute',
@@ -390,5 +447,27 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: layoutSpacing.lg,
+  },
+  paginationDots: {
+    position: 'absolute',
+    bottom: layoutSpacing.md,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  dotActive: {
+    backgroundColor: colors.primary.DEFAULT,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 });

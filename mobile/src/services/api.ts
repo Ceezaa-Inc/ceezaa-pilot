@@ -242,6 +242,7 @@ export interface DiscoverVenue {
   google_rating: number | null;
   formatted_address: string | null;
   photo_url: string | null;
+  photo_urls: string[];  // All venue photos for carousel
   lat: number | null;
   lng: number | null;
 }

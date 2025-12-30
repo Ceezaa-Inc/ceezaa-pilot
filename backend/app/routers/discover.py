@@ -37,6 +37,7 @@ class VenueResponse(BaseModel):
     google_rating: float | None
     formatted_address: str | None
     photo_url: str | None
+    photo_urls: list[str]  # All venue photos for carousel
     lat: float | None
     lng: float | None
 
@@ -201,9 +202,8 @@ async def get_discover_feed(
     response_venues = []
     for item in paginated:
         venue = item["venue"]
-        photo_url = None
-        if venue.get("photo_references"):
-            photo_url = venue["photo_references"][0]
+        photo_refs = venue.get("photo_references") or []
+        photo_url = photo_refs[0] if photo_refs else None
 
         response_venues.append(
             VenueResponse(
@@ -221,6 +221,7 @@ async def get_discover_feed(
                 google_rating=venue.get("google_rating"),
                 formatted_address=venue.get("formatted_address"),
                 photo_url=photo_url,
+                photo_urls=photo_refs,
                 lat=venue.get("lat"),
                 lng=venue.get("lng"),
             )
@@ -376,9 +377,8 @@ async def get_venue_detail(
         match_score = 50  # Default score for users without taste profile
         match_reasons = []
 
-    photo_url = None
-    if venue.get("photo_references"):
-        photo_url = venue["photo_references"][0]
+    photo_refs = venue.get("photo_references") or []
+    photo_url = photo_refs[0] if photo_refs else None
 
     return VenueResponse(
         id=venue["id"],
@@ -395,6 +395,7 @@ async def get_venue_detail(
         google_rating=venue.get("google_rating"),
         formatted_address=venue.get("formatted_address"),
         photo_url=photo_url,
+        photo_urls=photo_refs,
         lat=venue.get("lat"),
         lng=venue.get("lng"),
     )
