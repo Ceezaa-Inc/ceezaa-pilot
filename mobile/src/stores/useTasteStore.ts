@@ -20,6 +20,7 @@ interface TasteState {
   insights: Insight[];
   selectedMood: MoodType | null;
   isLoading: boolean;
+  isLoadingInsights: boolean;
   error: string | null;
   hasFetched: boolean;
   hasFetchedInsights: boolean;
@@ -73,9 +74,10 @@ export const useTasteStore = create<TasteState>((set, get) => ({
   profile: TASTE_PROFILE,
   traits: TASTE_TRAITS,
   categories: TASTE_CATEGORIES,
-  insights: INSIGHTS,
+  insights: [],
   selectedMood: null,
   isLoading: false,
+  isLoadingInsights: false,
   error: null,
   hasFetched: false,
   hasFetchedInsights: false,
@@ -174,6 +176,7 @@ export const useTasteStore = create<TasteState>((set, get) => ({
   },
 
   fetchInsights: async (userId: string) => {
+    set({ isLoadingInsights: true });
     try {
       console.log('[TasteStore] Fetching insights for user:', userId);
       const response = await tasteApi.getInsights(userId);
@@ -189,12 +192,14 @@ export const useTasteStore = create<TasteState>((set, get) => ({
       }));
 
       set({
-        insights: insights.length > 0 ? insights : INSIGHTS,
+        insights,
         hasFetchedInsights: true,
+        isLoadingInsights: false,
       });
     } catch (error) {
       console.error('[TasteStore] Insights fetch error:', error);
-      // On error, keep mock data but allow retry (don't set hasFetchedInsights)
+      // On error, keep empty insights and allow retry
+      set({ isLoadingInsights: false });
     }
   },
 
@@ -202,7 +207,7 @@ export const useTasteStore = create<TasteState>((set, get) => ({
     try {
       console.log('[TasteStore] Clearing insights cache for:', userId);
       await tasteApi.clearInsightsCache(userId);
-      set({ hasFetchedInsights: false, insights: INSIGHTS });
+      set({ hasFetchedInsights: false, insights: [] });
       console.log('[TasteStore] Cache cleared, ready for refetch');
     } catch (error) {
       console.error('[TasteStore] Clear cache error:', error);

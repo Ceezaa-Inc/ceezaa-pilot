@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -7,100 +7,38 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Logo } from '@/components/ui';
 import { TasteRing } from '@/components/pulse/TasteRing';
-import { useTasteStore, useAuthStore } from '@/stores';
-import { PLAYLISTS, Playlist } from '@/mocks/playlists';
-import { SAVED_PLANS, SavedPlan, getUpcomingPlans } from '@/mocks/plans';
-import { MOOD_DATA } from '@/mocks/taste';
+import { useTasteStore, useAuthStore, useVaultStore } from '@/stores';
+
+// Format currency to 2 decimal places
+const formatCurrency = (amount: number): string => {
+  return amount.toFixed(2);
+};
 
 export default function PulseScreen() {
-  const { insights, fetchFusedProfile, fetchInsights, clearInsightsCache, hasFetched, hasFetchedInsights } = useTasteStore();
+  const { insights, fetchFusedProfile, fetchInsights, hasFetched, hasFetchedInsights, isLoadingInsights } = useTasteStore();
   const { user } = useAuthStore();
-  const upcomingPlans = getUpcomingPlans(3);
+  const { stats } = useVaultStore();
 
   // Fetch data when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log('[PulseScreen] Focus effect:', { userId: user?.id, hasFetched, hasFetchedInsights });
-
       if (user?.id) {
         // Fetch fused profile if not already fetched
         if (!hasFetched) {
-          console.log('[PulseScreen] Fetching fused profile for:', user.id);
           fetchFusedProfile(user.id);
         }
 
         // Fetch insights if not already fetched
         if (!hasFetchedInsights) {
-          console.log('[PulseScreen] Fetching insights for:', user.id);
           fetchInsights(user.id);
         }
       }
     }, [user?.id, hasFetched, hasFetchedInsights])
   );
 
-  const renderInsightCard = ({ item }: { item: (typeof insights)[0] }) => (
-    <Card variant="default" padding="md" style={styles.insightCard}>
-      <View style={styles.insightHeader}>
-        <Typography variant="h3">{item.emoji}</Typography>
-        <Typography variant="bodySmall" color="primary" style={styles.insightTitle}>
-          {item.title}
-        </Typography>
-      </View>
-      <Typography variant="caption" color="secondary">
-        {item.description}
-      </Typography>
-    </Card>
-  );
-
-  const renderPlaylistCard = ({ item }: { item: Playlist }) => {
-    const moodData = MOOD_DATA[item.mood];
-    return (
-      <Card
-        variant="outlined"
-        padding="md"
-        style={[styles.playlistCard, { borderColor: moodData.gradient[0] }]}
-        onPress={() => router.push('/(tabs)/discover')}
-      >
-        <View style={[styles.playlistBadge, { backgroundColor: moodData.gradient[0] }]}>
-          <Typography variant="caption" color="primary">
-            {item.venueCount} spots
-          </Typography>
-        </View>
-        <Typography variant="body" color="primary" numberOfLines={1}>
-          {item.name}
-        </Typography>
-        <Typography variant="caption" color="muted" numberOfLines={1}>
-          {item.description}
-        </Typography>
-      </Card>
-    );
+  const navigateToVault = () => {
+    router.push('/(tabs)/vault');
   };
-
-  const renderPlanCard = (plan: SavedPlan) => (
-    <Card
-      key={plan.id}
-      variant="default"
-      padding="md"
-      style={styles.planCard}
-      onPress={() => router.push('/(tabs)/discover')}
-    >
-      <View style={styles.planRow}>
-        <View style={styles.planInfo}>
-          <Typography variant="body" color="primary">
-            {plan.name}
-          </Typography>
-          <Typography variant="caption" color="muted">
-            {plan.venueName} • {plan.time}
-          </Typography>
-        </View>
-        <View style={styles.planParticipants}>
-          <Typography variant="caption" color="secondary">
-            {plan.participants.length} going
-          </Typography>
-        </View>
-      </View>
-    </Card>
-  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -113,7 +51,7 @@ export default function PulseScreen() {
                 Your Pulse
               </Typography>
               <Typography variant="body" color="secondary">
-                What's your taste telling you today?
+                Your taste tells a story
               </Typography>
             </View>
             <Logo variant="emblem" size={32} />
@@ -123,76 +61,82 @@ export default function PulseScreen() {
         {/* Taste Ring - Tappable */}
         <TasteRing showCard={false} />
 
-        {/* Insights - Horizontal Scroll */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Typography variant="label" color="muted">
-              Insights
-            </Typography>
-            {/* TEMP: Debug buttons */}
-            <View style={styles.debugButtons}>
-              <TouchableOpacity
-                onPress={async () => {
-                  console.log('[PulseScreen] Clearing cache for:', user?.id);
-                  if (user?.id) {
-                    await clearInsightsCache(user.id);
-                    fetchInsights(user.id);
-                  }
-                }}
-                style={styles.debugButton}
-              >
-                <Typography variant="caption" color="gold">🗑 Clear</Typography>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  console.log('[PulseScreen] Manual refresh for:', user?.id);
-                  if (user?.id) fetchInsights(user.id);
-                }}
-                style={styles.debugButton}
-              >
-                <Typography variant="caption" color="gold">↻ Refresh</Typography>
-              </TouchableOpacity>
+        {/* Stats Row - Links to Vault */}
+        <TouchableOpacity onPress={navigateToVault} activeOpacity={0.8}>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Typography variant="h3" color="gold" align="center">
+                {stats.totalPlaces}
+              </Typography>
+              <Typography variant="caption" color="secondary" align="center">
+                Places
+              </Typography>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Typography variant="h3" color="gold" align="center">
+                {stats.totalVisits}
+              </Typography>
+              <Typography variant="caption" color="secondary" align="center">
+                Visits
+              </Typography>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Typography variant="h3" color="gold" align="center">
+                ${formatCurrency(stats.thisMonthSpent ?? 0)}
+              </Typography>
+              <Typography variant="caption" color="secondary" align="center">
+                This Month
+              </Typography>
             </View>
           </View>
-          <FlatList
-            data={insights}
-            renderItem={renderInsightCard}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
-          />
-        </View>
+        </TouchableOpacity>
 
-        {/* For You (Playlists) - Horizontal Scroll */}
-        <View style={styles.section}>
-          <Typography variant="label" color="muted">
-            For You
-          </Typography>
-          <FlatList
-            data={PLAYLISTS}
-            renderItem={renderPlaylistCard}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalList}
-          />
-        </View>
-
-        {/* Saved Plans */}
-        {upcomingPlans.length > 0 && (
+        {/* Insights - Vertical Full-Width Cards */}
+        {isLoadingInsights ? (
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Typography variant="label" color="muted">
-                Saved Plans
-              </Typography>
-              <Typography variant="caption" color="gold">
-                See all
-              </Typography>
+            <Typography variant="label" color="muted">
+              Your Insights
+            </Typography>
+            <View style={styles.insightSkeletons}>
+              {[1, 2, 3].map((i) => (
+                <View key={i} style={styles.insightSkeleton}>
+                  <View style={styles.skeletonEmoji} />
+                  <View style={styles.skeletonContent}>
+                    <View style={styles.skeletonTitle} />
+                    <View style={styles.skeletonDesc} />
+                  </View>
+                </View>
+              ))}
             </View>
-            {upcomingPlans.map(renderPlanCard)}
           </View>
-        )}
+        ) : insights.length > 0 ? (
+          <View style={styles.section}>
+            <Typography variant="label" color="muted">
+              Your Insights
+            </Typography>
+            <View style={styles.insightsList}>
+              {insights.map((insight) => (
+                <Card key={insight.id} variant="default" padding="md" style={styles.insightCard}>
+                  <View style={styles.insightContent}>
+                    <Typography variant="h2" style={styles.insightEmoji}>
+                      {insight.emoji}
+                    </Typography>
+                    <View style={styles.insightText}>
+                      <Typography variant="body" color="primary">
+                        {insight.title}
+                      </Typography>
+                      <Typography variant="caption" color="secondary">
+                        {insight.description}
+                      </Typography>
+                    </View>
+                  </View>
+                </Card>
+              ))}
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -215,63 +159,78 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.lg,
+    paddingVertical: layoutSpacing.md,
+    paddingHorizontal: layoutSpacing.sm,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: colors.dark.border,
+    marginVertical: layoutSpacing.xs,
+  },
   section: {
     gap: layoutSpacing.sm,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  debugButtons: {
-    flexDirection: 'row',
-    gap: layoutSpacing.sm,
-  },
-  debugButton: {
-    paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: layoutSpacing.xs,
-  },
-  horizontalList: {
+  insightsList: {
     gap: layoutSpacing.sm,
   },
   insightCard: {
-    width: 220,
-    gap: layoutSpacing.xs,
+    flexDirection: 'row',
   },
-  insightHeader: {
+  insightContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: layoutSpacing.xs,
+    gap: layoutSpacing.md,
   },
-  insightTitle: {
-    flex: 1,
+  insightEmoji: {
+    fontSize: 32,
+    lineHeight: 40,
   },
-  playlistCard: {
-    width: 160,
-    gap: layoutSpacing.xs,
-  },
-  playlistBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: 2,
-    borderRadius: borderRadius.sm,
-  },
-  planCard: {
-    marginBottom: layoutSpacing.xs,
-  },
-  planRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  planInfo: {
+  insightText: {
     flex: 1,
     gap: 2,
   },
-  planParticipants: {
+  insightSkeletons: {
+    gap: layoutSpacing.sm,
+  },
+  insightSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.dark.surface,
-    paddingHorizontal: layoutSpacing.sm,
-    paddingVertical: layoutSpacing.xs,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.lg,
+    padding: layoutSpacing.md,
+    gap: layoutSpacing.md,
+  },
+  skeletonEmoji: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.dark.border,
+  },
+  skeletonContent: {
+    flex: 1,
+    gap: layoutSpacing.xs,
+  },
+  skeletonTitle: {
+    height: 16,
+    width: '60%',
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.dark.border,
+  },
+  skeletonDesc: {
+    height: 12,
+    width: '90%',
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.dark.border,
   },
 });
