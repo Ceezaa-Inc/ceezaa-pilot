@@ -103,24 +103,49 @@ export default function VenueDetailScreen() {
   const cuisineDisplay = venue.cuisine_type || venue.taste_cluster || 'Restaurant';
   const priceDisplay = venue.price_tier || '$$';
 
-  // Build amenities list
-  const amenities = [
-    { icon: '🍽', label: 'Dine-in', active: venue.dine_in },
-    { icon: '🚗', label: 'Delivery', active: venue.delivery },
-    { icon: '📦', label: 'Takeout', active: venue.takeout },
-    { icon: '📅', label: 'Reservable', active: venue.reservable },
-    { icon: '👥', label: 'Groups', active: venue.good_for_groups },
-    { icon: '🌳', label: 'Outdoor', active: venue.outdoor_seating },
-  ].filter((a) => a.active);
+  // Calculate if venue is currently open based on periods
+  const isVenueOpen = (): boolean => {
+    if (!venue.opening_hours?.periods) return false;
 
-  // Parse hours status
-  const getHoursStatus = () => {
-    if (!venue.opening_hours) return null;
-    const isOpen = venue.opening_hours.openNow;
-    return isOpen ? 'Open now' : 'Closed';
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentTimeMinutes = currentHour * 60 + currentMinute;
+
+    for (const period of venue.opening_hours.periods) {
+      const openDay = period.open.day;
+      const openTimeMinutes = period.open.hour * 60 + period.open.minute;
+
+      // Handle case where close is not defined (24 hours)
+      if (!period.close) {
+        if (openDay === currentDay) return true;
+        continue;
+      }
+
+      const closeDay = period.close.day;
+      const closeTimeMinutes = period.close.hour * 60 + period.close.minute;
+
+      // Same day open/close
+      if (openDay === closeDay) {
+        if (currentDay === openDay && currentTimeMinutes >= openTimeMinutes && currentTimeMinutes < closeTimeMinutes) {
+          return true;
+        }
+      } else {
+        // Spans midnight (e.g., opens Sunday 5pm, closes Monday 2am)
+        if (currentDay === openDay && currentTimeMinutes >= openTimeMinutes) {
+          return true;
+        }
+        if (currentDay === closeDay && currentTimeMinutes < closeTimeMinutes) {
+          return true;
+        }
+      }
+    }
+    return false;
   };
 
-  const hoursStatus = getHoursStatus();
+  const isOpen = isVenueOpen();
+  const hoursStatus = venue.opening_hours ? (isOpen ? 'Open now' : 'Closed') : null;
   const weekdayHours = venue.opening_hours?.weekdayDescriptions || [];
 
   return (
@@ -251,25 +276,6 @@ export default function VenueDetailScreen() {
             </View>
           )}
 
-          {/* Amenities */}
-          {amenities.length > 0 && (
-            <View style={styles.section}>
-              <Typography variant="label" color="muted">
-                AMENITIES
-              </Typography>
-              <View style={styles.amenitiesGrid}>
-                {amenities.map((amenity) => (
-                  <View key={amenity.label} style={styles.amenityItem}>
-                    <Typography variant="body">{amenity.icon}</Typography>
-                    <Typography variant="bodySmall" color="secondary">
-                      {amenity.label}
-                    </Typography>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
           {/* Hours */}
           {venue.opening_hours && (
             <View style={styles.section}>
@@ -284,7 +290,7 @@ export default function VenueDetailScreen() {
                 <View style={styles.hoursStatus}>
                   <Typography
                     variant="body"
-                    color={venue.opening_hours.openNow ? 'success' : 'error'}
+                    color={isOpen ? 'success' : 'error'}
                   >
                     {hoursStatus}
                   </Typography>
@@ -466,17 +472,6 @@ const styles = StyleSheet.create({
     paddingVertical: layoutSpacing.sm,
     backgroundColor: colors.dark.surface,
     borderRadius: borderRadius.full,
-  },
-  amenitiesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: layoutSpacing.md,
-  },
-  amenityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.xs,
-    width: '45%',
   },
   hoursRow: {
     paddingVertical: layoutSpacing.sm,

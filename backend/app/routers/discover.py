@@ -6,7 +6,7 @@ and optional mood filtering.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel
 from supabase import Client
@@ -18,6 +18,16 @@ from app.mappings.mood_mappings import get_available_moods
 from app.services.google_places_service import GooglePlacesService
 
 router = APIRouter(prefix="/api/discover", tags=["discover"])
+
+
+def _build_photo_urls(base_url: str, google_place_id: str, photo_refs: list[str]) -> list[str]:
+    """Convert photo references to actual photo URLs using photo proxy endpoint."""
+    if not photo_refs or not google_place_id:
+        return []
+    return [
+        f"{base_url}/api/discover/photo/{google_place_id}/{i}"
+        for i in range(len(photo_refs))
+    ]
 
 
 class VenueResponse(BaseModel):
@@ -98,6 +108,7 @@ async def get_moods() -> MoodsResponse:
 
 @router.get("/feed/{user_id}", response_model=DiscoverFeedResponse)
 async def get_discover_feed(
+    request: Request,
     user_id: str,
     mood: str | None = Query(None, description="Mood filter"),
     category: str | None = Query(None, description="Category filter"),
@@ -213,11 +224,14 @@ async def get_discover_feed(
     has_more = offset + limit < total
 
     # 7. Build response
+    base_url = str(request.base_url).rstrip("/")
     response_venues = []
     for item in paginated:
         venue = item["venue"]
         photo_refs = venue.get("photo_references") or []
-        photo_url = photo_refs[0] if photo_refs else None
+        google_place_id = venue.get("google_place_id")
+        photo_urls = _build_photo_urls(base_url, google_place_id, photo_refs)
+        photo_url = photo_urls[0] if photo_urls else None
 
         response_venues.append(
             VenueResponse(
@@ -236,7 +250,7 @@ async def get_discover_feed(
                 google_review_count=venue.get("google_review_count"),
                 formatted_address=venue.get("formatted_address"),
                 photo_url=photo_url,
-                photo_urls=photo_refs,
+                photo_urls=photo_urls,
                 lat=venue.get("lat"),
                 lng=venue.get("lng"),
                 # Rich Places API data
@@ -342,6 +356,7 @@ def _db_to_venue_dict(db_record: dict) -> dict:
     return {
         "id": db_record["id"],
         "name": db_record["name"],
+        "google_place_id": db_record.get("google_place_id"),
         "taste_cluster": db_record.get("taste_cluster"),
         "cuisine_type": db_record.get("cuisine_type"),
         "energy": db_record.get("energy"),
@@ -373,6 +388,7 @@ def _db_to_venue_dict(db_record: dict) -> dict:
 
 @router.get("/venue/{venue_id}")
 async def get_venue_detail(
+    request: Request,
     venue_id: str,
     user_id: str = Query(..., description="User ID for personalized scoring"),
     supabase: Client = Depends(get_supabase_client),
@@ -394,14 +410,14 @@ async def get_venue_detail(
         supabase.table("venues")
         .select("*")
         .eq("id", venue_id)
-        .maybe_single()
+        .limit(1)
         .execute()
     )
 
     if not venue_result.data:
         raise HTTPException(status_code=404, detail="Venue not found")
 
-    venue = _db_to_venue_dict(venue_result.data)
+    venue = _db_to_venue_dict(venue_result.data[0])
 
     # Get user taste
     user_taste = await _get_user_taste(user_id, supabase)
@@ -419,8 +435,11 @@ async def get_venue_detail(
         match_score = 50  # Default score for users without taste profile
         match_reasons = []
 
+    base_url = str(request.base_url).rstrip("/")
     photo_refs = venue.get("photo_references") or []
-    photo_url = photo_refs[0] if photo_refs else None
+    google_place_id = venue.get("google_place_id")
+    photo_urls = _build_photo_urls(base_url, google_place_id, photo_refs)
+    photo_url = photo_urls[0] if photo_urls else None
 
     return VenueResponse(
         id=venue["id"],
@@ -438,7 +457,7 @@ async def get_venue_detail(
         google_review_count=venue.get("google_review_count"),
         formatted_address=venue.get("formatted_address"),
         photo_url=photo_url,
-        photo_urls=photo_refs,
+        photo_urls=photo_urls,
         lat=venue.get("lat"),
         lng=venue.get("lng"),
         # Rich Places API data

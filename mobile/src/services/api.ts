@@ -254,6 +254,10 @@ export interface DiscoverVenue {
   opening_hours: {
     weekdayDescriptions?: string[];
     openNow?: boolean;
+    periods?: Array<{
+      open: { day: number; hour: number; minute: number };
+      close?: { day: number; hour: number; minute: number };
+    }>;
   } | null;
   // Atmosphere features
   dine_in: boolean | null;
