@@ -136,6 +136,15 @@ async def get_discover_feed(
     venues_result = venues_query.execute()
     venues_data = venues_result.data or []
 
+    # Fallback: if city filter returned no results, fetch all venues
+    if not venues_data and city:
+        print(f"[Discover] No venues found for city '{city}', falling back to all venues")
+        fallback_query = supabase.table("venues").select("*").eq("is_active", True)
+        if category:
+            fallback_query = fallback_query.eq("taste_cluster", category)
+        venues_result = fallback_query.execute()
+        venues_data = venues_result.data or []
+
     print(f"[Discover] Found {len(venues_data)} venues")
 
     if not venues_data:
