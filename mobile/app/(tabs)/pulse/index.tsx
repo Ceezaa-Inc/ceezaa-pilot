@@ -118,7 +118,7 @@ export default function PulseScreen() {
             </Typography>
             <View style={styles.insightsList}>
               {insights.map((insight) => (
-                <Card key={insight.id} variant="default" padding="md" style={styles.insightCard}>
+                <Card key={insight.id} variant="default" padding="md">
                   <View style={styles.insightContent}>
                     <Typography variant="h2" style={styles.insightEmoji}>
                       {insight.emoji}
@@ -183,9 +183,6 @@ const styles = StyleSheet.create({
   },
   insightsList: {
     gap: layoutSpacing.sm,
-  },
-  insightCard: {
-    flexDirection: 'row',
   },
   insightContent: {
     flexDirection: 'row',
