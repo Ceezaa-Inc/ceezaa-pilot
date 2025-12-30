@@ -12,13 +12,14 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
 import { ReactionPicker } from '@/components/vault';
-import { useVaultStore, Place, Reaction } from '@/stores/useVaultStore';
+import { useVaultStore, Place, Reaction, AddVisitData } from '@/stores/useVaultStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { discoverApi, DiscoverVenue } from '@/services/api';
 
@@ -37,20 +38,10 @@ function getVenueEmoji(venueType: string | null | undefined): string {
   return VENUE_TYPE_EMOJIS[venueType] || VENUE_TYPE_EMOJIS.default;
 }
 
-interface AddVisitData {
-  venueId?: string;
-  venueName: string;
-  venueType?: string;
-  date: string;
-  amount?: number;
-  reaction?: Reaction;
-  notes?: string;
-}
-
 interface AddVisitModalProps {
   visible: boolean;
   onClose: () => void;
-  onAddVisit: (data: AddVisitData) => void;
+  onAddVisit: (userId: string, data: AddVisitData) => void;
   preselectedVenue?: Place;
 }
 
@@ -67,9 +58,21 @@ interface DisplayVenue {
   source: 'vault' | 'discover';
 }
 
-const getTodayDate = (): string => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
+const getTodayDate = (): Date => {
+  return new Date();
+};
+
+const formatDateForApi = (date: Date): string => {
+  return date.toISOString().split('T')[0];
+};
+
+const formatDateForDisplay = (date: Date): string => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 };
 
 export function AddVisitModal({
@@ -96,7 +99,8 @@ export function AddVisitModal({
       : null
   );
   const [searchQuery, setSearchQuery] = useState('');
-  const [date, setDate] = useState(getTodayDate());
+  const [date, setDate] = useState<Date>(getTodayDate());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [rateNow, setRateNow] = useState(false);
@@ -210,11 +214,21 @@ export function AddVisitModal({
     );
     setSearchQuery('');
     setDate(getTodayDate());
+    setShowDatePicker(false);
     setAmount('');
     setNotes('');
     setRateNow(false);
     setReaction(undefined);
     onClose();
+  };
+
+  const handleDateChange = (event: unknown, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
   };
 
   const handleAddVisit = () => {
@@ -224,17 +238,19 @@ export function AddVisitModal({
       venueId: selectedVenue.source === 'vault' ? selectedVenue.id : undefined,
       venueName: selectedVenue.name,
       venueType: selectedVenue.type || undefined,
-      date,
+      date: formatDateForApi(date),
       amount: amount ? parseFloat(amount) : undefined,
       notes: notes.trim() || undefined,
       reaction: rateNow ? reaction : undefined,
+      photoUrl: selectedVenue.photoUrl || undefined,
     };
 
-    onAddVisit(visitData);
+    onAddVisit(userId, visitData);
     handleClose();
   };
 
-  const isValidForm = selectedVenue && date;
+  // Require reaction when rateNow is enabled
+  const isValidForm = selectedVenue && date && (!rateNow || reaction);
 
   return (
     <RNModal visible={visible} animationType="slide" presentationStyle="pageSheet">
@@ -427,18 +443,33 @@ export function AddVisitModal({
                 contentContainerStyle={styles.detailsForm}
                 showsVerticalScrollIndicator={false}
               >
-                {/* Date Input */}
+                {/* Date Picker */}
                 <View style={styles.inputGroup}>
                   <Typography variant="label" color="muted" style={styles.inputLabel}>
                     Date
                   </Typography>
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={colors.text.muted}
-                    value={date}
-                    onChangeText={setDate}
-                  />
+                  <TouchableOpacity
+                    style={styles.datePickerButton}
+                    onPress={() => setShowDatePicker(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Typography variant="body" color="primary">
+                      {formatDateForDisplay(date)}
+                    </Typography>
+                    <Typography variant="body" color="muted">
+                      📅
+                    </Typography>
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={date}
+                      mode="date"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={handleDateChange}
+                      maximumDate={new Date()}
+                      themeVariant="dark"
+                    />
+                  )}
                 </View>
 
                 {/* Amount Input */}
@@ -627,6 +658,17 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     marginBottom: 4,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: layoutSpacing.md,
+    paddingVertical: layoutSpacing.md,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   textInput: {
     backgroundColor: colors.dark.surface,

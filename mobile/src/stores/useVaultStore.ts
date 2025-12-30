@@ -42,7 +42,7 @@ export interface VaultStats {
   thisMonthSpent: number;
 }
 
-interface AddVisitData {
+export interface AddVisitData {
   venueId?: string;
   venueName: string;
   venueType?: string;
@@ -50,6 +50,7 @@ interface AddVisitData {
   amount?: number;
   reaction?: Reaction;
   notes?: string;
+  photoUrl?: string;
 }
 
 // Helper to convert API place to local format
@@ -109,7 +110,7 @@ interface VaultState {
   setFilter: (filter: StatusFilter) => void;
   updateReaction: (venueId: string, reaction: Reaction) => void;
   addNote: (visitId: string, note: string) => void;
-  addVisit: (data: AddVisitData) => void;
+  addVisit: (userId: string, data: AddVisitData) => void;
   rateVisit: (visitId: string, reaction: Reaction) => void;
 }
 
@@ -196,7 +197,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     });
   },
 
-  addVisit: (data) => {
+  addVisit: (userId, data) => {
     // Generate temporary ID for optimistic update
     const tempId = `temp-${Date.now()}`;
     const newVisit: Visit = {
@@ -227,6 +228,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
                 totalSpent: place.totalSpent + (data.amount || 0),
                 visits: [newVisit, ...place.visits],
                 reaction: data.reaction || place.reaction,
+                photoUrl: data.photoUrl || place.photoUrl,
               }
             : place
         );
@@ -239,6 +241,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           lastVisit: data.date,
           totalSpent: data.amount || 0,
           reaction: data.reaction,
+          photoUrl: data.photoUrl,
           visits: [newVisit],
         };
         updatedPlaces = [newPlace, ...state.places];
@@ -259,8 +262,30 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       };
     });
 
-    // Call API in background - would need userId passed in
-    // For now, we rely on fetchVisits being called to sync
+    // Persist to backend
+    vaultApi.createVisit(userId, {
+      venue_id: data.venueId,
+      merchant_name: data.venueName,
+      visited_at: data.date,
+      amount: data.amount,
+      reaction: data.reaction,
+      notes: data.notes,
+    }).then((created) => {
+      // Update temp ID with real ID from response
+      set((state) => ({
+        visits: state.visits.map((v) =>
+          v.id === tempId ? { ...v, id: created.id } : v
+        ),
+        places: state.places.map((p) => ({
+          ...p,
+          visits: p.visits.map((v) =>
+            v.id === tempId ? { ...v, id: created.id } : v
+          ),
+        })),
+      }));
+    }).catch((error) => {
+      console.error('[Vault] Failed to create visit:', error);
+    });
   },
 
   rateVisit: (visitId, reaction) => {
