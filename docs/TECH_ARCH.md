@@ -1171,7 +1171,7 @@ ceezaa-mvp/
 │   │   │   └── enhanced-reveal.tsx  # Final reveal (quiz + transactions)
 │   │   ├── (tabs)/
 │   │   │   ├── pulse/
-│   │   │   │   ├── index.tsx        # Taste Ring, insights
+│   │   │   │   ├── index.tsx        # Taste Ring, stats row, insights
 │   │   │   │   └── taste-detail.tsx
 │   │   │   ├── discover/
 │   │   │   │   ├── index.tsx        # Mood grid

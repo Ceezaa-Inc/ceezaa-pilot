@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography } from '@/components/ui';
-import { SessionCard, JoinSessionModal } from '@/components/session';
+import { SessionCard, JoinSessionModal, InvitationCard } from '@/components/session';
 import { useSessionStore, Session } from '@/stores/useSessionStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function SessionsScreen() {
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const { getUserSessions, fetchSessions } = useSessionStore();
+  const [respondingInvitation, setRespondingInvitation] = useState<string | null>(null);
+  const {
+    getUserSessions,
+    fetchSessions,
+    pendingInvitations,
+    isLoadingInvitations,
+    fetchInvitations,
+    acceptInvitation,
+    declineInvitation,
+  } = useSessionStore();
   const { user } = useAuthStore();
   const userSessions = getUserSessions();
 
   useEffect(() => {
     if (user?.id) {
       fetchSessions(user.id);
+      fetchInvitations(user.id);
     }
   }, [user?.id]);
 
@@ -53,6 +63,26 @@ export default function SessionsScreen() {
       pathname: '/(tabs)/sessions/[id]',
       params: { id: session.id },
     });
+  };
+
+  const handleAcceptInvitation = async (invitationId: string) => {
+    if (!user?.id) return;
+    setRespondingInvitation(invitationId);
+    const session = await acceptInvitation(invitationId, user.id);
+    setRespondingInvitation(null);
+    if (session) {
+      router.push({
+        pathname: '/(tabs)/sessions/[id]',
+        params: { id: session.id },
+      });
+    }
+  };
+
+  const handleDeclineInvitation = async (invitationId: string) => {
+    if (!user?.id) return;
+    setRespondingInvitation(invitationId);
+    await declineInvitation(invitationId, user.id);
+    setRespondingInvitation(null);
   };
 
   return (
@@ -94,6 +124,39 @@ export default function SessionsScreen() {
             </Typography>
           </TouchableOpacity>
         </View>
+
+        {/* Pending Invitations */}
+        {(pendingInvitations.length > 0 || isLoadingInvitations) && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Typography variant="h4" color="primary">
+                Invitations
+              </Typography>
+              {pendingInvitations.length > 0 && (
+                <View style={styles.badge}>
+                  <Typography variant="caption" color="primary">
+                    {pendingInvitations.length}
+                  </Typography>
+                </View>
+              )}
+            </View>
+            {isLoadingInvitations ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color={colors.primary.DEFAULT} />
+              </View>
+            ) : (
+              pendingInvitations.map((invitation) => (
+                <InvitationCard
+                  key={invitation.id}
+                  invitation={invitation}
+                  onAccept={() => handleAcceptInvitation(invitation.id)}
+                  onDecline={() => handleDeclineInvitation(invitation.id)}
+                  isLoading={respondingInvitation === invitation.id}
+                />
+              ))
+            )}
+          </View>
+        )}
 
         {/* Active Sessions */}
         {activeSessions.length > 0 && (
@@ -196,5 +259,22 @@ const styles = StyleSheet.create({
   emptyEmoji: {
     fontSize: 48,
     lineHeight: 56,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+  },
+  badge: {
+    backgroundColor: colors.primary.DEFAULT,
+    borderRadius: borderRadius.full,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minWidth: 22,
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    paddingVertical: layoutSpacing.lg,
+    alignItems: 'center',
   },
 });

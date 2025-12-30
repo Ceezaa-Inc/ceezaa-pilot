@@ -7,11 +7,12 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Input, Card } from '@/components/ui';
-import { VenuePickerModal } from '@/components/session';
+import { VenuePickerModal, UserSearchModal } from '@/components/session';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useVaultStore, Place, Reaction } from '@/stores/useVaultStore';
 import { getReactionEmoji } from '@/mocks/visits';
+import { UserSearchResult } from '@/services/api';
 
 type ReactionFilter = Reaction | 'all';
 
@@ -55,8 +56,12 @@ export default function CreateSessionScreen() {
   const [selectedReaction, setSelectedReaction] = useState<ReactionFilter>('all');
   const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
   const [showVenuePicker, setShowVenuePicker] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [invitees, setInvitees] = useState<UserSearchResult[]>([]);
+  const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
-  const { createSession, addVenueToSession } = useSessionStore();
+  const { createSession, addVenueToSession, sendInvitations } = useSessionStore();
   const { user } = useAuthStore();
   const { places, fetchVisits } = useVaultStore();
 
@@ -124,6 +129,7 @@ export default function CreateSessionScreen() {
   const handleCreate = async () => {
     if (!name.trim() || selectedPlaces.length === 0 || !user?.id) return;
 
+    setIsCreating(true);
     try {
       const session = await createSession(user.id, {
         name: name.trim(),
@@ -141,13 +147,29 @@ export default function CreateSessionScreen() {
         await addVenueToSession(session.id, venueData, user.id);
       }
 
+      // Send invitations if any invitees selected
+      if (invitees.length > 0) {
+        await sendInvitations(session.id, { user_ids: invitees.map((i) => i.id) }, user.id);
+      }
+
       router.replace({
         pathname: '/(tabs)/sessions/[id]',
         params: { id: session.id },
       });
     } catch (error) {
       console.error('[Sessions] Failed to create session:', error);
+    } finally {
+      setIsCreating(false);
     }
+  };
+
+  const handleAddInvitee = (user: UserSearchResult) => {
+    if (invitees.find((i) => i.id === user.id)) return;
+    setInvitees([...invitees, user]);
+  };
+
+  const handleRemoveInvitee = (userId: string) => {
+    setInvitees(invitees.filter((i) => i.id !== userId));
   };
 
   const isValid = name.trim().length > 0 && selectedPlaces.length > 0;
@@ -350,17 +372,57 @@ export default function CreateSessionScreen() {
         </View>
 
         <View style={styles.section}>
-          <Typography variant="label" color="muted">
-            Invite Friends
-          </Typography>
-          <Card variant="default" padding="md" style={styles.inviteBox}>
-            <Typography variant="body" color="muted" align="center">
-              Share the session code after creation
+          <View style={styles.sectionHeader}>
+            <Typography variant="label" color="muted">
+              Invite Friends
             </Typography>
-            <Typography variant="caption" color="muted" align="center">
-              (Friend invite coming soon)
+            {invitees.length > 0 && (
+              <Typography variant="caption" color="muted">
+                {invitees.length} selected
+              </Typography>
+            )}
+          </View>
+
+          <TouchableOpacity
+            style={styles.addVenueButton}
+            onPress={() => {
+              dismissPickers();
+              setShowInviteModal(true);
+            }}
+          >
+            <Typography variant="body" color="gold">
+              + Search & Add Friends
             </Typography>
-          </Card>
+          </TouchableOpacity>
+
+          {invitees.length > 0 && (
+            <View style={styles.inviteesList}>
+              {invitees.map((invitee) => (
+                <View key={invitee.id} style={styles.inviteeChip}>
+                  <View style={styles.inviteeAvatar}>
+                    <Typography variant="caption" color="primary">
+                      {(invitee.display_name || 'U').charAt(0).toUpperCase()}
+                    </Typography>
+                  </View>
+                  <Typography variant="body" color="primary" style={{ flex: 1 }}>
+                    {invitee.display_name || 'User'}
+                  </Typography>
+                  <TouchableOpacity
+                    onPress={() => handleRemoveInvitee(invitee.id)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Typography variant="body" color="muted">✕</Typography>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {invitees.length === 0 && (
+            <Typography variant="caption" color="muted" align="center" style={{ marginTop: layoutSpacing.xs }}>
+              You can also share the session code after creation
+            </Typography>
+          )}
         </View>
       </ScrollView>
 
@@ -374,12 +436,20 @@ export default function CreateSessionScreen() {
         maxVenues={10}
       />
 
+      <UserSearchModal
+        visible={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSelectUsers={setInvitees}
+        currentUserId={user?.id || ''}
+        initialSelected={invitees}
+      />
+
       <View style={styles.footer}>
         <Button
-          label="Start Session"
+          label={isCreating ? 'Creating...' : 'Start Session'}
           fullWidth
           onPress={handleCreate}
-          disabled={!isValid}
+          disabled={!isValid || isCreating}
         />
       </View>
     </SafeAreaView>
@@ -495,6 +565,27 @@ const styles = StyleSheet.create({
   },
   emptyVenuesBox: {
     borderStyle: 'dashed',
+  },
+  inviteesList: {
+    gap: layoutSpacing.sm,
+  },
+  inviteeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: layoutSpacing.sm,
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    gap: layoutSpacing.sm,
+  },
+  inviteeAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.dark.surfaceAlt,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   footer: {
     padding: layoutSpacing.lg,

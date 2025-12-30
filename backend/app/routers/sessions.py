@@ -102,6 +102,53 @@ class VoteRequest(BaseModel):
     venue_id: str
 
 
+class InvitationResponse(BaseModel):
+    """A pending invitation."""
+
+    id: str
+    session_id: str
+    session_title: str
+    session_date: str | None
+    inviter_name: str
+    inviter_avatar: str | None
+    participant_count: int
+    venue_count: int
+    created_at: str
+
+
+class InvitationsListResponse(BaseModel):
+    """List of pending invitations."""
+
+    invitations: list[InvitationResponse]
+
+
+class InviteRequest(BaseModel):
+    """Request to invite users to a session."""
+
+    user_ids: list[str] | None = None
+    phone_numbers: list[str] | None = None
+
+
+class InviteResultResponse(BaseModel):
+    """Result of sending invitations."""
+
+    sent: int
+    failed: int
+    deep_link: str | None = None
+
+
+class InvitationActionRequest(BaseModel):
+    """Request to accept or decline an invitation."""
+
+    action: str  # "accept" or "decline"
+
+
+class InvitationActionResponse(BaseModel):
+    """Response for decline action."""
+
+    success: bool
+
+
 # --- Endpoints ---
 
 
@@ -462,6 +509,248 @@ async def close_voting(
     }).eq("id", session_id).execute()
 
     return await get_session_details(session_id, supabase)
+
+
+# --- Invitation Endpoints ---
+
+
+@router.get("/{user_id}/invitations", response_model=InvitationsListResponse)
+async def get_invitations(
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> InvitationsListResponse:
+    """Get pending invitations for a user."""
+    # Get pending invitations with session and inviter info
+    result = (
+        supabase.table("session_invitations")
+        .select("*, sessions(id, title, planned_date, status, invite_code), profiles!session_invitations_inviter_id_fkey(id, display_name, avatar_url)")
+        .eq("invitee_id", user_id)
+        .eq("status", "pending")
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    invitations_data = result.data or []
+    invitations = []
+
+    for inv in invitations_data:
+        session = inv.get("sessions") or {}
+        inviter = inv.get("profiles") or {}
+
+        # Skip if session is no longer voting
+        if session.get("status") != "voting":
+            continue
+
+        # Get counts for this session
+        participants_result = (
+            supabase.table("session_participants")
+            .select("id", count="exact")
+            .eq("session_id", inv["session_id"])
+            .execute()
+        )
+        venues_result = (
+            supabase.table("session_venues")
+            .select("id", count="exact")
+            .eq("session_id", inv["session_id"])
+            .execute()
+        )
+
+        invitations.append(InvitationResponse(
+            id=inv["id"],
+            session_id=inv["session_id"],
+            session_title=session.get("title", "Unknown Session"),
+            session_date=session.get("planned_date"),
+            inviter_name=inviter.get("display_name") or "Unknown",
+            inviter_avatar=inviter.get("avatar_url"),
+            participant_count=participants_result.count or 0,
+            venue_count=venues_result.count or 0,
+            created_at=inv["created_at"],
+        ))
+
+    return InvitationsListResponse(invitations=invitations)
+
+
+@router.post("/{session_id}/invite", response_model=InviteResultResponse)
+async def send_invitations(
+    session_id: str,
+    request: InviteRequest,
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> InviteResultResponse:
+    """Send invitations to users for a session."""
+    # Check session exists and is voting
+    session_result = (
+        supabase.table("sessions")
+        .select("id, status, invite_code")
+        .eq("id", session_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not session_result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if session_result.data["status"] != "voting":
+        raise HTTPException(status_code=400, detail="Session is no longer accepting invites")
+
+    # Check user is a participant
+    participant = (
+        supabase.table("session_participants")
+        .select("id")
+        .eq("session_id", session_id)
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not participant.data:
+        raise HTTPException(status_code=403, detail="Only session participants can invite others")
+
+    sent = 0
+    failed = 0
+    deep_link = None
+
+    # Invite existing users by user_id
+    if request.user_ids:
+        for invitee_id in request.user_ids:
+            # Skip if already a participant
+            existing_participant = (
+                supabase.table("session_participants")
+                .select("id")
+                .eq("session_id", session_id)
+                .eq("user_id", invitee_id)
+                .maybe_single()
+                .execute()
+            )
+            if existing_participant.data:
+                continue
+
+            # Skip if already invited
+            existing_invite = (
+                supabase.table("session_invitations")
+                .select("id")
+                .eq("session_id", session_id)
+                .eq("invitee_id", invitee_id)
+                .maybe_single()
+                .execute()
+            )
+            if existing_invite.data:
+                continue
+
+            try:
+                supabase.table("session_invitations").insert({
+                    "session_id": session_id,
+                    "inviter_id": user_id,
+                    "invitee_id": invitee_id,
+                    "status": "pending",
+                }).execute()
+                sent += 1
+            except Exception:
+                failed += 1
+
+    # Create invitations for phone numbers (non-app users)
+    if request.phone_numbers:
+        invite_code = session_result.data["invite_code"]
+        deep_link = f"https://ceezaa.app/join/{invite_code}"
+
+        for phone in request.phone_numbers:
+            # Skip if already invited by phone
+            existing_phone_invite = (
+                supabase.table("session_invitations")
+                .select("id")
+                .eq("session_id", session_id)
+                .eq("invitee_phone", phone)
+                .maybe_single()
+                .execute()
+            )
+            if existing_phone_invite.data:
+                continue
+
+            try:
+                supabase.table("session_invitations").insert({
+                    "session_id": session_id,
+                    "inviter_id": user_id,
+                    "invitee_phone": phone,
+                    "status": "pending",
+                }).execute()
+                sent += 1
+            except Exception:
+                failed += 1
+
+    return InviteResultResponse(sent=sent, failed=failed, deep_link=deep_link)
+
+
+@router.post("/invitations/{invitation_id}/respond")
+async def respond_to_invitation(
+    invitation_id: str,
+    request: InvitationActionRequest,
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> SessionResponse | InvitationActionResponse:
+    """Accept or decline an invitation."""
+    # Validate action
+    if request.action not in ["accept", "decline"]:
+        raise HTTPException(status_code=400, detail="Action must be 'accept' or 'decline'")
+
+    # Get invitation
+    invitation_result = (
+        supabase.table("session_invitations")
+        .select("*")
+        .eq("id", invitation_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not invitation_result.data:
+        raise HTTPException(status_code=404, detail="Invitation not found")
+
+    invitation = invitation_result.data
+
+    # Verify user is the invitee
+    if invitation["invitee_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to respond to this invitation")
+
+    # Check invitation is still pending
+    if invitation["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Invitation has already been responded to")
+
+    if request.action == "accept":
+        # Check session is still voting
+        session_result = (
+            supabase.table("sessions")
+            .select("status")
+            .eq("id", invitation["session_id"])
+            .maybe_single()
+            .execute()
+        )
+
+        if not session_result.data or session_result.data["status"] != "voting":
+            raise HTTPException(status_code=400, detail="Session is no longer accepting participants")
+
+        # Add as participant
+        supabase.table("session_participants").insert({
+            "session_id": invitation["session_id"],
+            "user_id": user_id,
+            "role": "participant",
+        }).execute()
+
+        # Update invitation status
+        supabase.table("session_invitations").update({
+            "status": "accepted",
+            "responded_at": datetime.now().isoformat(),
+        }).eq("id", invitation_id).execute()
+
+        # Return full session details
+        return await get_session_details(invitation["session_id"], supabase)
+
+    else:  # decline
+        # Update invitation status
+        supabase.table("session_invitations").update({
+            "status": "declined",
+            "responded_at": datetime.now().isoformat(),
+        }).eq("id", invitation_id).execute()
+
+        return InvitationActionResponse(success=True)
 
 
 # --- Helper Functions ---

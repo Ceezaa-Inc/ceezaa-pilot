@@ -390,11 +390,12 @@
 ---
 
 #### 7. PULSE HOME
-**Purpose:** Dashboard - Taste Ring, insights, quick actions
+**Purpose:** Dashboard - Taste Ring, vault stats, insights
 
 ```
 ┌─────────────────────────────────────┐
-│  Good evening, Sam          [Bell]  │
+│  Your Pulse                 [Logo]  │
+│  Your taste tells a story           │
 │                                     │
 │  ┌─────────────────────────────┐    │
 │  │                             │    │
@@ -409,25 +410,22 @@
 │  │    Tap to see details →     │    │
 │  └─────────────────────────────┘    │
 │                                     │
-│  TODAY'S INSIGHT                    │
+│  STATS ROW (taps to Vault)          │
+│  ┌─────────────────────────────┐    │
+│  │  12      │   47     │ $234  │    │
+│  │ Places   │  Visits  │ Month │    │
+│  └─────────────────────────────┘    │
+│                                     │
+│  YOUR INSIGHTS                      │
 │  ┌─────────────────────────────┐    │
 │  │  🔥 5-day coffee streak!    │    │
 │  │  Blue Bottle is clearly     │    │
 │  │  your happy place.          │    │
 │  └─────────────────────────────┘    │
-│                                     │
-│  YOUR PLAYLISTS                     │
-│  ┌─────────┐ ┌─────────┐            │
-│  │Weekend  │ │Date     │  + New     │
-│  │Brunch   │ │Night    │            │
-│  │Spots    │ │Picks    │            │
-│  └─────────┘ └─────────┘            │
-│                                     │
-│  SAVED PLANS                        │
 │  ┌─────────────────────────────┐    │
-│  │  📅 Dinner with Alex       │    │
-│  │     Saturday @ 7pm          │    │
-│  │     3 spots to vote on      │    │
+│  │  🌙 Night owl detected      │    │
+│  │  40% of your dining is      │    │
+│  │  after 8pm.                 │    │
 │  └─────────────────────────────┘    │
 │                                     │
 ├──────────────┬──────────────┬───────┤
@@ -468,9 +466,9 @@
 
 **Notes:**
 - Taste Ring is THE visual identity - animated, interactive
-- Insights rotate daily (streak milestones, new discoveries)
-- Quick access to saved playlists
-- Saved plans show active group sessions
+- Stats Row shows vault metrics (Places, Visits, This Month spent) - taps to Vault tab
+- Insights shown as vertical full-width cards, fetched from API
+- Skeleton loaders shown while insights load
 - Pull-to-refresh syncs new transactions
 - Target: < 1s load time
 
@@ -1036,7 +1034,7 @@
 
 ### IN SCOPE (Must Have)
 - [ ] Onboarding: Welcome, Auth (Phone + Social), Quiz, Card Link, Reveal
-- [ ] Pulse: Taste Ring, Daily Insights, Saved Plans, Playlists
+- [ ] Pulse: Taste Ring, Stats Row, Insights
 - [ ] Discover: Mood Grid, Filters, Venue Feed, Venue Detail
 - [ ] Group Sessions: Create, Invite, Vote, Confirm
 - [ ] Vault: Place Cards, Reactions, Manual Add, History

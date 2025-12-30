@@ -16,8 +16,10 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
+import { SessionPickerModal } from '@/components/session';
 import { discoverApi, DiscoverVenue } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSessionStore, Session } from '@/stores/useSessionStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_HEIGHT = 300;
@@ -32,6 +34,10 @@ export default function VenueDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hoursExpanded, setHoursExpanded] = useState(false);
+  const [showSessionPicker, setShowSessionPicker] = useState(false);
+  const [isAddingToSession, setIsAddingToSession] = useState(false);
+
+  const { addVenueToSession, fetchSessions } = useSessionStore();
 
   useEffect(() => {
     if (id) {
@@ -64,6 +70,46 @@ export default function VenueDetailScreen() {
     if (venue?.website_uri) {
       Linking.openURL(venue.website_uri);
     }
+  };
+
+  const handleOpenSessionPicker = () => {
+    // Fetch sessions before showing picker
+    if (user?.id) {
+      fetchSessions(user.id);
+    }
+    setShowSessionPicker(true);
+  };
+
+  const handleSelectSession = async (session: Session) => {
+    if (!venue || !user?.id) return;
+
+    setIsAddingToSession(true);
+    setShowSessionPicker(false);
+
+    try {
+      const success = await addVenueToSession(
+        session.id,
+        { venue_id: venue.id },
+        user.id
+      );
+
+      if (success) {
+        // Navigate to the session
+        router.push({
+          pathname: '/(tabs)/sessions/[id]',
+          params: { id: session.id },
+        });
+      }
+    } catch (err) {
+      console.error('Failed to add venue to session:', err);
+    } finally {
+      setIsAddingToSession(false);
+    }
+  };
+
+  const handleCreateNewSession = () => {
+    setShowSessionPicker(false);
+    router.push('/(tabs)/sessions/create');
   };
 
   // Loading state
@@ -348,8 +394,33 @@ export default function VenueDetailScreen() {
 
       {/* Bottom CTA */}
       <View style={styles.bottomCTA}>
-        <Button label="Check it out" fullWidth onPress={openGoogleMaps} />
+        <View style={styles.ctaButtons}>
+          <View style={styles.ctaButton}>
+            <Button
+              label={isAddingToSession ? 'Adding...' : 'Add to Session'}
+              variant="secondary"
+              onPress={handleOpenSessionPicker}
+              disabled={isAddingToSession}
+              fullWidth
+            />
+          </View>
+          <View style={styles.ctaButton}>
+            <Button
+              label="Check it out"
+              onPress={openGoogleMaps}
+              fullWidth
+            />
+          </View>
+        </View>
       </View>
+
+      <SessionPickerModal
+        visible={showSessionPicker}
+        onClose={() => setShowSessionPicker(false)}
+        onSelectSession={handleSelectSession}
+        onCreateNew={handleCreateNewSession}
+        isLoading={isAddingToSession}
+      />
     </SafeAreaView>
   );
 }
@@ -516,5 +587,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dark.background,
     borderTopWidth: 1,
     borderTopColor: colors.dark.border,
+  },
+  ctaButtons: {
+    flexDirection: 'row',
+    gap: layoutSpacing.sm,
+  },
+  ctaButton: {
+    flex: 1,
   },
 });

@@ -456,6 +456,53 @@ export interface AddVenueRequest {
   venue_type?: string;   // Category/cuisine for new venue
 }
 
+// Invitation types
+export interface Invitation {
+  id: string;
+  session_id: string;
+  session_title: string;
+  session_date: string | null;
+  inviter_name: string;
+  inviter_avatar: string | null;
+  participant_count: number;
+  venue_count: number;
+  created_at: string;
+}
+
+export interface InvitationsListResponse {
+  invitations: Invitation[];
+}
+
+export interface InviteRequest {
+  user_ids?: string[];
+  phone_numbers?: string[];
+}
+
+export interface InviteResult {
+  sent: number;
+  failed: number;
+  deep_link?: string;
+}
+
+export interface InvitationActionRequest {
+  action: 'accept' | 'decline';
+}
+
+export interface InvitationActionResponse {
+  success: boolean;
+}
+
+// User search types
+export interface UserSearchResult {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+export interface UserSearchResponse {
+  users: UserSearchResult[];
+}
+
 // Sessions API
 export const sessionsApi = {
   getSessions: (userId: string): Promise<SessionsListResponse> =>
@@ -478,6 +525,22 @@ export const sessionsApi = {
 
   closeVoting: (sessionId: string, userId: string): Promise<Session> =>
     api.post(`/api/sessions/${sessionId}/close?user_id=${userId}`),
+
+  // Invitation methods
+  getInvitations: (userId: string): Promise<InvitationsListResponse> =>
+    api.get(`/api/sessions/${userId}/invitations`),
+
+  sendInvitations: (sessionId: string, data: InviteRequest, userId: string): Promise<InviteResult> =>
+    api.post(`/api/sessions/${sessionId}/invite?user_id=${userId}`, data),
+
+  respondToInvitation: (invitationId: string, action: 'accept' | 'decline', userId: string): Promise<Session | InvitationActionResponse> =>
+    api.post(`/api/sessions/invitations/${invitationId}/respond?user_id=${userId}`, { action }),
+};
+
+// Users API
+export const usersApi = {
+  search: (query: string, type: 'username' | 'phone'): Promise<UserSearchResponse> =>
+    api.get(`/api/users/search?q=${encodeURIComponent(query)}&type=${type}`),
 };
 
 export { ApiError };

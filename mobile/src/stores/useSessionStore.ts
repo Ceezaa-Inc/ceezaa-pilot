@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import {
   sessionsApi,
+  usersApi,
   Session as ApiSession,
   SessionListItem,
   SessionParticipant as ApiParticipant,
   SessionVenue as ApiSessionVenue,
   AddVenueRequest,
+  Invitation,
+  InviteRequest,
+  InviteResult,
+  UserSearchResult,
 } from '@/services/api';
 
 // Local types matching what components expect
@@ -107,10 +112,12 @@ interface SessionState {
   currentSession: Session | null;
   activeSessions: Session[];
   pastSessions: Session[];
+  pendingInvitations: Invitation[];
   isLoading: boolean;
+  isLoadingInvitations: boolean;
   error: string | null;
 
-  // Actions
+  // Session Actions
   fetchSessions: (userId: string) => Promise<void>;
   fetchSession: (sessionId: string) => Promise<void>;
   setCurrentSession: (sessionId: string | null) => void;
@@ -121,6 +128,13 @@ interface SessionState {
   addVenueToSession: (sessionId: string, venue: AddVenueRequest, userId: string) => Promise<boolean>;
   removeVenueFromSession: (sessionId: string, venueId: string) => boolean;
   getUserSessions: () => Session[];
+
+  // Invitation Actions
+  fetchInvitations: (userId: string) => Promise<void>;
+  acceptInvitation: (invitationId: string, userId: string) => Promise<Session | null>;
+  declineInvitation: (invitationId: string, userId: string) => Promise<boolean>;
+  sendInvitations: (sessionId: string, data: InviteRequest, userId: string) => Promise<InviteResult | null>;
+  searchUsers: (query: string, type: 'username' | 'phone') => Promise<UserSearchResult[]>;
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -128,7 +142,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   currentSession: null,
   activeSessions: [],
   pastSessions: [],
+  pendingInvitations: [],
   isLoading: false,
+  isLoadingInvitations: false,
   error: null,
 
   fetchSessions: async (userId: string) => {
@@ -337,5 +353,98 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   getUserSessions: () => {
     return get().sessions;
+  },
+
+  // Invitation Actions
+  fetchInvitations: async (userId: string) => {
+    set({ isLoadingInvitations: true });
+    try {
+      const response = await sessionsApi.getInvitations(userId);
+      set({
+        pendingInvitations: response.invitations,
+        isLoadingInvitations: false,
+      });
+    } catch (error) {
+      console.error('[Sessions] Failed to fetch invitations:', error);
+      set({ isLoadingInvitations: false });
+    }
+  },
+
+  acceptInvitation: async (invitationId: string, userId: string) => {
+    // Optimistic update - remove from pending
+    const invitation = get().pendingInvitations.find((i) => i.id === invitationId);
+    set((state) => ({
+      pendingInvitations: state.pendingInvitations.filter((i) => i.id !== invitationId),
+    }));
+
+    try {
+      const response = await sessionsApi.respondToInvitation(invitationId, 'accept', userId);
+
+      // Response is SessionResponse when accepting
+      if ('id' in response && 'code' in response) {
+        const session = mapApiSession(response as ApiSession);
+
+        set((state) => ({
+          sessions: [...state.sessions, session],
+          activeSessions: [...state.activeSessions, session],
+          currentSession: session,
+        }));
+
+        return session;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[Sessions] Failed to accept invitation:', error);
+      // Revert optimistic update
+      if (invitation) {
+        set((state) => ({
+          pendingInvitations: [...state.pendingInvitations, invitation],
+        }));
+      }
+      return null;
+    }
+  },
+
+  declineInvitation: async (invitationId: string, userId: string) => {
+    // Optimistic update - remove from pending
+    const invitation = get().pendingInvitations.find((i) => i.id === invitationId);
+    set((state) => ({
+      pendingInvitations: state.pendingInvitations.filter((i) => i.id !== invitationId),
+    }));
+
+    try {
+      await sessionsApi.respondToInvitation(invitationId, 'decline', userId);
+      return true;
+    } catch (error) {
+      console.error('[Sessions] Failed to decline invitation:', error);
+      // Revert optimistic update
+      if (invitation) {
+        set((state) => ({
+          pendingInvitations: [...state.pendingInvitations, invitation],
+        }));
+      }
+      return false;
+    }
+  },
+
+  sendInvitations: async (sessionId: string, data: InviteRequest, userId: string) => {
+    try {
+      const result = await sessionsApi.sendInvitations(sessionId, data, userId);
+      return result;
+    } catch (error) {
+      console.error('[Sessions] Failed to send invitations:', error);
+      return null;
+    }
+  },
+
+  searchUsers: async (query: string, type: 'username' | 'phone') => {
+    try {
+      const response = await usersApi.search(query, type);
+      return response.users;
+    } catch (error) {
+      console.error('[Sessions] Failed to search users:', error);
+      return [];
+    }
   },
 }));

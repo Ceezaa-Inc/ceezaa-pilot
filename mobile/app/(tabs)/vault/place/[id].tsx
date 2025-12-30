@@ -7,7 +7,10 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 import { ReactionPicker, AddVisitModal } from '@/components/vault';
+import { SessionPickerModal } from '@/components/session';
 import { useVaultStore, Visit, Reaction } from '@/stores/useVaultStore';
+import { useSessionStore, Session } from '@/stores/useSessionStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { getReactionEmoji } from '@/mocks/visits';
 
 // Format currency to 2 decimal places
@@ -83,7 +86,11 @@ function groupVisitsByDay(visits: Visit[]): DayGroup[] {
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { selectedPlace, setSelectedPlace, updateReaction, addVisit } = useVaultStore();
+  const { addVenueToSession, fetchSessions } = useSessionStore();
+  const { user } = useAuthStore();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSessionPicker, setShowSessionPicker] = useState(false);
+  const [isAddingToSession, setIsAddingToSession] = useState(false);
 
   // Group visits by day
   const dayGroups = useMemo(
@@ -117,6 +124,45 @@ export default function PlaceDetailScreen() {
     }
   };
 
+  const handleOpenSessionPicker = () => {
+    if (user?.id) {
+      fetchSessions(user.id);
+    }
+    setShowSessionPicker(true);
+  };
+
+  const handleSelectSession = async (session: Session) => {
+    if (!selectedPlace || !user?.id) return;
+
+    setIsAddingToSession(true);
+    setShowSessionPicker(false);
+
+    try {
+      // Use venue_id if available, otherwise use venue_name for on-the-fly creation
+      const venueData = selectedPlace.venueId
+        ? { venue_id: selectedPlace.venueId }
+        : { venue_name: selectedPlace.venueName, venue_type: selectedPlace.venueType || undefined };
+
+      const success = await addVenueToSession(session.id, venueData, user.id);
+
+      if (success) {
+        router.push({
+          pathname: '/(tabs)/sessions/[id]',
+          params: { id: session.id },
+        });
+      }
+    } catch (err) {
+      console.error('Failed to add venue to session:', err);
+    } finally {
+      setIsAddingToSession(false);
+    }
+  };
+
+  const handleCreateNewSession = () => {
+    setShowSessionPicker(false);
+    router.push('/(tabs)/sessions/create');
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -128,12 +174,21 @@ export default function PlaceDetailScreen() {
                 ← Back
               </Typography>
             </TouchableOpacity>
-            <Button
-              label="+ Add Visit"
-              variant="secondary"
-              size="sm"
-              onPress={() => setShowAddModal(true)}
-            />
+            <View style={styles.headerButtons}>
+              <Button
+                label={isAddingToSession ? 'Adding...' : '+ Session'}
+                variant="secondary"
+                size="sm"
+                onPress={handleOpenSessionPicker}
+                disabled={isAddingToSession}
+              />
+              <Button
+                label="+ Add Visit"
+                variant="secondary"
+                size="sm"
+                onPress={() => setShowAddModal(true)}
+              />
+            </View>
           </View>
 
           <View style={styles.titleRow}>
@@ -220,6 +275,14 @@ export default function PlaceDetailScreen() {
         onAddVisit={addVisit}
         preselectedVenue={selectedPlace}
       />
+
+      <SessionPickerModal
+        visible={showSessionPicker}
+        onClose={() => setShowSessionPicker(false)}
+        onSelectSession={handleSelectSession}
+        onCreateNew={handleCreateNewSession}
+        isLoading={isAddingToSession}
+      />
     </SafeAreaView>
   );
 }
@@ -286,6 +349,10 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginBottom: layoutSpacing.xs,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: layoutSpacing.sm,
   },
   titleRow: {
     flexDirection: 'row',
