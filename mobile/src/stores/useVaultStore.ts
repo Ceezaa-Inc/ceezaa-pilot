@@ -8,7 +8,7 @@ import {
 
 // Re-export types for components
 export type Reaction = 'loved' | 'good' | 'meh' | 'never_again';
-export type StatusFilter = 'all' | 'visited' | 'review';
+export type StatusFilter = 'all' | 'loved' | 'good' | 'meh' | 'never_again' | 'unrated';
 export type VisitSource = 'transaction' | 'manual';
 
 // Local types matching what components expect
@@ -84,9 +84,15 @@ function mapApiVisit(apiVisit: VaultVisit): Visit {
 // Filter helpers
 function getPlacesByStatus(places: Place[], filter: StatusFilter): Place[] {
   switch (filter) {
-    case 'visited':
-      return places.filter((p) => p.reaction !== undefined);
-    case 'review':
+    case 'loved':
+      return places.filter((p) => p.reaction === 'loved');
+    case 'good':
+      return places.filter((p) => p.reaction === 'good');
+    case 'meh':
+      return places.filter((p) => p.reaction === 'meh');
+    case 'never_again':
+      return places.filter((p) => p.reaction === 'never_again');
+    case 'unrated':
       return places.filter((p) => p.reaction === undefined);
     default:
       return places;

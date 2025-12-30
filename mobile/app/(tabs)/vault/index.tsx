@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
@@ -47,17 +47,30 @@ function groupPlacesByMonth(places: Place[]): MonthGroup[] {
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'visited', label: 'Rated' },
-  { key: 'review', label: 'Unrated' },
+  { key: 'loved', label: '❤️ Loved' },
+  { key: 'good', label: '👍 Good' },
+  { key: 'meh', label: '😐 Meh' },
+  { key: 'never_again', label: '👎 Never Again' },
+  { key: 'unrated', label: 'Unrated' },
 ];
 
 export default function VaultScreen() {
   const { filteredPlaces, currentFilter, setFilter, stats, addVisit, fetchVisits, isLoading } = useVaultStore();
   const { user } = useAuthStore();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter places by search query
+  const searchFilteredPlaces = useMemo(() => {
+    if (!searchQuery.trim()) return filteredPlaces;
+    const query = searchQuery.toLowerCase();
+    return filteredPlaces.filter((place) =>
+      place.venueName.toLowerCase().includes(query)
+    );
+  }, [filteredPlaces, searchQuery]);
 
   // Group places by month
-  const monthGroups = useMemo(() => groupPlacesByMonth(filteredPlaces), [filteredPlaces]);
+  const monthGroups = useMemo(() => groupPlacesByMonth(searchFilteredPlaces), [searchFilteredPlaces]);
 
   useEffect(() => {
     if (user?.id) {
@@ -128,6 +141,17 @@ export default function VaultScreen() {
           ))}
         </ScrollView>
 
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search venues..."
+            placeholderTextColor={colors.text.muted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         {/* Places List - Grouped by Month */}
         <View style={styles.places}>
           {isLoading ? (
@@ -137,10 +161,12 @@ export default function VaultScreen() {
                 Loading your food diary...
               </Typography>
             </View>
-          ) : filteredPlaces.length === 0 ? (
+          ) : searchFilteredPlaces.length === 0 ? (
             <View style={styles.emptyState}>
               <Typography variant="body" color="muted" align="center">
-                No places found with this filter
+                {searchQuery.trim()
+                  ? `No venues matching "${searchQuery}"`
+                  : 'No places found with this filter'}
               </Typography>
             </View>
           ) : (
@@ -239,6 +265,19 @@ const styles = StyleSheet.create({
   filters: {
     gap: layoutSpacing.sm,
     paddingRight: layoutSpacing.lg,
+  },
+  searchContainer: {
+    marginTop: -layoutSpacing.sm,
+  },
+  searchInput: {
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: layoutSpacing.md,
+    paddingVertical: layoutSpacing.sm,
+    color: colors.text.primary,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   filterChip: {
     paddingHorizontal: layoutSpacing.md,
