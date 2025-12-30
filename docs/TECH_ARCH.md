@@ -380,36 +380,36 @@ class TasteFusion:
 
 ## Venue Catalog Architecture
 
-The venue catalog is **curated** for MVP - ~200 venues near USC Los Angeles, tagged with taste clusters using AI.
+The venue catalog uses **Google Places API (New)** for rich venue data with AI-powered tagging.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    VENUE CATALOG (MVP)                           │
+│                    VENUE CATALOG                                 │
 │                                                                  │
-│  Data Source: Apify Google Maps Scraper + Claude Haiku Tagging   │
+│  Data Source: Google Places API (New) + Claude Haiku Tagging     │
 │                                                                  │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │  VENUES TABLE (~150-200 for beta)                         │   │
+│  │  VENUES TABLE                                             │   │
 │  │                                                           │   │
-│  │  FROM GOOGLE PLACES:                                      │   │
+│  │  FROM GOOGLE PLACES API (New):                            │   │
 │  │  - place_id (unique identifier)                           │   │
 │  │  - name, formatted_address                                │   │
-│  │  - photos (references)                                    │   │
-│  │  - opening_hours                                          │   │
-│  │  - rating, price_level                                    │   │
+│  │  - photos (up to 5 references for carousel)               │   │
+│  │  - opening_hours (weekday descriptions + periods)         │   │
+│  │  - rating, review_count, price_level                      │   │
 │  │  - location (lat/lng) → geo-filtering                     │   │
+│  │  - google_maps_uri, website_uri                           │   │
+│  │  - editorial_summary, generative_summary                  │   │
+│  │  - Atmosphere: dine_in, delivery, reservable, etc.        │   │
 │  │                                                           │   │
-│  │  PRIMARY TAGS (Manual - CEO assigned):                    │   │
-│  │  - taste_cluster: coffee, dining, nightlife, etc.         │   │
+│  │  AI-GENERATED TAGS (Claude Haiku at import):              │   │
+│  │  - taste_cluster: coffee, dining, nightlife, bakery       │   │
 │  │  - cuisine_type: japanese, mexican, american, etc.        │   │
 │  │  - price_tier: $, $$, $$$, $$$$                           │   │
-│  │                                                           │   │
-│  │  SECONDARY TAGS (GPT-generated from description/reviews): │   │
-│  │  - energy: chill, buzzy, lively                           │   │
-│  │  - date_friendly: boolean                                 │   │
-│  │  - group_friendly: boolean                                │   │
-│  │  - cozy: boolean                                          │   │
-│  │  - vibe_tags: [romantic, trendy, hidden_gem, classic]     │   │
+│  │  - energy: chill, moderate, lively                        │   │
+│  │  - tagline: 8-12 word catchy description                  │   │
+│  │  - best_for: [date_night, solo_work, group_celebration]   │   │
+│  │  - standout: [hidden_gem, local_favorite]                 │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -417,23 +417,41 @@ The venue catalog is **curated** for MVP - ~200 venues near USC Los Angeles, tag
 ### Venue Import Flow
 
 ```
-1. Run discovery script with search queries (e.g., "restaurants near usc")
+1. POST /api/discover/seed with city + lat/lng
            │
            ▼
-2. Apify Google Maps Scraper fetches venue data + reviews
+2. Google Places API (New) - Nearby Search for venues
            │
            ▼
-3. Claude Haiku analyzes reviews → generates VenueProfile
+3. Google Places API (New) - Place Details for each result
+   (photos, hours, reviews, summaries, atmosphere features)
+           │
+           ▼
+4. Claude Haiku analyzes data → generates VenueProfile
    (taste_cluster, cuisine_type, tagline, energy, best_for, standout)
            │
            ▼
-4. Upsert venues to Supabase with all AI-generated tags
+5. Upsert venues to Supabase with all fields
            │
            ▼
-5. Location-based filtering (LA users see LA venues)
+6. City-based filtering in feed (user's city from location)
 ```
 
-**Cost**: ~$0.00193/venue (Claude Haiku) + ~$0.0025/venue (Apify) = **~$0.45 for 100 venues**
+### Photo Proxy Pattern
+
+Photos are served via a backend proxy to hide API keys:
+
+```
+Mobile Request:  GET /api/discover/photo/{google_place_id}/{index}?width=400
+                           │
+                           ▼
+Backend:         Fetch from Google Places Photo API with PLACES_API_KEY
+                           │
+                           ▼
+Response:        Proxied image (image/jpeg)
+```
+
+**Cost**: ~$0.017/venue (Places Details) + ~$0.002/venue (Claude Haiku) = **~$1.90 for 100 venues**
 
 ### Venue Tagger (AI - One-Time at Import)
 
@@ -673,7 +691,7 @@ Edge Funcs:    Optional for lightweight operations
 | API | Purpose | Cost |
 |-----|---------|------|
 | Plaid | Transaction data | Free (sandbox) → $0.30/item/mo (prod) |
-| Apify | Venue discovery + reviews scraping | ~$0.0025/venue |
+| Google Places API (New) | Venue discovery, photos, reviews, hours | ~$0.017/place details |
 | Anthropic Claude | Venue tagging (Haiku) + insights | ~$0.002/venue (Haiku) |
 | Expo Push | Push notifications | Free |
 
@@ -816,28 +834,42 @@ CREATE TABLE venues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   google_place_id TEXT UNIQUE NOT NULL,
 
-  -- Google Places data
+  -- Google Places data (basic)
   name TEXT NOT NULL,
   formatted_address TEXT,
   lat DECIMAL(10, 8),
   lng DECIMAL(11, 8),
   city TEXT NOT NULL,                            -- For geo-filtering
   google_rating DECIMAL(2, 1),
+  google_review_count INT,                       -- Review count for social proof
   google_price_level INT,                        -- 0-4
-  opening_hours JSONB,
-  photo_references JSONB DEFAULT '[]',
+  photo_references JSONB DEFAULT '[]',           -- Up to 5 photo refs for carousel
 
-  -- Primary tags (CEO assigned)
+  -- Google Places data (rich - from Places API New)
+  opening_hours JSONB,                           -- {weekdayDescriptions, periods[{open,close}]}
+  google_maps_uri TEXT,                          -- Direct link to Google Maps
+  website_uri TEXT,                              -- Venue's website
+  editorial_summary TEXT,                        -- Google's editorial summary
+  generative_summary TEXT,                       -- AI-generated summary from Google
+
+  -- Atmosphere features (from Places API)
+  dine_in BOOLEAN,
+  delivery BOOLEAN,
+  takeout BOOLEAN,
+  reservable BOOLEAN,
+  good_for_groups BOOLEAN,
+  outdoor_seating BOOLEAN,
+
+  -- Primary tags (AI generated at import)
   taste_cluster TEXT NOT NULL,                   -- coffee, dining, nightlife, etc.
   cuisine_type TEXT,                             -- japanese, mexican, etc. (if dining)
   price_tier TEXT,                               -- $, $$, $$$, $$$$
 
-  -- Secondary tags (GPT generated)
+  -- Secondary tags (AI generated at import)
   energy TEXT,                                   -- chill, buzzy, lively
-  date_friendly BOOLEAN DEFAULT false,
-  group_friendly BOOLEAN DEFAULT false,
-  cozy BOOLEAN DEFAULT false,
-  vibe_tags JSONB DEFAULT '[]',                  -- [romantic, trendy, hidden_gem]
+  tagline TEXT,                                  -- 8-12 word catchy description
+  best_for JSONB DEFAULT '[]',                   -- [date_night, solo_work, group_celebration]
+  standout JSONB DEFAULT '[]',                   -- [hidden_gem, local_favorite]
 
   -- Meta
   is_active BOOLEAN DEFAULT true,
@@ -1051,9 +1083,15 @@ GET    /api/taste/insights           # Get daily insight
 ### Discover
 
 ```
-POST   /api/discover/feed            # Get personalized venue feed
-       Body: { mood?: string, filters?: DiscoverFilters }
-GET    /api/venues/{id}              # Get venue details
+GET    /api/discover/moods           # Get available mood options
+GET    /api/discover/feed/{user_id}  # Get personalized venue feed
+       Query: ?mood=&category=&city=&limit=&offset=
+GET    /api/discover/venue/{id}      # Get venue details
+       Query: ?user_id=
+POST   /api/discover/seed            # Seed venues for a city
+       Body: { city: string, lat: number, lng: number }
+GET    /api/discover/photo/{place_id}/{index}  # Photo proxy (hides API key)
+       Query: ?width=400
 ```
 
 ### Sessions (Group Planning)
@@ -1558,4 +1596,4 @@ EXPO_ACCESS_TOKEN=
 ---
 
 *Last updated: Dec 2025*
-*Version: v3.0 - Apify + Claude Haiku Venue Pipeline*
+*Version: v4.0 - Google Places API (New) + Rich Venue Data + Photo Proxy*

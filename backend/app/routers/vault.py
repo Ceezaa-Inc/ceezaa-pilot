@@ -7,9 +7,8 @@ and manually added visits.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from supabase import Client
 
@@ -118,10 +117,12 @@ async def get_visits(
     Auto-syncs transactions to place_visits and matches venues before returning.
     Returns places with visit history, plus overall stats.
     """
+    print(f"[Vault] Fetching visits for user: {user_id}")
+
     # Auto-sync: Create place_visits from transactions and match venues
     plaid_service = PlaidService(supabase)
-    plaid_service._create_place_visits(user_id)
-    plaid_service._match_venues_for_user(user_id)
+    created = plaid_service._create_place_visits(user_id)
+    print(f"[Vault] Auto-sync created {created} place visits")
 
     # Get base URL for photo proxy
     base_url = str(request.base_url).rstrip("/")

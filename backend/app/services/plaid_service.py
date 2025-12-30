@@ -417,6 +417,7 @@ class PlaidService:
             .execute()
         )
         transactions = result.data or []
+        print(f"[PlaidService] Found {len(transactions)} food/drink transactions for user {user_id}")
 
         if not transactions:
             return 0
