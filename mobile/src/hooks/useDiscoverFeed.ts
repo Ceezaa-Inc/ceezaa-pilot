@@ -19,6 +19,7 @@ interface UseDiscoverFeedState {
   venues: DiscoverVenue[];
   moods: MoodOption[];
   selectedMood: string | null;
+  selectedCity: string | null;
   total: number;
   hasMore: boolean;
   isLoading: boolean;
@@ -39,6 +40,7 @@ const INITIAL_STATE: UseDiscoverFeedState = {
   venues: [],
   moods: [],
   selectedMood: null,
+  selectedCity: null,
   total: 0,
   hasMore: false,
   isLoading: false,
@@ -69,6 +71,7 @@ export function useDiscoverFeed(): UseDiscoverFeedReturn {
         isLoading: true,
         error: null,
         selectedMood: params?.mood ?? prev.selectedMood,
+        selectedCity: params?.city ?? prev.selectedCity,
       }));
 
       try {
@@ -117,6 +120,7 @@ export function useDiscoverFeed(): UseDiscoverFeedReturn {
 
         const response = await discoverApi.getFeed(userId, {
           mood: state.selectedMood ?? undefined,
+          city: state.selectedCity ?? undefined,
           limit: PAGE_SIZE,
           offset,
         });
@@ -137,7 +141,7 @@ export function useDiscoverFeed(): UseDiscoverFeedReturn {
         }));
       }
     },
-    [state.venues.length, state.hasMore, state.isLoadingMore, state.selectedMood]
+    [state.venues.length, state.hasMore, state.isLoadingMore, state.selectedMood, state.selectedCity]
   );
 
   const setMood = useCallback((mood: string | null) => {

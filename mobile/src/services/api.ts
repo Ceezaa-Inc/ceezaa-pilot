@@ -256,6 +256,7 @@ export interface DiscoverFeedResponse {
 export interface DiscoverFeedParams {
   mood?: string;
   category?: string;
+  city?: string;
   limit?: number;
   offset?: number;
 }
@@ -281,6 +282,7 @@ export const discoverApi = {
     const queryParams = new URLSearchParams();
     if (params?.mood) queryParams.append('mood', params.mood);
     if (params?.category) queryParams.append('category', params.category);
+    if (params?.city) queryParams.append('city', params.city);
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.offset) queryParams.append('offset', params.offset.toString());
 

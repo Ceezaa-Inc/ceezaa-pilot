@@ -8,6 +8,7 @@ import { Typography, Button } from '@/components/ui';
 import { MoodTile, VenueCard } from '@/components/discover';
 import { useDiscoverFeed } from '@/hooks';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useLocationStore } from '@/stores/useLocationStore';
 import { MoodType } from '@/mocks/taste';
 
 const MOODS: MoodType[] = ['chill', 'energetic', 'romantic', 'social', 'adventurous', 'cozy'];
@@ -15,15 +16,16 @@ const MOODS: MoodType[] = ['chill', 'energetic', 'romantic', 'social', 'adventur
 export default function DiscoverScreen() {
   const { user } = useAuthStore();
   const userId = user?.id || 'test-user';
+  const { city } = useLocationStore();
 
   const { venues, isLoading, fetchFeed } = useDiscoverFeed();
 
-  // Fetch feed on mount
+  // Fetch feed on mount with city filter
   useEffect(() => {
     if (userId) {
-      fetchFeed(userId);
+      fetchFeed(userId, { city: city || undefined });
     }
-  }, [userId, fetchFeed]);
+  }, [userId, city, fetchFeed]);
 
   const handleMoodPress = (mood: MoodType) => {
     router.push({

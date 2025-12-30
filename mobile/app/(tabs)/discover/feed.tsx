@@ -16,12 +16,14 @@ import { Typography } from '@/components/ui';
 import { VenueCard } from '@/components/discover';
 import { useDiscoverFeed } from '@/hooks';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useLocationStore } from '@/stores/useLocationStore';
 import { MoodOption } from '@/services/api';
 
 export default function FeedScreen() {
   const { mood: initialMood } = useLocalSearchParams<{ mood?: string }>();
   const { user } = useAuthStore();
   const userId = user?.id || 'test-user';
+  const { city } = useLocationStore();
 
   const {
     venues,
@@ -46,13 +48,13 @@ export default function FeedScreen() {
   // Fetch feed when user or mood changes
   useEffect(() => {
     if (userId) {
-      fetchFeed(userId, { mood: initialMood || undefined });
+      fetchFeed(userId, { mood: initialMood || undefined, city: city || undefined });
     }
-  }, [userId, initialMood, fetchFeed]);
+  }, [userId, initialMood, city, fetchFeed]);
 
   const handleRefresh = useCallback(() => {
-    fetchFeed(userId, { mood: selectedMood || undefined });
-  }, [userId, selectedMood, fetchFeed]);
+    fetchFeed(userId, { mood: selectedMood || undefined, city: city || undefined });
+  }, [userId, selectedMood, city, fetchFeed]);
 
   const handleVenuePress = (venueId: string) => {
     router.push({
@@ -64,7 +66,7 @@ export default function FeedScreen() {
   const handleFilterPress = (moodId: string) => {
     const newMood = moodId === selectedMood ? null : moodId;
     setMood(newMood);
-    fetchFeed(userId, { mood: newMood || undefined });
+    fetchFeed(userId, { mood: newMood || undefined, city: city || undefined });
   };
 
   const handleEndReached = useCallback(() => {

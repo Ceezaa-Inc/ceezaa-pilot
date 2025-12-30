@@ -86,6 +86,7 @@ async def get_discover_feed(
     user_id: str,
     mood: str | None = Query(None, description="Mood filter"),
     category: str | None = Query(None, description="Category filter"),
+    city: str | None = Query(None, description="City filter for location-based results"),
     limit: int = Query(20, ge=1, le=50),
     offset: int = Query(0, ge=0),
     supabase: Client = Depends(get_supabase_client),
@@ -99,13 +100,14 @@ async def get_discover_feed(
         user_id: The user's ID.
         mood: Optional mood filter (chill, energetic, romantic, etc.).
         category: Optional category filter (coffee, dining, nightlife, bakery).
+        city: Optional city filter (e.g., "Los Angeles", "San Francisco").
         limit: Number of venues to return (default 20, max 50).
         offset: Pagination offset.
 
     Returns:
         Paginated list of venues with match scores and reasons.
     """
-    print(f"[Discover] Feed request for user: {user_id}, mood: {mood}")
+    print(f"[Discover] Feed request for user: {user_id}, mood: {mood}, city: {city}")
 
     # 1. Get user taste profile
     user_taste = await _get_user_taste(user_id, supabase)
@@ -122,6 +124,10 @@ async def get_discover_feed(
 
     # 2. Fetch venues from database
     venues_query = supabase.table("venues").select("*").eq("is_active", True)
+
+    # Apply city filter if provided (case-insensitive partial match)
+    if city:
+        venues_query = venues_query.ilike("city", f"%{city}%")
 
     # Apply category filter if provided
     if category:
