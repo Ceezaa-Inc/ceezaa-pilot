@@ -167,17 +167,21 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     set({ filteredPlaces: filtered, currentFilter: filter });
   },
 
-  updateReaction: (venueId, reaction) => {
+  updateReaction: (placeId, reaction) => {
+    // Helper to match place by venueId or venueName (for places without venueId)
+    const matchesPlace = (place: Place) =>
+      place.venueId === placeId || place.venueName === placeId;
+
     // Optimistic update - API call happens in rateVisit
     set((state) => ({
       places: state.places.map((place) =>
-        place.venueId === venueId ? { ...place, reaction } : place
+        matchesPlace(place) ? { ...place, reaction } : place
       ),
       filteredPlaces: state.filteredPlaces.map((place) =>
-        place.venueId === venueId ? { ...place, reaction } : place
+        matchesPlace(place) ? { ...place, reaction } : place
       ),
       selectedPlace:
-        state.selectedPlace?.venueId === venueId
+        state.selectedPlace && matchesPlace(state.selectedPlace)
           ? { ...state.selectedPlace, reaction }
           : state.selectedPlace,
     }));

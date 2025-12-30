@@ -15,6 +15,15 @@ const formatCurrency = (amount: number): string => {
   return amount.toFixed(2);
 };
 
+// Format venue type to Title Case (e.g., "fast_food" → "Fast Food")
+const formatVenueType = (type: string | null | undefined): string => {
+  if (!type) return '';
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 // Group visits by date
 interface DayGroup {
   dateKey: string;
@@ -126,7 +135,7 @@ export default function PlaceDetailScreen() {
               </Typography>
               {selectedPlace.venueType && (
                 <Typography variant="body" color="secondary">
-                  {selectedPlace.venueType}
+                  {formatVenueType(selectedPlace.venueType)}
                 </Typography>
               )}
             </View>

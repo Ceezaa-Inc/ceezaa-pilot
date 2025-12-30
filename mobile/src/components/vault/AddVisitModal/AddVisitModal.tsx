@@ -38,6 +38,15 @@ function getVenueEmoji(venueType: string | null | undefined): string {
   return VENUE_TYPE_EMOJIS[venueType] || VENUE_TYPE_EMOJIS.default;
 }
 
+// Format venue type to Title Case (e.g., "fast_food" → "Fast Food")
+function formatVenueType(type: string | null | undefined): string {
+  if (!type) return 'Restaurant';
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 interface AddVisitModalProps {
   visible: boolean;
   onClose: () => void;
@@ -49,7 +58,8 @@ type Step = 'venue' | 'details';
 
 // Unified venue type for display
 interface DisplayVenue {
-  id: string;
+  id: string; // For React key purposes (always has a value)
+  venueId: string | null; // Actual venue UUID (may be null for unmatched places)
   name: string;
   type: string | null;
   photoUrl: string | null;
@@ -91,6 +101,7 @@ export function AddVisitModal({
     preselectedVenue
       ? {
           id: preselectedVenue.venueId || preselectedVenue.venueName,
+          venueId: preselectedVenue.venueId || null,
           name: preselectedVenue.venueName,
           type: preselectedVenue.venueType,
           photoUrl: preselectedVenue.photoUrl || null,
@@ -134,6 +145,7 @@ export function AddVisitModal({
       setStep('details');
       setSelectedVenue({
         id: preselectedVenue.venueId || preselectedVenue.venueName,
+        venueId: preselectedVenue.venueId || null,
         name: preselectedVenue.venueName,
         type: preselectedVenue.venueType,
         photoUrl: preselectedVenue.photoUrl || null,
@@ -146,6 +158,7 @@ export function AddVisitModal({
   const vaultDisplayVenues: DisplayVenue[] = useMemo(() => {
     return places.map((place) => ({
       id: place.venueId || place.venueName,
+      venueId: place.venueId || null,
       name: place.venueName,
       type: place.venueType,
       photoUrl: place.photoUrl || null,
@@ -161,6 +174,7 @@ export function AddVisitModal({
       .filter((v) => !vaultNames.has(v.name.toLowerCase()))
       .map((venue) => ({
         id: venue.id,
+        venueId: venue.id, // Discover venues always have a valid venue ID
         name: venue.name,
         type: venue.taste_cluster || venue.cuisine_type,
         photoUrl: venue.photo_url,
@@ -205,6 +219,7 @@ export function AddVisitModal({
       preselectedVenue
         ? {
             id: preselectedVenue.venueId || preselectedVenue.venueName,
+            venueId: preselectedVenue.venueId || null,
             name: preselectedVenue.venueName,
             type: preselectedVenue.venueType,
             photoUrl: preselectedVenue.photoUrl || null,
@@ -235,7 +250,8 @@ export function AddVisitModal({
     if (!selectedVenue) return;
 
     const visitData: AddVisitData = {
-      venueId: selectedVenue.source === 'vault' ? selectedVenue.id : undefined,
+      // Use venueId (actual UUID or null) - never pass venue name as ID
+      venueId: selectedVenue.venueId || undefined,
       venueName: selectedVenue.name,
       venueType: selectedVenue.type || undefined,
       date: formatDateForApi(date),
@@ -337,7 +353,7 @@ export function AddVisitModal({
                                   {venue.name}
                                 </Typography>
                                 <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                                  {venue.type || 'Restaurant'}
+                                  {formatVenueType(venue.type)}
                                 </Typography>
                               </View>
                               <View style={styles.selectIndicator}>
@@ -386,7 +402,7 @@ export function AddVisitModal({
                                   {venue.name}
                                 </Typography>
                                 <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                                  {venue.type || 'Restaurant'}
+                                  {formatVenueType(venue.type)}
                                   {venue.priceLevel ? ` • ${venue.priceLevel}` : ''}
                                 </Typography>
                                 {venue.neighborhood && (
@@ -431,7 +447,7 @@ export function AddVisitModal({
                         {selectedVenue.name}
                       </Typography>
                       <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                        {selectedVenue.type || 'Restaurant'}
+                        {formatVenueType(selectedVenue.type)}
                       </Typography>
                     </View>
                   </View>

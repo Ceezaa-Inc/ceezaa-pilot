@@ -45,10 +45,19 @@ function normalizePriceDisplay(priceTier: string | null | undefined): string {
   return priceMap[priceTier] || '$$';
 }
 
+// Format venue type to Title Case (e.g., "fast_food" → "Fast Food")
+function formatVenueType(type: string | null | undefined): string {
+  if (!type) return 'Restaurant';
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 function getVenueDisplay(venue: VenueData) {
   if (isDiscoverVenue(venue)) {
     // API venue format
-    const cuisineOrCluster = venue.cuisine_type || venue.taste_cluster || 'Restaurant';
+    const cuisineOrCluster = formatVenueType(venue.cuisine_type || venue.taste_cluster);
     const priceDisplay = normalizePriceDisplay(venue.price_tier);
     return {
       name: venue.name,
@@ -62,7 +71,7 @@ function getVenueDisplay(venue: VenueData) {
     return {
       name: venue.name,
       tagline: `${venue.neighborhood} gem`,
-      subtitle: `${venue.cuisine || venue.type} • ${'$'.repeat(venue.priceLevel)}`,
+      subtitle: `${formatVenueType(venue.cuisine || venue.type)} • ${'$'.repeat(venue.priceLevel)}`,
       matchScore: venue.matchPercentage,
       photoUrl: venue.image,
     };

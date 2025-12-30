@@ -27,6 +27,15 @@ function getVenueEmoji(venueType: string | null | undefined): string {
   return VENUE_TYPE_EMOJIS[venueType] || VENUE_TYPE_EMOJIS.default;
 }
 
+// Format venue type to Title Case (e.g., "fast_food" → "Fast Food")
+function formatVenueType(type: string | null | undefined): string {
+  if (!type) return '';
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 interface PlaceCardProps {
   place: Place;
   onPress: () => void;
@@ -49,8 +58,9 @@ export function PlaceCard({ place, onPress }: PlaceCardProps) {
   };
 
   // Build the visit info string, handling null venueType gracefully
-  const visitInfo = place.venueType
-    ? `${place.venueType} • ${place.visitCount} ${place.visitCount === 1 ? 'visit' : 'visits'}`
+  const formattedType = formatVenueType(place.venueType);
+  const visitInfo = formattedType
+    ? `${formattedType} • ${place.visitCount} ${place.visitCount === 1 ? 'visit' : 'visits'}`
     : `${place.visitCount} ${place.visitCount === 1 ? 'visit' : 'visits'}`;
 
   return (
