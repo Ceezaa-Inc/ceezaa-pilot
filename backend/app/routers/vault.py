@@ -9,13 +9,33 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from supabase import Client
 
 from app.dependencies import get_supabase_client
+from app.services.plaid_service import PlaidService
 
 router = APIRouter(prefix="/api/vault", tags=["vault"])
+
+
+def _build_photo_url(base_url: str, venue: dict | None) -> str | None:
+    """Build photo URL using the photo proxy endpoint.
+
+    Args:
+        base_url: API base URL (e.g., https://ceezaa-pilot.onrender.com)
+        venue: Venue dict with photo_references and google_place_id
+
+    Returns:
+        Photo proxy URL or None if no photos available.
+    """
+    if not venue:
+        return None
+    refs = venue.get("photo_references", [])
+    place_id = venue.get("google_place_id")
+    if refs and place_id:
+        return f"{base_url}/api/discover/photo/{place_id}/0"
+    return None
 
 
 # --- Request/Response Models ---
@@ -89,13 +109,23 @@ class UpdateVisitRequest(BaseModel):
 
 @router.get("/visits/{user_id}", response_model=VaultResponse)
 async def get_visits(
+    request: Request,
     user_id: str,
     supabase: Client = Depends(get_supabase_client),
 ) -> VaultResponse:
     """Get all visits for a user, aggregated by place.
 
+    Auto-syncs transactions to place_visits and matches venues before returning.
     Returns places with visit history, plus overall stats.
     """
+    # Auto-sync: Create place_visits from transactions and match venues
+    plaid_service = PlaidService(supabase)
+    plaid_service._create_place_visits(user_id)
+    plaid_service._match_venues_for_user(user_id)
+
+    # Get base URL for photo proxy
+    base_url = str(request.base_url).rstrip("/")
+
     # Fetch visits with venue info via join
     result = (
         supabase.table("place_visits")
@@ -123,9 +153,7 @@ async def get_visits(
         venue_name = venue["name"] if venue else merchant_name
         venue_type = venue["taste_cluster"] if venue else None
         google_place_id = venue.get("google_place_id") if venue else None
-        photo_url = None
-        if venue and venue.get("photo_references"):
-            photo_url = venue["photo_references"][0]
+        photo_url = _build_photo_url(base_url, venue)
 
         # Create or update place entry
         if place_key not in places_map:
