@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Typography } from '@/components/ui';
@@ -8,6 +8,7 @@ import { Participant } from '@/mocks/sessions';
 interface ParticipantListProps {
   participants: Participant[];
   maxVisible?: number;
+  onInvitePress?: () => void;
 }
 
 const AVATAR_COLORS = [
@@ -19,7 +20,7 @@ const AVATAR_COLORS = [
   '#FFEAA7',
 ];
 
-export function ParticipantList({ participants, maxVisible = 5 }: ParticipantListProps) {
+export function ParticipantList({ participants, maxVisible = 5, onInvitePress }: ParticipantListProps) {
   const visibleParticipants = participants.slice(0, maxVisible);
   const overflow = participants.length - maxVisible;
 
@@ -71,6 +72,18 @@ export function ParticipantList({ participants, maxVisible = 5 }: ParticipantLis
           </Typography>
         </View>
       )}
+      {onInvitePress && (
+        <TouchableOpacity style={styles.participant} onPress={onInvitePress}>
+          <View style={[styles.avatar, styles.inviteAvatar]}>
+            <Typography variant="h4" color="gold">
+              +
+            </Typography>
+          </View>
+          <Typography variant="caption" color="gold" align="center">
+            Invite
+          </Typography>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }
@@ -112,6 +125,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dark.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.dark.border,
+    borderStyle: 'dashed',
+  },
+  inviteAvatar: {
+    backgroundColor: colors.primary.muted,
+    borderWidth: 2,
+    borderColor: colors.primary.DEFAULT,
     borderStyle: 'dashed',
   },
 });

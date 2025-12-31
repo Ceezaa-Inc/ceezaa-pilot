@@ -1,10 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card } from '@/components/ui';
 import { SessionVenue } from '@/stores/useSessionStore';
+
+// Capitalize venue type for display
+const capitalizeVenueType = (type: string | null): string => {
+  if (!type) return 'Restaurant';
+  return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+};
 
 interface VotingCardProps {
   venue: SessionVenue;
@@ -17,14 +23,24 @@ export function VotingCard({ venue, hasVoted, onVote }: VotingCardProps) {
     <Card variant="default" padding="md" style={styles.card}>
       <View style={styles.row}>
         <View style={styles.imageContainer}>
-          <Typography variant="h3">🍽️</Typography>
+          {venue.photoUrl ? (
+            <Image
+              source={{ uri: venue.photoUrl }}
+              style={styles.venueImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Typography variant="h4" color="muted">🍽️</Typography>
+            </View>
+          )}
         </View>
         <View style={styles.info}>
           <Typography variant="h4" color="primary" numberOfLines={1}>
             {venue.venueName}
           </Typography>
           <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-            {venue.venueType}
+            {capitalizeVenueType(venue.venueType)}
           </Typography>
           <View style={styles.voteInfo}>
             <Typography variant="caption" color="muted">
@@ -67,6 +83,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dark.surfaceAlt,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  venueImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.dark.surfaceAlt,
   },
   info: {
     flex: 1,

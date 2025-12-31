@@ -6,7 +6,7 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
-import { VotingCard, ParticipantList, VenuePickerModal } from '@/components/session';
+import { VotingCard, ParticipantList, VenuePickerModal, InviteModal } from '@/components/session';
 import { useSessionStore, SessionVenue } from '@/stores/useSessionStore';
 import { useVaultStore, Place } from '@/stores/useVaultStore';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -16,12 +16,13 @@ const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
 export default function VotingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { currentSession, setCurrentSession, vote, closeVoting, addVenueToSession, removeVenueFromSession } = useSessionStore();
+  const { currentSession, setCurrentSession, fetchSession, vote, closeVoting, addVenueToSession, removeVenueFromSession } = useSessionStore();
   const { places, fetchVisits } = useVaultStore();
   const { user } = useAuthStore();
   const [localVenues, setLocalVenues] = useState<SessionVenue[]>([]);
   const [votedVenues, setVotedVenues] = useState<Set<string>>(new Set());
   const [showVenuePicker, setShowVenuePicker] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -162,7 +163,10 @@ export default function VotingScreen() {
         <Typography variant="label" color="muted" style={styles.sectionLabel}>
           Participants ({currentSession.participants.length})
         </Typography>
-        <ParticipantList participants={currentSession.participants} />
+        <ParticipantList
+          participants={currentSession.participants}
+          onInvitePress={() => setShowInviteModal(true)}
+        />
       </View>
 
       <View style={styles.divider} />
@@ -229,6 +233,15 @@ export default function VotingScreen() {
         selectedPlaceIds={localVenues.map((v) => v.venueId)}
         places={places}
         maxVenues={10}
+        userId={user?.id}
+      />
+
+      <InviteModal
+        visible={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        sessionId={id as string}
+        userId={user?.id || ''}
+        onInvitesSent={() => id && fetchSession(id)}
       />
 
       {isHost && (
