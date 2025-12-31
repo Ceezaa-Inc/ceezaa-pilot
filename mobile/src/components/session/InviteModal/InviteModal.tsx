@@ -155,7 +155,7 @@ export function InviteModal({
     onClose();
   };
 
-  const handleShareViaSMS = async () => {
+  const handleShare = async () => {
     if (!sessionCode) return;
 
     try {
@@ -276,11 +276,11 @@ export function InviteModal({
           {mode === 'select' ? 'Search by username' : 'Search for friends to invite to this session'}
         </Typography>
 
-        {/* Share via SMS - only in invite mode */}
+        {/* Share invitation link - only in invite mode */}
         {mode === 'invite' && sessionCode && (
-          <TouchableOpacity style={styles.shareButton} onPress={handleShareViaSMS}>
+          <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
             <Typography variant="body" color="gold">
-              Share via SMS
+              Share invitation link
             </Typography>
           </TouchableOpacity>
         )}
