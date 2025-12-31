@@ -33,6 +33,12 @@ interface VenuePickerModalProps {
 // Get unique identifier for a place
 const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
+// Capitalize venue type for display
+const capitalizeVenueType = (type: string | null): string => {
+  if (!type) return 'Restaurant';
+  return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+};
+
 // Unified venue display type
 interface DisplayVenue {
   id: string;
@@ -266,7 +272,7 @@ export function VenuePickerModal({
                         {venue.name}
                       </Typography>
                       <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                        {venue.type || 'Restaurant'}
+                        {capitalizeVenueType(venue.type)}
                       </Typography>
                       {venue.source === 'vault' && venue.visitCount !== undefined && (
                         <Typography variant="caption" color="muted" numberOfLines={1}>

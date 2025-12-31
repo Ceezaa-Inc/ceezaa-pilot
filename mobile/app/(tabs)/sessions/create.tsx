@@ -7,32 +7,10 @@ import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Input, Card } from '@/components/ui';
-import { VenuePickerModal, UserSearchModal } from '@/components/session';
+import { VenuePickerModal, InviteModal, SelectedUser } from '@/components/session';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useVaultStore, Place, Reaction } from '@/stores/useVaultStore';
-import { getReactionEmoji } from '@/mocks/visits';
-import { UserSearchResult } from '@/services/api';
-
-type ReactionFilter = Reaction | 'all';
-
-const REACTIONS: ReactionFilter[] = ['all', 'loved', 'good', 'meh'];
-
-const getReactionLabel = (reaction: ReactionFilter): string => {
-  const labels: Record<ReactionFilter, string> = {
-    all: 'All',
-    loved: 'Loved',
-    good: 'Good',
-    meh: 'Meh',
-    never_again: 'Never Again',
-  };
-  return labels[reaction];
-};
-
-const getReactionFilterEmoji = (reaction: ReactionFilter): string => {
-  if (reaction === 'all') return '📍';
-  return getReactionEmoji(reaction);
-};
+import { useVaultStore, Place } from '@/stores/useVaultStore';
 
 // Selected place type for session creation
 interface SelectedPlace {
@@ -48,17 +26,22 @@ interface SelectedPlace {
 // Get unique identifier for a place
 const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
+// Capitalize venue type for display
+const capitalizeVenueType = (type: string | null): string => {
+  if (!type) return 'Restaurant';
+  return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+};
+
 export default function CreateSessionScreen() {
   const [name, setName] = useState('');
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [selectedReaction, setSelectedReaction] = useState<ReactionFilter>('all');
   const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
   const [showVenuePicker, setShowVenuePicker] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [invitees, setInvitees] = useState<UserSearchResult[]>([]);
+  const [invitees, setInvitees] = useState<SelectedUser[]>([]);
   const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -163,11 +146,6 @@ export default function CreateSessionScreen() {
     } finally {
       setIsCreating(false);
     }
-  };
-
-  const handleAddInvitee = (user: UserSearchResult) => {
-    if (invitees.find((i) => i.id === user.id)) return;
-    setInvitees([...invitees, user]);
   };
 
   const handleRemoveInvitee = (userId: string) => {
@@ -286,32 +264,6 @@ export default function CreateSessionScreen() {
         </View>
 
         <View style={styles.section}>
-          <Typography variant="label" color="muted">
-            Filter by Rating
-          </Typography>
-          <View style={styles.reactionRow}>
-            {REACTIONS.map((reaction) => (
-              <TouchableOpacity
-                key={reaction}
-                onPress={() => {
-                  dismissPickers();
-                  setSelectedReaction(reaction);
-                }}
-                style={[styles.reactionChip, reaction === selectedReaction && styles.reactionSelected]}
-              >
-                <Typography variant="body">{getReactionFilterEmoji(reaction)}</Typography>
-                <Typography
-                  variant="caption"
-                  color={reaction === selectedReaction ? 'gold' : 'secondary'}
-                >
-                  {getReactionLabel(reaction)}
-                </Typography>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Typography variant="label" color="muted">
               Add Places to Vote On
@@ -330,7 +282,7 @@ export default function CreateSessionScreen() {
             disabled={selectedPlaces.length >= 10}
           >
             <Typography variant="body" color={selectedPlaces.length >= 10 ? 'muted' : 'gold'}>
-              + Browse Vault & Discover
+              Browse Venues
             </Typography>
           </TouchableOpacity>
 
@@ -361,7 +313,7 @@ export default function CreateSessionScreen() {
                       {place.venueName}
                     </Typography>
                     <Typography variant="caption" color="muted">
-                      {place.venueType || 'Restaurant'}
+                      {capitalizeVenueType(place.venueType)}
                     </Typography>
                   </View>
                   <TouchableOpacity
@@ -449,17 +401,17 @@ export default function CreateSessionScreen() {
         onSelectPlace={handleAddPlace}
         selectedPlaceIds={selectedPlaces.map((p) => p.placeId)}
         places={places}
-        reactionFilter={selectedReaction}
         maxVenues={10}
         userId={user?.id}
       />
 
-      <UserSearchModal
+      <InviteModal
         visible={showInviteModal}
         onClose={() => setShowInviteModal(false)}
+        mode="select"
         onSelectUsers={setInvitees}
-        currentUserId={user?.id || ''}
         initialSelected={invitees}
+        userId={user?.id}
       />
 
       <View style={styles.footer}>
@@ -522,27 +474,6 @@ const styles = StyleSheet.create({
     paddingVertical: layoutSpacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.dark.border,
-  },
-  reactionRow: {
-    flexDirection: 'row',
-    gap: layoutSpacing.sm,
-  },
-  reactionChip: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: layoutSpacing.xs,
-    paddingVertical: layoutSpacing.md,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.dark.surface,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
-  },
-  reactionSelected: {
-    borderColor: colors.primary.DEFAULT,
-    borderWidth: 2,
-    backgroundColor: colors.primary.muted,
   },
   inviteBox: {
     borderStyle: 'dashed',

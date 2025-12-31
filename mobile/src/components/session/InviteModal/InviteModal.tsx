@@ -14,12 +14,22 @@ import { Typography, Modal, Button, Input } from '@/components/ui';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { UserSearchResult, InviteRequest } from '@/services/api';
 
+export interface SelectedUser {
+  id: string;
+  display_name: string | null;
+}
+
 interface InviteModalProps {
   visible: boolean;
   onClose: () => void;
-  sessionId: string;
-  userId: string;
+  mode: 'select' | 'invite';
+  // For mode="invite" (existing session)
+  sessionId?: string;
+  userId?: string;
   onInvitesSent?: (sent: number) => void;
+  // For mode="select" (new session creation)
+  onSelectUsers?: (users: SelectedUser[]) => void;
+  initialSelected?: SelectedUser[];
 }
 
 type TabType = 'search' | 'contacts';
@@ -27,9 +37,12 @@ type TabType = 'search' | 'contacts';
 export function InviteModal({
   visible,
   onClose,
+  mode,
   sessionId,
   userId,
   onInvitesSent,
+  onSelectUsers,
+  initialSelected = [],
 }: InviteModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('search');
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,6 +53,17 @@ export function InviteModal({
   const [error, setError] = useState<string | null>(null);
 
   const { searchUsers, sendInvitations } = useSessionStore();
+
+  // Initialize with initial selected users in select mode
+  React.useEffect(() => {
+    if (visible && mode === 'select' && initialSelected.length > 0) {
+      // Convert SelectedUser to UserSearchResult format
+      setSelectedUsers(initialSelected.map(u => ({
+        id: u.id,
+        display_name: u.display_name,
+      })));
+    }
+  }, [visible, mode, initialSelected]);
 
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
@@ -78,8 +102,21 @@ export function InviteModal({
     setSelectedUsers(selectedUsers.filter((u) => u.id !== userId));
   };
 
-  const handleSendInvitations = async () => {
+  const handleAction = async () => {
     if (selectedUsers.length === 0) return;
+
+    if (mode === 'select') {
+      // Select mode - just return selected users
+      onSelectUsers?.(selectedUsers.map(u => ({
+        id: u.id,
+        display_name: u.display_name,
+      })));
+      handleClose();
+      return;
+    }
+
+    // Invite mode - send invitations
+    if (!sessionId || !userId) return;
 
     setIsSending(true);
     setError(null);
@@ -218,7 +255,7 @@ export function InviteModal({
           Invite Friends
         </Typography>
         <Typography variant="body" color="secondary" align="center" style={styles.subtitle}>
-          Search for friends to invite to this session
+          {mode === 'select' ? 'Search by username' : 'Search for friends to invite to this session'}
         </Typography>
 
         {/* Tabs */}
@@ -259,9 +296,15 @@ export function InviteModal({
         {/* Actions */}
         <View style={styles.actions}>
           <Button
-            label={isSending ? 'Sending...' : `Send Invitations${selectedUsers.length > 0 ? ` (${selectedUsers.length})` : ''}`}
+            label={
+              mode === 'select'
+                ? `Done${selectedUsers.length > 0 ? ` (${selectedUsers.length})` : ''}`
+                : isSending
+                  ? 'Sending...'
+                  : `Send Invitations${selectedUsers.length > 0 ? ` (${selectedUsers.length})` : ''}`
+            }
             fullWidth
-            onPress={handleSendInvitations}
+            onPress={handleAction}
             disabled={selectedUsers.length === 0 || isSending}
           />
           <Button label="Cancel" variant="ghost" fullWidth onPress={handleClose} />
