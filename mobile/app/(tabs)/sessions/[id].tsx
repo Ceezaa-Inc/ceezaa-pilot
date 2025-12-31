@@ -250,6 +250,8 @@ export default function VotingScreen() {
         onClose={() => setShowInviteModal(false)}
         mode="invite"
         sessionId={id as string}
+        sessionCode={currentSession?.code}
+        sessionName={currentSession?.name}
         userId={user?.id || ''}
         onInvitesSent={() => id && fetchSession(id)}
       />

@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   ScrollView,
+  Share,
 } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
@@ -25,6 +26,8 @@ interface InviteModalProps {
   mode: 'select' | 'invite';
   // For mode="invite" (existing session)
   sessionId?: string;
+  sessionCode?: string;
+  sessionName?: string;
   userId?: string;
   onInvitesSent?: (sent: number) => void;
   // For mode="select" (new session creation)
@@ -39,6 +42,8 @@ export function InviteModal({
   onClose,
   mode,
   sessionId,
+  sessionCode,
+  sessionName,
   userId,
   onInvitesSent,
   onSelectUsers,
@@ -150,6 +155,19 @@ export function InviteModal({
     onClose();
   };
 
+  const handleShareViaSMS = async () => {
+    if (!sessionCode) return;
+
+    try {
+      const name = sessionName ? `"${sessionName}"` : '';
+      await Share.share({
+        message: `Join my Ceezaa session${name ? ` ${name}` : ''}!\n\nCode: ${sessionCode}\n\nOr tap: ceezaa://join/${sessionCode}`,
+      });
+    } catch (error) {
+      // Handle silently - user cancelled
+    }
+  };
+
   const renderSelectedChips = () => {
     if (selectedUsers.length === 0) return null;
 
@@ -258,6 +276,15 @@ export function InviteModal({
           {mode === 'select' ? 'Search by username' : 'Search for friends to invite to this session'}
         </Typography>
 
+        {/* Share via SMS - only in invite mode */}
+        {mode === 'invite' && sessionCode && (
+          <TouchableOpacity style={styles.shareButton} onPress={handleShareViaSMS}>
+            <Typography variant="body" color="gold">
+              Share via SMS
+            </Typography>
+          </TouchableOpacity>
+        )}
+
         {/* Tabs */}
         <View style={styles.tabs}>
           <TouchableOpacity
@@ -321,6 +348,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: layoutSpacing.xs,
+  },
+  shareButton: {
+    backgroundColor: colors.primary.muted,
+    paddingVertical: layoutSpacing.sm,
+    paddingHorizontal: layoutSpacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
   },
   tabs: {
     flexDirection: 'row',

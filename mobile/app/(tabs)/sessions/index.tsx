@@ -14,7 +14,9 @@ export default function SessionsScreen() {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [respondingInvitation, setRespondingInvitation] = useState<string | null>(null);
   const {
-    getUserSessions,
+    sessions,
+    activeSessions: upcomingSessions,
+    pastSessions,
     fetchSessions,
     pendingInvitations,
     isLoadingInvitations,
@@ -23,7 +25,6 @@ export default function SessionsScreen() {
     declineInvitation,
   } = useSessionStore();
   const { user } = useAuthStore();
-  const userSessions = getUserSessions();
 
   useEffect(() => {
     if (user?.id) {
@@ -31,12 +32,6 @@ export default function SessionsScreen() {
       fetchInvitations(user.id);
     }
   }, [user?.id]);
-
-  // Separate active and past sessions
-  const activeSessions = userSessions.filter((s) => s.status === 'voting');
-  const pastSessions = userSessions.filter(
-    (s) => s.status === 'confirmed' || s.status === 'completed' || s.status === 'cancelled'
-  );
 
   const handleSessionPress = (session: Session) => {
     if (session.status === 'confirmed') {
@@ -158,13 +153,13 @@ export default function SessionsScreen() {
           </View>
         )}
 
-        {/* Active Sessions */}
-        {activeSessions.length > 0 && (
+        {/* Upcoming Sessions */}
+        {upcomingSessions.length > 0 && (
           <View style={styles.section}>
             <Typography variant="h4" color="primary">
-              Active Sessions
+              Upcoming Sessions
             </Typography>
-            {activeSessions.map((session) => (
+            {upcomingSessions.map((session) => (
               <SessionCard
                 key={session.id}
                 session={session}
@@ -191,7 +186,7 @@ export default function SessionsScreen() {
         )}
 
         {/* Empty State */}
-        {userSessions.length === 0 && (
+        {sessions.length === 0 && (
           <View style={styles.emptyState}>
             <View style={styles.emojiContainer}>
               <Typography variant="h3" style={styles.emptyEmoji}>

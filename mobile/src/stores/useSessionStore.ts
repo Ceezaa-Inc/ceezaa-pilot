@@ -160,13 +160,26 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     try {
       const response = await sessionsApi.getSessions(userId);
 
-      const activeSessions = response.active.map(mapListItem);
-      const pastSessions = response.past.map(mapListItem);
-      const allSessions = [...activeSessions, ...pastSessions];
+      const allFromApi = [...response.active.map(mapListItem), ...response.past.map(mapListItem)];
+
+      // Date-based categorization
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+      // Upcoming: date >= today OR no date set, AND not completed/cancelled
+      const upcomingSessions = allFromApi.filter((s) => {
+        if (s.status === 'completed' || s.status === 'cancelled') return false;
+        return !s.date || s.date >= today;
+      });
+
+      // Past: date < today OR status is completed/cancelled
+      const pastSessions = allFromApi.filter((s) => {
+        if (s.status === 'completed' || s.status === 'cancelled') return true;
+        return s.date && s.date < today;
+      });
 
       set({
-        sessions: allSessions,
-        activeSessions,
+        sessions: allFromApi,
+        activeSessions: upcomingSessions,
         pastSessions,
         isLoading: false,
       });
