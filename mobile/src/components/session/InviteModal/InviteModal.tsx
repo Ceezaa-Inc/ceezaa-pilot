@@ -35,6 +35,8 @@ interface InviteModalProps {
   initialSelected?: SelectedUser[];
 }
 
+type InviteTab = 'share' | 'search';
+
 export function InviteModal({
   visible,
   onClose,
@@ -47,6 +49,7 @@ export function InviteModal({
   onSelectUsers,
   initialSelected = [],
 }: InviteModalProps) {
+  const [activeTab, setActiveTab] = useState<InviteTab>('share');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<UserSearchResult[]>([]);
@@ -223,7 +226,7 @@ export function InviteModal({
     </TouchableOpacity>
   );
 
-  // Invite mode - share link + search
+  // Invite mode - tabbed interface
   if (mode === 'invite') {
     return (
       <Modal visible={visible} onClose={handleClose} showCloseButton closeOnBackdrop={false}>
@@ -232,77 +235,107 @@ export function InviteModal({
             Invite Friends
           </Typography>
 
-          {/* Share Link Section */}
-          {sessionCode && (
-            <View style={styles.shareSection}>
-              <View style={styles.codeContainer}>
-                <Typography variant="caption" color="muted">
-                  Session Code
-                </Typography>
-                <Typography variant="h2" color="gold">
-                  {sessionCode}
-                </Typography>
-              </View>
-              <Button label="Share invitation link" fullWidth onPress={handleShare} />
+          {/* Tab Bar */}
+          <View style={styles.tabBar}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'share' && styles.tabActive]}
+              onPress={() => setActiveTab('share')}
+            >
+              <Typography
+                variant="body"
+                color={activeTab === 'share' ? 'gold' : 'muted'}
+              >
+                Share Link
+              </Typography>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'search' && styles.tabActive]}
+              onPress={() => setActiveTab('search')}
+            >
+              <Typography
+                variant="body"
+                color={activeTab === 'search' ? 'gold' : 'muted'}
+              >
+                Search Users
+              </Typography>
+            </TouchableOpacity>
+          </View>
+
+          {/* Tab Content */}
+          {activeTab === 'share' ? (
+            <View style={styles.tabContent}>
+              {sessionCode && (
+                <View style={styles.shareSection}>
+                  <View style={styles.codeContainer}>
+                    <Typography variant="caption" color="muted">
+                      Session Code
+                    </Typography>
+                    <Typography variant="h2" color="gold">
+                      {sessionCode}
+                    </Typography>
+                  </View>
+                  <Typography variant="body" color="secondary" align="center">
+                    Share this code or link with friends to invite them
+                  </Typography>
+                  <Button label="Share invitation link" fullWidth onPress={handleShare} />
+                </View>
+              )}
             </View>
-          )}
-
-          {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Typography variant="caption" color="muted" style={styles.dividerText}>
-              or invite by username
-            </Typography>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Search Section */}
-          <View style={styles.searchSection}>
-            <Input
-              placeholder="Search by username..."
-              value={searchQuery}
-              onChangeText={handleSearch}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            {renderSelectedChips()}
-
-            {isSearching ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator color={colors.primary.DEFAULT} />
-              </View>
-            ) : searchResults.length > 0 ? (
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item.id}
-                renderItem={renderSearchResult}
-                style={styles.resultsList}
-                showsVerticalScrollIndicator={false}
+          ) : (
+            <View style={styles.tabContent}>
+              <Input
+                placeholder="Search by username..."
+                value={searchQuery}
+                onChangeText={handleSearch}
+                autoCapitalize="none"
+                autoCorrect={false}
               />
-            ) : searchQuery.length >= 2 ? (
-              <View style={styles.emptyContainer}>
-                <Typography variant="body" color="muted" align="center">
-                  No users found
-                </Typography>
+
+              {renderSelectedChips()}
+
+              <View style={styles.searchResults}>
+                {isSearching ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator color={colors.primary.DEFAULT} />
+                  </View>
+                ) : searchResults.length > 0 ? (
+                  <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderSearchResult}
+                    style={styles.resultsList}
+                    showsVerticalScrollIndicator={false}
+                  />
+                ) : searchQuery.length >= 2 ? (
+                  <View style={styles.emptyContainer}>
+                    <Typography variant="body" color="muted" align="center">
+                      No users found
+                    </Typography>
+                  </View>
+                ) : (
+                  <View style={styles.emptyContainer}>
+                    <Typography variant="body" color="muted" align="center">
+                      Type a username to search
+                    </Typography>
+                  </View>
+                )}
               </View>
-            ) : null}
-          </View>
 
-          {error && (
-            <Typography variant="caption" style={styles.error} align="center">
-              {error}
-            </Typography>
-          )}
+              {error && (
+                <Typography variant="caption" style={styles.error} align="center">
+                  {error}
+                </Typography>
+              )}
 
-          {/* Send Button - only show when users selected */}
-          {selectedUsers.length > 0 && (
-            <Button
-              label={isSending ? 'Sending...' : `Send Invites (${selectedUsers.length})`}
-              fullWidth
-              onPress={handleSendInvites}
-              disabled={isSending}
-            />
+              {selectedUsers.length > 0 && (
+                <Button
+                  label={isSending ? 'Sending...' : `Send Invites (${selectedUsers.length})`}
+                  fullWidth
+                  onPress={handleSendInvites}
+                  disabled={isSending}
+                />
+              )}
+            </View>
           )}
         </View>
       </Modal>
@@ -377,6 +410,25 @@ const styles = StyleSheet.create({
     gap: layoutSpacing.md,
     paddingTop: layoutSpacing.md,
   },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: colors.dark.surface,
+    borderRadius: borderRadius.lg,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: layoutSpacing.sm,
+    alignItems: 'center',
+    borderRadius: borderRadius.md,
+  },
+  tabActive: {
+    backgroundColor: colors.dark.surfaceAlt,
+  },
+  tabContent: {
+    minHeight: 200,
+    gap: layoutSpacing.md,
+  },
   subtitle: {
     marginBottom: layoutSpacing.xs,
   },
@@ -390,22 +442,9 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     gap: layoutSpacing.xs,
   },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.sm,
-  },
-  dividerLine: {
+  searchResults: {
     flex: 1,
-    height: 1,
-    backgroundColor: colors.dark.border,
-  },
-  dividerText: {
-    paddingHorizontal: layoutSpacing.sm,
-  },
-  searchSection: {
     minHeight: 120,
-    maxHeight: 200,
   },
   searchContent: {
     minHeight: 200,
