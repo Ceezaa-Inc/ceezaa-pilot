@@ -325,7 +325,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
         activeSessions: state.activeSessions.filter((s) => s.id !== sessionId),
-        pastSessions: [...state.pastSessions, session],
+        pastSessions: [...state.pastSessions.filter((s) => s.id !== sessionId), session],
       }));
     } catch (error) {
       console.error('[Sessions] Failed to close voting:', error);

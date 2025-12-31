@@ -55,7 +55,7 @@ export default function VotingScreen() {
     }
   }, [currentSession, user?.id]);
 
-  const handleVote = (venueId: string) => {
+  const handleVote = async (venueId: string) => {
     if (votedVenues.has(venueId)) {
       // Unvote (local only - API doesn't support unvoting)
       setVotedVenues((prev) => {
@@ -69,13 +69,14 @@ export default function VotingScreen() {
         )
       );
     } else {
-      // Vote
+      // Vote - optimistic update first
       setVotedVenues((prev) => new Set(prev).add(venueId));
       setLocalVenues((prev) =>
         prev.map((v) => (v.venueId === venueId ? { ...v, votes: v.votes + 1 } : v))
       );
+      // Then sync with backend (awaited to ensure vote is saved before close)
       if (id && user?.id) {
-        vote(id, venueId, user.id);
+        await vote(id, venueId, user.id);
       }
     }
   };
@@ -84,12 +85,23 @@ export default function VotingScreen() {
     if (id && user?.id && localVenues.length > 0) {
       // Close voting on backend (saves winner)
       await closeVoting(id, user.id);
-      // Find winner locally for navigation params
-      const winner = localVenues.reduce((max, v) => (v.votes > max.votes ? v : max));
-      router.replace({
-        pathname: '/(tabs)/sessions/confirmed',
-        params: { id, winnerId: winner.venueId, winnerName: winner.venueName },
-      });
+
+      // Check if any votes were cast
+      const votesExist = localVenues.some((v) => v.votes > 0);
+      if (votesExist) {
+        // Find winner locally for navigation params
+        const winner = localVenues.reduce((max, v) => (v.votes > max.votes ? v : max));
+        router.replace({
+          pathname: '/(tabs)/sessions/confirmed',
+          params: { id, winnerId: winner.venueId || winner.venueName, winnerName: winner.venueName },
+        });
+      } else {
+        // No votes cast, navigate without winner
+        router.replace({
+          pathname: '/(tabs)/sessions/confirmed',
+          params: { id },
+        });
+      }
     }
   };
 
