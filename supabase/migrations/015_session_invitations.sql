@@ -32,6 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_session_invitations_pending ON session_invitation
 ALTER TABLE session_invitations ENABLE ROW LEVEL SECURITY;
 
 -- Invitees can view their own invitations
+DROP POLICY IF EXISTS "Users can view own invitations" ON session_invitations;
 CREATE POLICY "Users can view own invitations"
   ON session_invitations FOR SELECT
   USING (
@@ -40,6 +41,7 @@ CREATE POLICY "Users can view own invitations"
   );
 
 -- Session participants can invite others
+DROP POLICY IF EXISTS "Session participants can invite" ON session_invitations;
 CREATE POLICY "Session participants can invite"
   ON session_invitations FOR INSERT
   WITH CHECK (
@@ -52,12 +54,14 @@ CREATE POLICY "Session participants can invite"
   );
 
 -- Invitees can respond to (update) their own invitations
+DROP POLICY IF EXISTS "Invitees can respond to invitations" ON session_invitations;
 CREATE POLICY "Invitees can respond to invitations"
   ON session_invitations FOR UPDATE
   USING (auth.uid() = invitee_id)
   WITH CHECK (auth.uid() = invitee_id);
 
 -- Inviters can delete/cancel their invitations
+DROP POLICY IF EXISTS "Inviters can cancel invitations" ON session_invitations;
 CREATE POLICY "Inviters can cancel invitations"
   ON session_invitations FOR DELETE
   USING (auth.uid() = inviter_id);

@@ -7,7 +7,7 @@ import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
 import { VotingCard, ParticipantList, VenuePickerModal, InviteModal } from '@/components/session';
-import { useSessionStore, SessionVenue } from '@/stores/useSessionStore';
+import { useSessionStore } from '@/stores/useSessionStore';
 import { useVaultStore, Place } from '@/stores/useVaultStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -19,13 +19,14 @@ export default function VotingScreen() {
   const { currentSession, setCurrentSession, fetchSession, vote, closeVoting, addVenueToSession, removeVenueFromSession, removeParticipant } = useSessionStore();
   const { places, fetchVisits } = useVaultStore();
   const { user } = useAuthStore();
-  const [localVenues, setLocalVenues] = useState<SessionVenue[]>([]);
   const [votedVenues, setVotedVenues] = useState<Set<string>>(new Set());
   const [showVenuePicker, setShowVenuePicker] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  // Calculate total votes for distribution percentage
-  const totalVotes = localVenues.reduce((sum, v) => sum + v.votes, 0);
+  // Derive venues from currentSession - single source of truth
+  const venues = currentSession?.venues || [];
+  const sortedVenues = [...venues].sort((a, b) => b.votes - a.votes);
+  const totalVotes = venues.reduce((sum, v) => sum + v.votes, 0);
 
   useEffect(() => {
     if (id) {
@@ -40,69 +41,54 @@ export default function VotingScreen() {
     }
   }, [user?.id, places.length, fetchVisits]);
 
+  // Sync votedVenues from currentSession (track what user has voted for)
   useEffect(() => {
-    if (currentSession?.venues) {
-      setLocalVenues(currentSession.venues);
-      // Initialize votedVenues from API data
-      if (user?.id) {
-        const userVotes = new Set(
-          currentSession.venues
-            .filter((v) => v.votedBy.includes(user.id))
-            .map((v) => v.venueId)
-        );
-        setVotedVenues(userVotes);
-      }
+    if (currentSession?.venues && user?.id) {
+      const userVotes = new Set(
+        currentSession.venues
+          .filter((v) => v.votedBy.includes(user.id))
+          .map((v) => v.venueId)
+      );
+      setVotedVenues(userVotes);
     }
-  }, [currentSession, user?.id]);
+  }, [currentSession?.venues, user?.id]);
 
   const handleVote = async (venueId: string) => {
+    if (!id || !user?.id) return;
+
     if (votedVenues.has(venueId)) {
-      // Unvote (local only - API doesn't support unvoting)
+      // Unvote - just update local UI tracking (API doesn't support unvoting yet)
       setVotedVenues((prev) => {
         const next = new Set(prev);
         next.delete(venueId);
         return next;
       });
-      setLocalVenues((prev) =>
-        prev.map((v) =>
-          v.venueId === venueId ? { ...v, votes: Math.max(0, v.votes - 1) } : v
-        )
-      );
     } else {
-      // Vote - optimistic update first
+      // Vote - optimistic UI update then sync with backend
       setVotedVenues((prev) => new Set(prev).add(venueId));
-      setLocalVenues((prev) =>
-        prev.map((v) => (v.venueId === venueId ? { ...v, votes: v.votes + 1 } : v))
-      );
-      // Then sync with backend (awaited to ensure vote is saved before close)
-      if (id && user?.id) {
-        await vote(id, venueId, user.id);
-      }
+      await vote(id, venueId, user.id);
     }
   };
 
   const handleEndVoting = async () => {
-    if (id && user?.id && localVenues.length > 0) {
-      // Close voting on backend (saves winner)
-      await closeVoting(id, user.id);
+    if (!id || !user?.id || venues.length === 0) return;
 
-      // Check if any votes were cast
-      const votesExist = localVenues.some((v) => v.votes > 0);
-      if (votesExist) {
-        // Find winner locally for navigation params
-        const winner = localVenues.reduce((max, v) => (v.votes > max.votes ? v : max));
-        router.replace({
-          pathname: '/(tabs)/sessions/confirmed',
-          params: { id, winnerId: winner.venueId || winner.venueName, winnerName: winner.venueName },
-        });
-      } else {
-        // No votes cast, navigate without winner
-        router.replace({
-          pathname: '/(tabs)/sessions/confirmed',
-          params: { id },
-        });
-      }
-    }
+    // Close voting on backend - this saves the winner and returns updated session
+    await closeVoting(id, user.id);
+
+    // Get updated session from store (has winnerId from backend)
+    const updatedSession = useSessionStore.getState().currentSession;
+    const winnerId = updatedSession?.winnerId;
+    const winnerVenue = updatedSession?.venues.find((v) => v.venueId === winnerId);
+
+    router.replace({
+      pathname: '/(tabs)/sessions/confirmed',
+      params: {
+        id,
+        winnerId: winnerId || '',
+        winnerName: winnerVenue?.venueName || '',
+      },
+    });
   };
 
   const handleShareCode = async () => {
@@ -118,27 +104,24 @@ export default function VotingScreen() {
   };
 
   const handleAddPlace = async (place: Place) => {
-    if (!id || !user?.id || localVenues.length >= 10) return;
+    if (!id || !user?.id || venues.length >= 10) return;
 
     // Create venue data for API
     const venueData = place.venueId
       ? { venue_id: place.venueId }
       : { venue_name: place.venueName, venue_type: place.venueType || undefined };
 
-    // Add to store (this calls the API)
-    const success = await addVenueToSession(id, venueData, user.id);
-    if (success) {
-      // Session will be updated via store, which updates localVenues via useEffect
-    }
+    // Add to store (this calls the API and updates currentSession)
+    await addVenueToSession(id, venueData, user.id);
     setShowVenuePicker(false);
   };
 
   const handleRemoveVenue = (venueId: string) => {
-    if (!id || localVenues.length <= 1) return;
+    if (!id || venues.length <= 1) return;
 
     const success = removeVenueFromSession(id, venueId);
     if (success) {
-      setLocalVenues((prev) => prev.filter((v) => v.venueId !== venueId));
+      // Update votedVenues to remove this venue if voted
       setVotedVenues((prev) => {
         const next = new Set(prev);
         next.delete(venueId);
@@ -206,21 +189,21 @@ export default function VotingScreen() {
 
       <View style={styles.venuesHeader}>
         <Typography variant="label" color="muted">
-          Vote for a venue ({localVenues.length}/10)
+          Vote for a venue ({venues.length}/10)
         </Typography>
         <TouchableOpacity
-          style={[styles.proposeButton, localVenues.length >= 10 && styles.proposeButtonDisabled]}
+          style={[styles.proposeButton, venues.length >= 10 && styles.proposeButtonDisabled]}
           onPress={() => setShowVenuePicker(true)}
-          disabled={localVenues.length >= 10}
+          disabled={venues.length >= 10}
         >
-          <Typography variant="caption" color={localVenues.length >= 10 ? 'muted' : 'gold'}>
+          <Typography variant="caption" color={venues.length >= 10 ? 'muted' : 'gold'}>
             + Propose
           </Typography>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {localVenues.length === 0 ? (
+        {venues.length === 0 ? (
           <View style={styles.emptyVenues}>
             <Typography variant="body" color="muted" align="center">
               No venues to vote on yet
@@ -235,28 +218,26 @@ export default function VotingScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          localVenues
-            .sort((a, b) => b.votes - a.votes)
-            .map((venue) => (
-              <View key={venue.venueId} style={styles.votingCardWrapper}>
-                <VotingCard
-                  venue={venue}
-                  hasVoted={votedVenues.has(venue.venueId)}
-                  onVote={() => handleVote(venue.venueId)}
-                  totalVotes={totalVotes}
-                />
-                {localVenues.length > 1 && (
-                  <TouchableOpacity
-                    style={styles.removeVenueButton}
-                    onPress={() => handleRemoveVenue(venue.venueId)}
-                  >
-                    <Typography variant="caption" color="muted">
-                      ✕
-                    </Typography>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))
+          sortedVenues.map((venue) => (
+            <View key={venue.venueId} style={styles.votingCardWrapper}>
+              <VotingCard
+                venue={venue}
+                hasVoted={votedVenues.has(venue.venueId)}
+                onVote={() => handleVote(venue.venueId)}
+                totalVotes={totalVotes}
+              />
+              {venues.length > 1 && (
+                <TouchableOpacity
+                  style={styles.removeVenueButton}
+                  onPress={() => handleRemoveVenue(venue.venueId)}
+                >
+                  <Typography variant="caption" color="muted">
+                    ✕
+                  </Typography>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))
         )}
       </ScrollView>
 
@@ -264,7 +245,7 @@ export default function VotingScreen() {
         visible={showVenuePicker}
         onClose={() => setShowVenuePicker(false)}
         onSelectPlace={handleAddPlace}
-        selectedPlaceIds={localVenues.map((v) => v.venueId)}
+        selectedPlaceIds={venues.map((v) => v.venueId)}
         places={places}
         maxVenues={10}
         userId={user?.id}
@@ -287,7 +268,7 @@ export default function VotingScreen() {
             label="End Voting & Pick Winner"
             fullWidth
             onPress={handleEndVoting}
-            disabled={localVenues.length === 0}
+            disabled={venues.length === 0}
           />
         </View>
       )}

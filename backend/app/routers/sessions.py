@@ -5,7 +5,9 @@ Manages group planning sessions with real-time voting.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -13,6 +15,8 @@ from supabase import Client
 
 from app.dependencies import get_supabase_client
 from app.intelligence.matching_engine import MatchingEngine
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -459,16 +463,15 @@ async def vote_for_venue(
     if not participant.data:
         raise HTTPException(status_code=403, detail="Not a participant in this session")
 
-    # Add or update vote (upsert)
-    # First remove any existing vote by this user
-    supabase.table("session_votes").delete().eq("session_id", session_id).eq("user_id", user_id).execute()
-
-    # Add new vote
-    supabase.table("session_votes").insert({
-        "session_id": session_id,
-        "venue_id": request.venue_id,
-        "user_id": user_id,
-    }).execute()
+    # Add or update vote (atomic upsert - uses unique_user_vote_per_session constraint)
+    supabase.table("session_votes").upsert(
+        {
+            "session_id": session_id,
+            "venue_id": request.venue_id,
+            "user_id": user_id,
+        },
+        on_conflict="session_id,user_id"
+    ).execute()
 
     return await get_session_details(session_id, supabase)
 
@@ -675,31 +678,59 @@ async def send_invitations(
     failed = 0
     deep_link = None
 
+    logger.info(f"[send_invitations] session_id={session_id}, user_id={user_id}, request={request}")
+
     # Invite existing users by user_id
     if request.user_ids:
         for invitee_id in request.user_ids:
+            logger.info(f"[send_invitations] Processing invitee_id={invitee_id}, type={type(invitee_id)}")
+
+            # Validate UUID format
+            try:
+                UUID(invitee_id)
+            except (ValueError, TypeError) as e:
+                logger.error(f"[send_invitations] Invalid UUID format for invitee_id={invitee_id}: {e}")
+                failed += 1
+                continue
+
             # Skip if already a participant
-            existing_participant = (
-                supabase.table("session_participants")
-                .select("id")
-                .eq("session_id", session_id)
-                .eq("user_id", invitee_id)
-                .maybe_single()
-                .execute()
-            )
-            if existing_participant.data:
+            try:
+                existing_participant = (
+                    supabase.table("session_participants")
+                    .select("id")
+                    .eq("session_id", session_id)
+                    .eq("user_id", invitee_id)
+                    .maybe_single()
+                    .execute()
+                )
+                logger.info(f"[send_invitations] existing_participant query result: {existing_participant}")
+            except Exception as e:
+                logger.error(f"[send_invitations] Query failed for existing_participant: {e}", exc_info=True)
+                failed += 1
+                continue
+
+            if existing_participant and existing_participant.data:
+                logger.info(f"[send_invitations] Skipping - already a participant")
                 continue
 
             # Skip if already invited
-            existing_invite = (
-                supabase.table("session_invitations")
-                .select("id")
-                .eq("session_id", session_id)
-                .eq("invitee_id", invitee_id)
-                .maybe_single()
-                .execute()
-            )
-            if existing_invite.data:
+            try:
+                existing_invite = (
+                    supabase.table("session_invitations")
+                    .select("id")
+                    .eq("session_id", session_id)
+                    .eq("invitee_id", invitee_id)
+                    .maybe_single()
+                    .execute()
+                )
+                logger.info(f"[send_invitations] existing_invite query result: {existing_invite}")
+            except Exception as e:
+                logger.error(f"[send_invitations] Query failed for existing_invite: {e}", exc_info=True)
+                failed += 1
+                continue
+
+            if existing_invite and existing_invite.data:
+                logger.info(f"[send_invitations] Skipping - already invited")
                 continue
 
             try:
@@ -710,7 +741,9 @@ async def send_invitations(
                     "status": "pending",
                 }).execute()
                 sent += 1
-            except Exception:
+                logger.info(f"[send_invitations] Successfully sent invitation to {invitee_id}")
+            except Exception as e:
+                logger.error(f"[send_invitations] Failed to insert invitation: {e}", exc_info=True)
                 failed += 1
 
     # Create invitations for phone numbers (non-app users)

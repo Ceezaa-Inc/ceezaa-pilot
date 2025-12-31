@@ -80,6 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_places_cache_place_id
 ALTER TABLE places_lookup_cache ENABLE ROW LEVEL SECURITY;
 
 -- Service role can manage cache (no user access needed)
+DROP POLICY IF EXISTS "Service role can manage places cache" ON places_lookup_cache;
 CREATE POLICY "Service role can manage places cache"
   ON places_lookup_cache FOR ALL
   USING (true);

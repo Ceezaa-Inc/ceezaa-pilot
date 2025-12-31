@@ -115,6 +115,13 @@ function mapListItem(item: SessionListItem): Session {
   };
 }
 
+// Deduplication helpers - prevent duplicate sessions in lists
+const dedupeAndAdd = (list: Session[], session: Session): Session[] =>
+  [...list.filter((s) => s.id !== session.id), session];
+
+const dedupeAndRemove = (list: Session[], sessionId: string): Session[] =>
+  list.filter((s) => s.id !== sessionId);
+
 interface SessionState {
   sessions: Session[];
   currentSession: Session | null;
@@ -161,26 +168,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     try {
       const response = await sessionsApi.getSessions(userId);
 
-      const allFromApi = [...response.active.map(mapListItem), ...response.past.map(mapListItem)];
-
-      // Date-based categorization
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-      // Upcoming: date >= today OR no date set, AND not completed/cancelled
-      const upcomingSessions = allFromApi.filter((s) => {
-        if (s.status === 'completed' || s.status === 'cancelled') return false;
-        return !s.date || s.date >= today;
-      });
-
-      // Past: date < today OR status is completed/cancelled
-      const pastSessions = allFromApi.filter((s) => {
-        if (s.status === 'completed' || s.status === 'cancelled') return true;
-        return s.date && s.date < today;
-      });
+      // Trust backend categorization - use lists directly
+      const activeSessions = response.active.map(mapListItem);
+      const pastSessions = response.past.map(mapListItem);
+      const allSessions = [...activeSessions, ...pastSessions];
 
       set({
-        sessions: allFromApi,
-        activeSessions: upcomingSessions,
+        sessions: allSessions,
+        activeSessions,
         pastSessions,
         isLoading: false,
       });
@@ -228,8 +223,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
       set((state) => ({
         currentSession: session,
-        sessions: [...state.sessions.filter((s) => s.id !== session.id), session],
-        activeSessions: [...state.activeSessions.filter((s) => s.id !== session.id), session],
+        sessions: dedupeAndAdd(state.sessions, session),
+        activeSessions: dedupeAndAdd(state.activeSessions, session),
+        pastSessions: dedupeAndRemove(state.pastSessions, session.id),
       }));
 
       return session;
@@ -255,50 +251,40 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const session = mapApiSession(response);
 
     set((state) => ({
-      sessions: [...state.sessions, session],
+      sessions: dedupeAndAdd(state.sessions, session),
       currentSession: session,
-      activeSessions: [...state.activeSessions, session],
+      activeSessions: dedupeAndAdd(state.activeSessions, session),
     }));
 
     return session;
   },
 
   vote: async (sessionId, venueId, userId) => {
-    // Optimistic update
+    const updateSessionVote = (session: Session): Session => {
+      if (session.id !== sessionId) return session;
+      return {
+        ...session,
+        venues: session.venues.map((venue) => {
+          if (venue.venueId !== venueId) return venue;
+          return {
+            ...venue,
+            votes: venue.votes + 1,
+            votedBy: [...venue.votedBy, userId],
+          };
+        }),
+        participants: session.participants.map((p) =>
+          p.id === userId ? { ...p, hasVoted: true } : p
+        ),
+      };
+    };
+
+    // Optimistic update - update all lists
     set((state) => ({
-      sessions: state.sessions.map((session) => {
-        if (session.id !== sessionId) return session;
-        return {
-          ...session,
-          venues: session.venues.map((venue) => {
-            if (venue.venueId !== venueId) return venue;
-            return {
-              ...venue,
-              votes: venue.votes + 1,
-              votedBy: [...venue.votedBy, userId],
-            };
-          }),
-          participants: session.participants.map((p) =>
-            p.id === userId ? { ...p, hasVoted: true } : p
-          ),
-        };
-      }),
+      sessions: state.sessions.map(updateSessionVote),
+      activeSessions: state.activeSessions.map(updateSessionVote),
       currentSession:
         state.currentSession?.id === sessionId
-          ? {
-              ...state.currentSession,
-              venues: state.currentSession.venues.map((venue) => {
-                if (venue.venueId !== venueId) return venue;
-                return {
-                  ...venue,
-                  votes: venue.votes + 1,
-                  votedBy: [...venue.votedBy, userId],
-                };
-              }),
-              participants: state.currentSession.participants.map((p) =>
-                p.id === userId ? { ...p, hasVoted: true } : p
-              ),
-            }
+          ? updateSessionVote(state.currentSession)
           : state.currentSession,
     }));
 
@@ -309,6 +295,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       set((state) => ({
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
         sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
+        activeSessions: state.activeSessions.map((s) => (s.id === sessionId ? session : s)),
       }));
     } catch (error) {
       console.error('[Sessions] Failed to vote:', error);
@@ -339,6 +326,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
       set((state) => ({
         sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
+        activeSessions: state.activeSessions.map((s) => (s.id === sessionId ? session : s)),
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
       }));
 
@@ -355,12 +343,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       return false;
     }
 
+    const updateVenues = (s: Session) =>
+      s.id === sessionId
+        ? { ...s, venues: s.venues.filter((v) => v.venueId !== venueId) }
+        : s;
+
     set((state) => ({
-      sessions: state.sessions.map((s) =>
-        s.id === sessionId
-          ? { ...s, venues: s.venues.filter((v) => v.venueId !== venueId) }
-          : s
-      ),
+      sessions: state.sessions.map(updateVenues),
+      activeSessions: state.activeSessions.map(updateVenues),
       currentSession:
         state.currentSession?.id === sessionId
           ? {
@@ -380,6 +370,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
       set((state) => ({
         sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
+        activeSessions: state.activeSessions.map((s) => (s.id === sessionId ? session : s)),
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
       }));
 
@@ -424,8 +415,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         const session = mapApiSession(response as ApiSession);
 
         set((state) => ({
-          sessions: [...state.sessions, session],
-          activeSessions: [...state.activeSessions, session],
+          sessions: dedupeAndAdd(state.sessions, session),
+          activeSessions: dedupeAndAdd(state.activeSessions, session),
+          pastSessions: dedupeAndRemove(state.pastSessions, session.id),
           currentSession: session,
         }));
 
