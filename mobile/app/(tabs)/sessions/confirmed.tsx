@@ -58,43 +58,54 @@ export default function ConfirmedScreen() {
       >
         <View style={styles.celebrationSection}>
           <Typography variant="h1" align="center" style={styles.emoji}>
-            🎉
+            {winnerId ? '🎉' : '📋'}
           </Typography>
           <Typography variant="h2" color="primary" align="center">
-            It's Decided!
+            {winnerId ? "It's Decided!" : 'Session Ended'}
           </Typography>
           <Typography variant="body" color="secondary" align="center">
-            Your group has voted
+            {winnerId ? 'Your group has voted' : 'No votes were cast'}
           </Typography>
         </View>
 
-        <Card variant="default" padding="lg" style={styles.winnerCard}>
-          <View style={styles.winnerContent}>
-            <Typography variant="h2" align="center" style={styles.winnerEmoji}>
-              🏆
-            </Typography>
-            <Typography variant="h3" color="primary" align="center">
-              {winnerName || winnerVenue?.name || 'Selected Venue'}
-            </Typography>
-            {winnerVenue && (
-              <>
-                <Typography variant="body" color="secondary" align="center">
-                  {winnerVenue.cuisine || winnerVenue.type}
-                </Typography>
-                <Typography variant="caption" color="muted" align="center">
-                  {winnerVenue.neighborhood} • {winnerVenue.distance}
-                </Typography>
-              </>
-            )}
-          </View>
-          {currentSession && (
-            <View style={styles.dateTime}>
-              <Typography variant="label" color="gold" align="center">
-                {currentSession.date} • {currentSession.time}
+        {winnerId ? (
+          <Card variant="default" padding="lg" style={styles.winnerCard}>
+            <View style={styles.winnerContent}>
+              <Typography variant="h2" align="center" style={styles.winnerEmoji}>
+                🏆
               </Typography>
+              <Typography variant="h3" color="primary" align="center">
+                {winnerName || winnerVenue?.name || 'Selected Venue'}
+              </Typography>
+              {winnerVenue && (
+                <>
+                  <Typography variant="body" color="secondary" align="center">
+                    {winnerVenue.cuisine || winnerVenue.type}
+                  </Typography>
+                  <Typography variant="caption" color="muted" align="center">
+                    {winnerVenue.neighborhood} • {winnerVenue.distance}
+                  </Typography>
+                </>
+              )}
             </View>
-          )}
-        </Card>
+            {currentSession && (
+              <View style={styles.dateTime}>
+                <Typography variant="label" color="gold" align="center">
+                  {currentSession.date} • {currentSession.time}
+                </Typography>
+              </View>
+            )}
+          </Card>
+        ) : (
+          <Card variant="default" padding="lg" style={styles.noWinnerCard}>
+            <Typography variant="body" color="muted" align="center">
+              This session ended without a winner.
+            </Typography>
+            <Typography variant="caption" color="muted" align="center" style={styles.noWinnerHint}>
+              Create a new session to plan your next outing!
+            </Typography>
+          </Card>
+        )}
 
         {currentSession && currentSession.participants.length > 0 && (
           <View style={styles.participantsSection}>
@@ -164,6 +175,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: colors.primary.DEFAULT,
+  },
+  noWinnerCard: {
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+  },
+  noWinnerHint: {
+    marginTop: layoutSpacing.xs,
   },
   winnerContent: {
     alignItems: 'center',

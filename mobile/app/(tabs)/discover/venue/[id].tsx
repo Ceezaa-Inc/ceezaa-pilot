@@ -72,10 +72,10 @@ export default function VenueDetailScreen() {
     }
   };
 
-  const handleOpenSessionPicker = () => {
+  const handleOpenSessionPicker = async () => {
     // Fetch sessions before showing picker
     if (user?.id) {
-      fetchSessions(user.id);
+      await fetchSessions(user.id);
     }
     setShowSessionPicker(true);
   };
@@ -94,8 +94,8 @@ export default function VenueDetailScreen() {
       );
 
       if (success) {
-        // Navigate to the session
-        router.push({
+        // Navigate to the session (replace to avoid back nav issues across tabs)
+        router.replace({
           pathname: '/(tabs)/sessions/[id]',
           params: { id: session.id },
         });
@@ -109,7 +109,7 @@ export default function VenueDetailScreen() {
 
   const handleCreateNewSession = () => {
     setShowSessionPicker(false);
-    router.push('/(tabs)/sessions/create');
+    router.replace('/(tabs)/sessions/create');
   };
 
   // Loading state

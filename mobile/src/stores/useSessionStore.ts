@@ -135,6 +135,7 @@ interface SessionState {
   closeVoting: (sessionId: string, userId: string) => Promise<void>;
   addVenueToSession: (sessionId: string, venue: AddVenueRequest, userId: string) => Promise<boolean>;
   removeVenueFromSession: (sessionId: string, venueId: string) => boolean;
+  removeParticipant: (sessionId: string, participantUserId: string, userId: string) => Promise<boolean>;
   getUserSessions: () => Session[];
 
   // Invitation Actions
@@ -370,6 +371,23 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }));
 
     return true;
+  },
+
+  removeParticipant: async (sessionId, participantUserId, userId) => {
+    try {
+      const response = await sessionsApi.removeParticipant(sessionId, participantUserId, userId);
+      const session = mapApiSession(response);
+
+      set((state) => ({
+        sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
+        currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
+      }));
+
+      return true;
+    } catch (error) {
+      console.error('[Sessions] Failed to remove participant:', error);
+      return false;
+    }
   },
 
   getUserSessions: () => {

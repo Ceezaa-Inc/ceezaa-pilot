@@ -529,6 +529,53 @@ async def close_voting(
     return await get_session_details(session_id, supabase)
 
 
+@router.delete("/{session_id}/participants/{participant_user_id}", response_model=SessionResponse)
+async def remove_participant(
+    session_id: str,
+    participant_user_id: str,
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> SessionResponse:
+    """Remove a participant from a session. Only host can remove."""
+    # Check session exists and user is host
+    session_result = (
+        supabase.table("sessions")
+        .select("host_id, status")
+        .eq("id", session_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not session_result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if session_result.data["host_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Only host can remove participants")
+
+    if session_result.data["status"] != "voting":
+        raise HTTPException(status_code=400, detail="Cannot remove participants from closed session")
+
+    # Cannot remove self (host)
+    if participant_user_id == user_id:
+        raise HTTPException(status_code=400, detail="Host cannot remove themselves")
+
+    # Delete from session_participants
+    (
+        supabase.table("session_participants")
+        .delete()
+        .eq("session_id", session_id)
+        .eq("user_id", participant_user_id)
+        .execute()
+    )
+
+    # Also delete their votes from this session
+    supabase.table("session_votes").delete().eq(
+        "session_id", session_id
+    ).eq("user_id", participant_user_id).execute()
+
+    return await get_session_details(session_id, supabase)
+
+
 # --- Invitation Endpoints ---
 
 

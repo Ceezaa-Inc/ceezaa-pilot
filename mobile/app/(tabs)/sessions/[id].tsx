@@ -16,7 +16,7 @@ const getPlaceId = (place: Place): string => place.venueId || place.venueName;
 
 export default function VotingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { currentSession, setCurrentSession, fetchSession, vote, closeVoting, addVenueToSession, removeVenueFromSession } = useSessionStore();
+  const { currentSession, setCurrentSession, fetchSession, vote, closeVoting, addVenueToSession, removeVenueFromSession, removeParticipant } = useSessionStore();
   const { places, fetchVisits } = useVaultStore();
   const { user } = useAuthStore();
   const [localVenues, setLocalVenues] = useState<SessionVenue[]>([]);
@@ -80,9 +80,11 @@ export default function VotingScreen() {
     }
   };
 
-  const handleEndVoting = () => {
-    if (id && localVenues.length > 0) {
-      // Find winner
+  const handleEndVoting = async () => {
+    if (id && user?.id && localVenues.length > 0) {
+      // Close voting on backend (saves winner)
+      await closeVoting(id, user.id);
+      // Find winner locally for navigation params
       const winner = localVenues.reduce((max, v) => (v.votes > max.votes ? v : max));
       router.replace({
         pathname: '/(tabs)/sessions/confirmed',
@@ -133,6 +135,11 @@ export default function VotingScreen() {
     }
   };
 
+  const handleRemoveParticipant = async (participantId: string) => {
+    if (!id || !user?.id) return;
+    await removeParticipant(id, participantId, user.id);
+  };
+
   if (!currentSession) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -178,6 +185,8 @@ export default function VotingScreen() {
         <ParticipantList
           participants={currentSession.participants}
           onInvitePress={() => setShowInviteModal(true)}
+          isHost={isHost}
+          onRemoveParticipant={handleRemoveParticipant}
         />
       </View>
 

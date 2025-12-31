@@ -115,7 +115,7 @@ export function Button({
       ) : children ? (
         <View>{children}</View>
       ) : (
-        <Text style={getTextStyle()}>{label}</Text>
+        <Text style={getTextStyle()} numberOfLines={1}>{label}</Text>
       )}
     </TouchableOpacity>
   );

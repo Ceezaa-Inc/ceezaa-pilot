@@ -9,6 +9,8 @@ interface ParticipantListProps {
   participants: Participant[];
   maxVisible?: number;
   onInvitePress?: () => void;
+  isHost?: boolean;
+  onRemoveParticipant?: (participantId: string) => void;
 }
 
 const AVATAR_COLORS = [
@@ -20,7 +22,13 @@ const AVATAR_COLORS = [
   '#FFEAA7',
 ];
 
-export function ParticipantList({ participants, maxVisible = 5, onInvitePress }: ParticipantListProps) {
+export function ParticipantList({
+  participants,
+  maxVisible = 5,
+  onInvitePress,
+  isHost = false,
+  onRemoveParticipant,
+}: ParticipantListProps) {
   const visibleParticipants = participants.slice(0, maxVisible);
   const overflow = participants.length - maxVisible;
 
@@ -57,6 +65,17 @@ export function ParticipantList({ participants, maxVisible = 5, onInvitePress }:
                 ✓
               </Typography>
             </View>
+          )}
+          {isHost && !participant.isHost && onRemoveParticipant && (
+            <TouchableOpacity
+              style={styles.removeButton}
+              onPress={() => onRemoveParticipant(participant.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Typography variant="caption" color="muted">
+                ✕
+              </Typography>
+            </TouchableOpacity>
           )}
         </View>
       ))}
@@ -120,6 +139,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary.DEFAULT,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: -4,
+    left: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.dark.surfaceAlt,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   overflowAvatar: {
     backgroundColor: colors.dark.surfaceAlt,
