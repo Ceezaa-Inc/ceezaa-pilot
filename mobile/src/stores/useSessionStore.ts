@@ -91,6 +91,7 @@ function mapApiVenue(api: ApiSessionVenue): SessionVenue {
     venueName: api.venue_name,
     venueType: api.venue_type,
     photoUrl: api.photo_url || undefined,
+    matchPercentage: api.match_percentage ?? undefined,
     votes: api.votes,
     votedBy: api.voted_by,
   };

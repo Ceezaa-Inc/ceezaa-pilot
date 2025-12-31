@@ -12,8 +12,12 @@ from pydantic import BaseModel
 from supabase import Client
 
 from app.dependencies import get_supabase_client
+from app.intelligence.matching_engine import MatchingEngine
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
+
+# Shared matching engine instance
+_matching_engine = MatchingEngine()
 
 
 # --- Request/Response Models ---
@@ -39,6 +43,7 @@ class SessionVenueResponse(BaseModel):
     photo_url: str | None
     votes: int
     voted_by: list[str]
+    match_percentage: int | None = None  # Group match score (0-100)
 
 
 class SessionResponse(BaseModel):
@@ -769,6 +774,76 @@ async def respond_to_invitation(
 # --- Helper Functions ---
 
 
+def _calculate_group_match(
+    participant_ids: list[str],
+    venue: dict,
+    supabase: Client,
+) -> int | None:
+    """Calculate group match percentage for a venue.
+
+    Aggregates fused taste profiles of all participants and scores venue against group taste.
+    Returns None if no taste data available.
+    """
+    if not participant_ids:
+        return None
+
+    # Get fused taste for all participants
+    fused_result = (
+        supabase.table("fused_taste")
+        .select("categories, vibes, exploration_ratio")
+        .in_("user_id", participant_ids)
+        .execute()
+    )
+
+    fused_data = fused_result.data or []
+    if not fused_data:
+        return None
+
+    # Aggregate group taste profile
+    # For categories: average the percentages
+    # For vibes: union all vibes
+    all_vibes = set()
+    category_totals: dict[str, float] = {}
+    category_counts: dict[str, int] = {}
+
+    for profile in fused_data:
+        # Aggregate vibes
+        vibes = profile.get("vibes") or []
+        all_vibes.update(vibes)
+
+        # Aggregate categories
+        categories = profile.get("categories") or {}
+        for cat, data in categories.items():
+            pct = data.get("percentage", 0) if isinstance(data, dict) else 0
+            category_totals[cat] = category_totals.get(cat, 0) + pct
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+
+    # Average the category percentages
+    avg_categories = {}
+    for cat, total in category_totals.items():
+        avg_categories[cat] = {"percentage": total / category_counts[cat]}
+
+    # Build group taste profile
+    group_taste = {
+        "categories": avg_categories,
+        "vibes": list(all_vibes),
+    }
+
+    # Build venue profile for matching
+    venue_profile = {
+        "taste_cluster": venue.get("taste_cluster"),
+        "cuisine_type": venue.get("cuisine_type"),
+        "price_tier": venue.get("price_tier"),
+        "energy": venue.get("energy"),
+        "best_for": venue.get("best_for") or [],
+        "standout": venue.get("standout") or [],
+    }
+
+    # Calculate match score
+    result = _matching_engine.score(group_taste, venue_profile)
+    return result.match_score
+
+
 async def get_session_details(session_id: str, supabase: Client) -> SessionResponse:
     """Get full session details with participants, venues, and votes."""
     # Get session
@@ -819,10 +894,13 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
             has_voted=p["user_id"] in user_votes,
         ))
 
-    # Get session venues with vote counts
+    # Get participant IDs for group match calculation
+    participant_ids = [p["user_id"] for p in participants_data]
+
+    # Get session venues with full venue details for matching
     venues_result = (
         supabase.table("session_venues")
-        .select("venue_id, venues(id, name, taste_cluster, photo_references)")
+        .select("venue_id, venues(id, name, taste_cluster, cuisine_type, price_tier, energy, best_for, standout, photo_references)")
         .eq("session_id", session_id)
         .execute()
     )
@@ -837,7 +915,7 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
             vote_counts[venue_id] = []
         vote_counts[venue_id].append(vote["user_id"])
 
-    # Build venues list
+    # Build venues list with match percentages
     venues = []
     for sv in venues_data:
         venue = sv.get("venues") or {}
@@ -846,6 +924,9 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
         if venue.get("photo_references"):
             photo_url = venue["photo_references"][0]
 
+        # Calculate group match percentage
+        match_pct = _calculate_group_match(participant_ids, venue, supabase)
+
         venues.append(SessionVenueResponse(
             venue_id=venue_id,
             venue_name=venue.get("name", "Unknown"),
@@ -853,6 +934,7 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
             photo_url=photo_url,
             votes=len(vote_counts.get(venue_id, [])),
             voted_by=vote_counts.get(venue_id, []),
+            match_percentage=match_pct,
         ))
 
     # Sort venues by vote count (descending)

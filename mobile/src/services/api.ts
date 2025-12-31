@@ -412,6 +412,7 @@ export interface SessionVenue {
   photo_url: string | null;
   votes: number;
   voted_by: string[];
+  match_percentage: number | null;
 }
 
 export interface Session {
