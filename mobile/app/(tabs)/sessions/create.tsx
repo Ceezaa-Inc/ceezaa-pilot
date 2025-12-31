@@ -360,7 +360,7 @@ export default function CreateSessionScreen() {
             }}
           >
             <Typography variant="body" color="gold">
-              + Search & Add Friends
+              + Add Friends
             </Typography>
           </TouchableOpacity>
 

@@ -103,8 +103,38 @@ export function InviteModal({
     setSearchResults(searchResults.filter((r) => r.id !== user.id));
   };
 
-  const handleRemoveUser = (userId: string) => {
-    setSelectedUsers(selectedUsers.filter((u) => u.id !== userId));
+  const handleRemoveUser = (removeUserId: string) => {
+    setSelectedUsers(selectedUsers.filter((u) => u.id !== removeUserId));
+  };
+
+  const handleSendInvites = async () => {
+    if (selectedUsers.length === 0 || !sessionId || !userId) return;
+
+    setIsSending(true);
+    setError(null);
+
+    try {
+      const data: InviteRequest = {
+        user_ids: selectedUsers.map((u) => u.id),
+      };
+
+      const result = await sendInvitations(sessionId, data, userId);
+
+      if (result) {
+        onInvitesSent?.(result.sent);
+        // Clear selection after sending
+        setSelectedUsers([]);
+        setSearchQuery('');
+        setSearchResults([]);
+      } else {
+        setError('Failed to send invitations');
+      }
+    } catch (err) {
+      console.error('Failed to send invitations:', err);
+      setError('Failed to send invitations');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleSelectAction = async () => {
@@ -135,41 +165,11 @@ export function InviteModal({
       await Share.share({
         message: `Join my Ceezaa session${name ? ` ${name}` : ''}!\n\nCode: ${sessionCode}\n\nOr tap: ceezaa://join/${sessionCode}`,
       });
-    } catch (error) {
+    } catch (err) {
       // Handle silently - user cancelled
     }
   };
 
-  // Simple invite mode - just share link
-  if (mode === 'invite') {
-    return (
-      <Modal visible={visible} onClose={handleClose} showCloseButton>
-        <View style={styles.container}>
-          <Typography variant="h3" color="primary" align="center">
-            Invite Friends
-          </Typography>
-          <Typography variant="body" color="secondary" align="center" style={styles.subtitle}>
-            Share the session link with friends
-          </Typography>
-
-          {sessionCode && (
-            <View style={styles.codeContainer}>
-              <Typography variant="caption" color="muted">
-                Session Code
-              </Typography>
-              <Typography variant="h2" color="gold">
-                {sessionCode}
-              </Typography>
-            </View>
-          )}
-
-          <Button label="Share invitation link" fullWidth onPress={handleShare} />
-        </View>
-      </Modal>
-    );
-  }
-
-  // Select mode - search for users
   const renderSelectedChips = () => {
     if (selectedUsers.length === 0) return null;
 
@@ -215,7 +215,7 @@ export function InviteModal({
           {item.display_name || 'Unknown User'}
         </Typography>
       </View>
-      <View style={styles.checkbox}>
+      <View style={styles.addButton}>
         <Typography variant="body" color="primary">
           +
         </Typography>
@@ -223,6 +223,93 @@ export function InviteModal({
     </TouchableOpacity>
   );
 
+  // Invite mode - share link + search
+  if (mode === 'invite') {
+    return (
+      <Modal visible={visible} onClose={handleClose} showCloseButton closeOnBackdrop={false}>
+        <View style={styles.container}>
+          <Typography variant="h3" color="primary" align="center">
+            Invite Friends
+          </Typography>
+
+          {/* Share Link Section */}
+          {sessionCode && (
+            <View style={styles.shareSection}>
+              <View style={styles.codeContainer}>
+                <Typography variant="caption" color="muted">
+                  Session Code
+                </Typography>
+                <Typography variant="h2" color="gold">
+                  {sessionCode}
+                </Typography>
+              </View>
+              <Button label="Share invitation link" fullWidth onPress={handleShare} />
+            </View>
+          )}
+
+          {/* Divider */}
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Typography variant="caption" color="muted" style={styles.dividerText}>
+              or invite by username
+            </Typography>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Search Section */}
+          <View style={styles.searchSection}>
+            <Input
+              placeholder="Search by username..."
+              value={searchQuery}
+              onChangeText={handleSearch}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            {renderSelectedChips()}
+
+            {isSearching ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color={colors.primary.DEFAULT} />
+              </View>
+            ) : searchResults.length > 0 ? (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id}
+                renderItem={renderSearchResult}
+                style={styles.resultsList}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : searchQuery.length >= 2 ? (
+              <View style={styles.emptyContainer}>
+                <Typography variant="body" color="muted" align="center">
+                  No users found
+                </Typography>
+              </View>
+            ) : null}
+          </View>
+
+          {error && (
+            <Typography variant="caption" style={styles.error} align="center">
+              {error}
+            </Typography>
+          )}
+
+          {/* Send Button - only show when users selected */}
+          {selectedUsers.length > 0 && (
+            <Button
+              label={isSending ? 'Sending...' : `Send Invites (${selectedUsers.length})`}
+              fullWidth
+              onPress={handleSendInvites}
+              disabled={isSending}
+            />
+          )}
+        </View>
+      </Modal>
+    );
+  }
+
+  // Select mode - search for users only
   return (
     <Modal visible={visible} onClose={handleClose} showCloseButton closeOnBackdrop={false}>
       <View style={styles.container}>
@@ -293,12 +380,32 @@ const styles = StyleSheet.create({
   subtitle: {
     marginBottom: layoutSpacing.xs,
   },
+  shareSection: {
+    gap: layoutSpacing.md,
+  },
   codeContainer: {
     alignItems: 'center',
     paddingVertical: layoutSpacing.lg,
     backgroundColor: colors.dark.surface,
     borderRadius: borderRadius.lg,
     gap: layoutSpacing.xs,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: layoutSpacing.sm,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.dark.border,
+  },
+  dividerText: {
+    paddingHorizontal: layoutSpacing.sm,
+  },
+  searchSection: {
+    minHeight: 120,
+    maxHeight: 200,
   },
   searchContent: {
     minHeight: 200,
@@ -330,7 +437,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: layoutSpacing.xl,
+    paddingVertical: layoutSpacing.lg,
   },
   resultsList: {
     marginTop: layoutSpacing.sm,
@@ -354,7 +461,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: layoutSpacing.sm,
   },
-  checkbox: {
+  addButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -366,7 +473,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: layoutSpacing.xl,
+    paddingVertical: layoutSpacing.lg,
   },
   error: {
     color: '#FF6B6B',
