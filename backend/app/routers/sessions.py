@@ -821,10 +821,10 @@ def _calculate_group_match(
                     category_totals[cat_name] = category_totals.get(cat_name, 0) + pct
                     category_counts[cat_name] = category_counts.get(cat_name, 0) + 1
 
-    # Average the category percentages
-    avg_categories: dict[str, dict[str, float]] = {}
+    # Average the category percentages (format: {category: percentage})
+    avg_categories: dict[str, float] = {}
     for cat, total in category_totals.items():
-        avg_categories[cat] = {"percentage": total / category_counts[cat]}
+        avg_categories[cat] = total / category_counts[cat]
 
     # Build group taste profile
     group_taste = {
