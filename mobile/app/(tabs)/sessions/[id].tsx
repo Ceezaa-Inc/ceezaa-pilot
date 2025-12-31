@@ -24,6 +24,9 @@ export default function VotingScreen() {
   const [showVenuePicker, setShowVenuePicker] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
+  // Calculate total votes for distribution percentage
+  const totalVotes = localVenues.reduce((sum, v) => sum + v.votes, 0);
+
   useEffect(() => {
     if (id) {
       setCurrentSession(id);
@@ -219,6 +222,7 @@ export default function VotingScreen() {
                   venue={venue}
                   hasVoted={votedVenues.has(venue.venueId)}
                   onVote={() => handleVote(venue.venueId)}
+                  totalVotes={totalVotes}
                 />
                 {localVenues.length > 1 && (
                   <TouchableOpacity

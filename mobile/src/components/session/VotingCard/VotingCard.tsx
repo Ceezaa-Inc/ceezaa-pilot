@@ -16,9 +16,11 @@ interface VotingCardProps {
   venue: SessionVenue;
   hasVoted: boolean;
   onVote: () => void;
+  totalVotes: number;
 }
 
-export function VotingCard({ venue, hasVoted, onVote }: VotingCardProps) {
+export function VotingCard({ venue, hasVoted, onVote, totalVotes }: VotingCardProps) {
+  const votePercent = totalVotes > 0 ? Math.round((venue.votes / totalVotes) * 100) : 0;
   return (
     <Card variant="default" padding="md" style={styles.card}>
       <View style={styles.row}>
@@ -42,16 +44,10 @@ export function VotingCard({ venue, hasVoted, onVote }: VotingCardProps) {
           <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
             {capitalizeVenueType(venue.venueType)}
           </Typography>
-          <View style={styles.voteInfo}>
-            <Typography variant="caption" color="muted">
-              {venue.votes} {venue.votes === 1 ? 'vote' : 'votes'}
-            </Typography>
-            <View style={styles.matchBadge}>
-              <Typography variant="caption" color="gold">
-                {venue.matchPercentage}%
-              </Typography>
-            </View>
-          </View>
+          <Typography variant="caption" color="muted">
+            {venue.votes} {venue.votes === 1 ? 'vote' : 'votes'}
+            {totalVotes > 0 && ` (${votePercent}%)`}
+          </Typography>
         </View>
         <TouchableOpacity
           style={[styles.voteButton, hasVoted && styles.voteButtonActive]}
@@ -99,18 +95,6 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     gap: 2,
-  },
-  voteInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: layoutSpacing.sm,
-    marginTop: 2,
-  },
-  matchBadge: {
-    paddingHorizontal: layoutSpacing.xs,
-    paddingVertical: 2,
-    backgroundColor: colors.primary.muted,
-    borderRadius: borderRadius.full,
   },
   voteButton: {
     width: 48,
