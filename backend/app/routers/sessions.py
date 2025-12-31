@@ -281,16 +281,15 @@ async def join_session(
         raise HTTPException(status_code=400, detail="Session is no longer accepting participants")
 
     # Check if already a participant
-    existing = (
+    existing_result = (
         supabase.table("session_participants")
         .select("id")
         .eq("session_id", session["id"])
         .eq("user_id", user_id)
-        .maybe_single()
         .execute()
     )
 
-    if not existing.data:
+    if not existing_result.data:
         # Add as participant
         supabase.table("session_participants").insert({
             "session_id": session["id"],
