@@ -802,7 +802,7 @@ def _calculate_group_match(
     # Aggregate group taste profile
     # For categories: average the percentages
     # For vibes: union all vibes
-    all_vibes = set()
+    all_vibes: set[str] = set()
     category_totals: dict[str, float] = {}
     category_counts: dict[str, int] = {}
 
@@ -811,15 +811,18 @@ def _calculate_group_match(
         vibes = profile.get("vibes") or []
         all_vibes.update(vibes)
 
-        # Aggregate categories
-        categories = profile.get("categories") or {}
-        for cat, data in categories.items():
-            pct = data.get("percentage", 0) if isinstance(data, dict) else 0
-            category_totals[cat] = category_totals.get(cat, 0) + pct
-            category_counts[cat] = category_counts.get(cat, 0) + 1
+        # Aggregate categories (stored as list of dicts with "name" and "percentage")
+        categories = profile.get("categories") or []
+        for cat_data in categories:
+            if isinstance(cat_data, dict):
+                cat_name = cat_data.get("name", "")
+                pct = cat_data.get("percentage", 0)
+                if cat_name:
+                    category_totals[cat_name] = category_totals.get(cat_name, 0) + pct
+                    category_counts[cat_name] = category_counts.get(cat_name, 0) + 1
 
     # Average the category percentages
-    avg_categories = {}
+    avg_categories: dict[str, dict[str, float]] = {}
     for cat, total in category_totals.items():
         avg_categories[cat] = {"percentage": total / category_counts[cat]}
 
