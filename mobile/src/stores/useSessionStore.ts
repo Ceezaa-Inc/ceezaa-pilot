@@ -308,11 +308,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       const response = await sessionsApi.closeVoting(sessionId, userId);
       const session = mapApiSession(response);
 
+      // Just update the session in place - categorization is based on date, not voting status
       set((state) => ({
         sessions: state.sessions.map((s) => (s.id === sessionId ? session : s)),
+        activeSessions: state.activeSessions.map((s) => (s.id === sessionId ? session : s)),
+        pastSessions: state.pastSessions.map((s) => (s.id === sessionId ? session : s)),
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
-        activeSessions: state.activeSessions.filter((s) => s.id !== sessionId),
-        pastSessions: [...state.pastSessions.filter((s) => s.id !== sessionId), session],
       }));
     } catch (error) {
       console.error('[Sessions] Failed to close voting:', error);
