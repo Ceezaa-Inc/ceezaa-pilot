@@ -7,6 +7,14 @@ This module provides bidirectional mappings to calculate category affinity.
 from __future__ import annotations
 
 
+def _normalize_category(cat: str) -> str:
+    """Normalize category name for comparison.
+
+    Handles variations like "Fast Food" vs "fast_food".
+    """
+    return cat.lower().replace(" ", "_").replace("-", "_")
+
+
 # Maps user categories (from Plaid transactions) to relevant venue clusters
 # User spending in these categories indicates affinity for these venue types
 # NOTE: "other", "groceries", "travel" etc. are EXCLUDED - they don't indicate venue preference
@@ -67,10 +75,10 @@ def calculate_category_affinity(
     # Sum percentages from all relevant categories
     total_pct = 0.0
     for cat in relevant_user_cats:
-        # Handle case-insensitive matching
-        cat_lower = cat.lower()
+        # Normalize for comparison (handles "Fast Food" vs "fast_food")
+        cat_normalized = _normalize_category(cat)
         for user_cat, pct in user_categories.items():
-            if user_cat.lower() == cat_lower:
+            if _normalize_category(user_cat) == cat_normalized:
                 total_pct += pct
                 break
 
@@ -90,7 +98,7 @@ def get_relevant_venue_clusters(user_category: str) -> list[str]:
     Returns:
         List of venue taste_clusters that are relevant.
     """
-    return USER_TO_VENUE_CLUSTERS.get(user_category.lower(), [])
+    return USER_TO_VENUE_CLUSTERS.get(_normalize_category(user_category), [])
 
 
 def get_relevant_user_categories(venue_cluster: str) -> list[str]:
