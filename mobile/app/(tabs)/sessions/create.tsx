@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -40,6 +40,7 @@ interface SelectedPlace {
   venueName: string;
   venueType: string | null;
   venueId: string | null;
+  photoUrl: string | null;
   visitCount: number;
   totalSpent: number;
 }
@@ -77,6 +78,7 @@ export default function CreateSessionScreen() {
     venueName: place.venueName,
     venueType: place.venueType,
     venueId: place.venueId,
+    photoUrl: place.photoUrl || null,
     visitCount: place.visitCount,
     totalSpent: place.totalSpent,
   });
@@ -312,7 +314,7 @@ export default function CreateSessionScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Typography variant="label" color="muted">
-              Add Places from Your Vault
+              Add Places to Vote On
             </Typography>
             <Typography variant="caption" color="muted">
               {selectedPlaces.length}/10
@@ -328,7 +330,7 @@ export default function CreateSessionScreen() {
             disabled={selectedPlaces.length >= 10}
           >
             <Typography variant="body" color={selectedPlaces.length >= 10 ? 'muted' : 'gold'}>
-              + Browse Your Vault
+              + Browse Vault & Discover
             </Typography>
           </TouchableOpacity>
 
@@ -339,12 +341,27 @@ export default function CreateSessionScreen() {
               </Typography>
               {selectedPlaces.map((place) => (
                 <View key={place.placeId} style={styles.selectedVenueItem}>
+                  <View style={styles.selectedVenueImage}>
+                    {place.photoUrl ? (
+                      <Image
+                        source={{ uri: place.photoUrl }}
+                        style={styles.venueImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles.venueImagePlaceholder}>
+                        <Typography variant="caption" color="muted">
+                          No img
+                        </Typography>
+                      </View>
+                    )}
+                  </View>
                   <View style={styles.selectedVenueInfo}>
                     <Typography variant="body" color="primary" numberOfLines={1}>
                       {place.venueName}
                     </Typography>
                     <Typography variant="caption" color="muted">
-                      {place.venueType || 'Restaurant'} • {place.visitCount} visits • ${place.totalSpent.toFixed(0)} spent
+                      {place.venueType || 'Restaurant'}
                     </Typography>
                   </View>
                   <TouchableOpacity
@@ -434,6 +451,7 @@ export default function CreateSessionScreen() {
         places={places}
         reactionFilter={selectedReaction}
         maxVenues={10}
+        userId={user?.id}
       />
 
       <UserSearchModal
@@ -550,11 +568,29 @@ const styles = StyleSheet.create({
   selectedVenueItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: layoutSpacing.md,
+    padding: layoutSpacing.sm,
     backgroundColor: colors.dark.surface,
     borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: colors.dark.border,
+    gap: layoutSpacing.sm,
+  },
+  selectedVenueImage: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.sm,
+    overflow: 'hidden',
+    backgroundColor: colors.dark.surfaceAlt,
+  },
+  venueImage: {
+    width: '100%',
+    height: '100%',
+  },
+  venueImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   selectedVenueInfo: {
     flex: 1,
