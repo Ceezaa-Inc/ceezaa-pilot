@@ -297,6 +297,12 @@ async def join_session(
             "role": "participant",
         }).execute()
 
+    # Mark any pending invitation for this session as accepted
+    supabase.table("session_invitations").update({
+        "status": "accepted",
+        "responded_at": "now()",
+    }).eq("session_id", session["id"]).eq("invitee_id", user_id).eq("status", "pending").execute()
+
     return await get_session_details(session["id"], supabase)
 
 
