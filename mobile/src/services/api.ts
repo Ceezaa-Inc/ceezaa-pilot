@@ -436,6 +436,7 @@ export interface SessionListItem {
   status: string;
   participant_count: number;
   venue_count: number;
+  total_votes: number;
   created_at: string;
 }
 

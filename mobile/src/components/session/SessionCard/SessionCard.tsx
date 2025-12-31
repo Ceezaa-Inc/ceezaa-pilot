@@ -49,7 +49,18 @@ const getStatusLabel = (status: Session['status']): string => {
 };
 
 const getTotalVotes = (session: Session): number => {
-  return session.venues.reduce((sum, v) => sum + v.votes, 0);
+  if (session.venues.length > 0) {
+    return session.venues.reduce((sum, v) => sum + v.votes, 0);
+  }
+  return session.totalVotes || 0;
+};
+
+const getVenueCount = (session: Session): number => {
+  return session.venues.length > 0 ? session.venues.length : (session.venueCount || 0);
+};
+
+const getParticipantCount = (session: Session): number => {
+  return session.participants.length > 0 ? session.participants.length : (session.participantCount || 0);
 };
 
 export function SessionCard({ session, onPress }: SessionCardProps) {
@@ -77,7 +88,7 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
               </Typography>
             ) : (
               <Typography variant="bodySmall" color="secondary" numberOfLines={1}>
-                {session.venues.length} venues • {getTotalVotes(session)} votes
+                {getVenueCount(session)} venues • {getTotalVotes(session)} votes
               </Typography>
             )}
             <Typography variant="caption" color="muted" numberOfLines={1}>
@@ -90,10 +101,10 @@ export function SessionCard({ session, onPress }: SessionCardProps) {
             </Typography>
           </View>
         </View>
-        {session.participants.length > 1 && (
+        {getParticipantCount(session) > 1 && (
           <View style={styles.participantsRow}>
             <Typography variant="caption" color="muted">
-              {session.participants.length} participants
+              {getParticipantCount(session)} participants
             </Typography>
           </View>
         )}

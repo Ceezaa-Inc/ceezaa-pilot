@@ -67,6 +67,7 @@ class SessionListItem(BaseModel):
     status: str
     participant_count: int
     venue_count: int
+    total_votes: int
     created_at: str
 
 
@@ -200,6 +201,12 @@ async def get_user_sessions(
             .eq("session_id", session["id"])
             .execute()
         )
+        votes_result = (
+            supabase.table("session_votes")
+            .select("id", count="exact")
+            .eq("session_id", session["id"])
+            .execute()
+        )
 
         item = SessionListItem(
             id=session["id"],
@@ -209,6 +216,7 @@ async def get_user_sessions(
             status=session["status"],
             participant_count=participants_result.count or 0,
             venue_count=venues_result.count or 0,
+            total_votes=votes_result.count or 0,
             created_at=session["created_at"],
         )
 

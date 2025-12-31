@@ -46,6 +46,10 @@ export interface Session {
   venues: SessionVenue[];
   winnerId?: string;
   createdAt: string;
+  // Counts for list view (when full data not loaded)
+  participantCount?: number;
+  venueCount?: number;
+  totalVotes?: number;
 }
 
 interface CreateSessionData {
@@ -104,6 +108,9 @@ function mapListItem(item: SessionListItem): Session {
     participants: [],
     venues: [],
     createdAt: item.created_at,
+    participantCount: item.participant_count,
+    venueCount: item.venue_count,
+    totalVotes: item.total_votes,
   };
 }
 

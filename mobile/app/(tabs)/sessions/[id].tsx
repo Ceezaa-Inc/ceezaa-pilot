@@ -40,8 +40,17 @@ export default function VotingScreen() {
   useEffect(() => {
     if (currentSession?.venues) {
       setLocalVenues(currentSession.venues);
+      // Initialize votedVenues from API data
+      if (user?.id) {
+        const userVotes = new Set(
+          currentSession.venues
+            .filter((v) => v.votedBy.includes(user.id))
+            .map((v) => v.venueId)
+        );
+        setVotedVenues(userVotes);
+      }
     }
-  }, [currentSession]);
+  }, [currentSession, user?.id]);
 
   const handleVote = (venueId: string) => {
     if (votedVenues.has(venueId)) {
