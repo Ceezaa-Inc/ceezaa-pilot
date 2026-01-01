@@ -472,7 +472,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   searchUsers: async (query: string, type: 'username' | 'phone') => {
     try {
+      console.log('[Sessions] searchUsers called with:', { query, type });
       const response = await usersApi.search(query, type);
+      console.log('[Sessions] searchUsers response:', response);
       return response.users;
     } catch (error) {
       console.error('[Sessions] Failed to search users:', error);

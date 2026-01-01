@@ -84,9 +84,13 @@ export function InviteModal({
       setIsSearching(true);
       try {
         const results = await searchUsers(query, 'username');
+        console.log('[InviteModal] Raw search results:', results);
+        console.log('[InviteModal] userId to exclude:', userId);
+        console.log('[InviteModal] selectedUsers:', selectedUsers);
         const filtered = results.filter(
           (r) => !selectedUsers.find((s) => s.id === r.id) && r.id !== userId
         );
+        console.log('[InviteModal] Filtered results:', filtered);
         setSearchResults(filtered);
       } catch (err) {
         console.error('Search failed:', err);
