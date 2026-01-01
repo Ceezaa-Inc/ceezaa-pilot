@@ -73,11 +73,10 @@ export default function VotingScreen() {
   const handleEndVoting = async () => {
     if (!id || !user?.id || venues.length === 0) return;
 
-    // Close voting on backend - this saves the winner and returns updated session
-    await closeVoting(id, user.id);
+    // Close voting on backend - returns session with winner
+    const updatedSession = await closeVoting(id, user.id);
 
-    // Get updated session from store (has winnerId from backend)
-    const updatedSession = useSessionStore.getState().currentSession;
+    // Get winner from returned session
     const winnerId = updatedSession?.winnerId;
     const winnerVenue = updatedSession?.venues.find((v) => v.venueId === winnerId);
 

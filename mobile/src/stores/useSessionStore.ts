@@ -150,7 +150,7 @@ interface SessionState {
   joinSession: (code: string, userId: string) => Promise<Session | null>;
   createSession: (userId: string, data: CreateSessionData) => Promise<Session>;
   vote: (sessionId: string, venueId: string, userId: string) => Promise<void>;
-  closeVoting: (sessionId: string, userId: string) => Promise<void>;
+  closeVoting: (sessionId: string, userId: string) => Promise<Session | null>;
   addVenueToSession: (sessionId: string, venue: AddVenueRequest, userId: string) => Promise<boolean>;
   removeVenueFromSession: (sessionId: string, venueId: string) => boolean;
   removeParticipant: (sessionId: string, participantUserId: string, userId: string) => Promise<boolean>;
@@ -326,8 +326,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         pastSessions: state.pastSessions.map((s) => (s.id === sessionId ? session : s)),
         currentSession: state.currentSession?.id === sessionId ? session : state.currentSession,
       }));
+
+      return session;
     } catch (error) {
       console.error('[Sessions] Failed to close voting:', error);
+      return null;
     }
   },
 
