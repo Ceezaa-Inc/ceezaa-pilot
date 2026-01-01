@@ -6,7 +6,7 @@ and manually added visits.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -139,7 +139,7 @@ async def get_visits(
     places_map: dict[str, dict] = {}
     total_spent = 0.0
     this_month_spent = 0.0
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
 
     for visit in visits_data:
         # Determine the place key (venue_id or merchant_name)
