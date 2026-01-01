@@ -546,6 +546,41 @@ async def close_voting(
     return await get_session_details(session_id, supabase)
 
 
+@router.post("/{session_id}/reopen", response_model=SessionResponse)
+async def reopen_voting(
+    session_id: str,
+    user_id: str,
+    supabase: Client = Depends(get_supabase_client),
+) -> SessionResponse:
+    """Reopen voting for a confirmed session. Only host can reopen. Votes are preserved."""
+    # Check user is host
+    session_result = (
+        supabase.table("sessions")
+        .select("host_id, status")
+        .eq("id", session_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if not session_result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    if session_result.data["host_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Only host can reopen voting")
+
+    if session_result.data["status"] != "confirmed":
+        raise HTTPException(status_code=400, detail="Session is not in confirmed state")
+
+    # Update session - reopen voting, clear winner but keep votes
+    supabase.table("sessions").update({
+        "status": "voting",
+        "winning_venue_id": None,
+        "closed_at": None,
+    }).eq("id", session_id).execute()
+
+    return await get_session_details(session_id, supabase)
+
+
 @router.delete("/{session_id}/participants/{participant_user_id}", response_model=SessionResponse)
 async def remove_participant(
     session_id: str,

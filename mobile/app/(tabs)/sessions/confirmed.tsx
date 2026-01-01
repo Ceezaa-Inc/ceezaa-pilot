@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Share, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -8,22 +8,32 @@ import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Button, Card } from '@/components/ui';
 import { ParticipantList } from '@/components/session';
 import { useSessionStore } from '@/stores/useSessionStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { getVenueById } from '@/mocks/venues';
 
 export default function ConfirmedScreen() {
-  const { id, winnerId, winnerName } = useLocalSearchParams<{
+  const { id, winnerId: paramWinnerId, winnerName: paramWinnerName } = useLocalSearchParams<{
     id: string;
     winnerId: string;
     winnerName: string;
   }>();
 
-  const { currentSession, setCurrentSession } = useSessionStore();
+  const { currentSession, setCurrentSession, fetchSession, reopenVoting } = useSessionStore();
+  const { user } = useAuthStore();
+  const [isReopening, setIsReopening] = useState(false);
 
   useEffect(() => {
     if (id) {
       setCurrentSession(id);
+      // Fetch full session data to get winnerId
+      fetchSession(id);
     }
   }, [id]);
+
+  // Use params if available, otherwise fall back to currentSession data
+  const winnerId = paramWinnerId || currentSession?.winnerId || '';
+  const winnerVenueFromSession = currentSession?.venues?.find((v) => v.venueId === winnerId);
+  const winnerName = paramWinnerName || winnerVenueFromSession?.venueName || '';
   const winnerVenue = winnerId ? getVenueById(winnerId) : null;
 
   const handleViewDetails = () => {
@@ -48,6 +58,33 @@ export default function ConfirmedScreen() {
   const handleDone = () => {
     router.replace('/(tabs)/sessions');
   };
+
+  const handleReopenVoting = async () => {
+    if (!id || !user?.id) return;
+    setIsReopening(true);
+    const session = await reopenVoting(id, user.id);
+    setIsReopening(false);
+    if (session) {
+      // Navigate back to voting screen
+      router.replace({
+        pathname: '/(tabs)/sessions/[id]',
+        params: { id },
+      });
+    }
+  };
+
+  // Check if user is host
+  const isHost = currentSession?.hostId === user?.id;
+
+  // Check if session is upcoming (date >= today or no date set)
+  const isUpcoming = (() => {
+    if (!currentSession?.date) return true; // No date = upcoming
+    const today = new Date().toISOString().split('T')[0];
+    return currentSession.date >= today;
+  })();
+
+  // Show reopen option for host on upcoming confirmed sessions
+  const canReopenVoting = isHost && isUpcoming && currentSession?.status === 'confirmed';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -134,6 +171,15 @@ export default function ConfirmedScreen() {
             fullWidth
             onPress={handleShare}
           />
+          {canReopenVoting && (
+            <Button
+              label={isReopening ? 'Reopening...' : 'Reopen Voting'}
+              variant="secondary"
+              fullWidth
+              onPress={handleReopenVoting}
+              disabled={isReopening}
+            />
+          )}
           <Button
             label="Back to Sessions"
             variant="ghost"

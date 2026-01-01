@@ -545,6 +545,9 @@ export const sessionsApi = {
   closeVoting: (sessionId: string, userId: string): Promise<Session> =>
     api.post(`/api/sessions/${sessionId}/close?user_id=${userId}`),
 
+  reopenVoting: (sessionId: string, userId: string): Promise<Session> =>
+    api.post(`/api/sessions/${sessionId}/reopen?user_id=${userId}`),
+
   removeParticipant: (sessionId: string, participantUserId: string, userId: string): Promise<Session> =>
     api.delete(`/api/sessions/${sessionId}/participants/${participantUserId}?user_id=${userId}`),
 
