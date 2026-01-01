@@ -7,8 +7,9 @@ and manually added visits.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from supabase import Client
 
@@ -70,11 +71,11 @@ class PlaceResponse(BaseModel):
 
 
 class VaultStatsResponse(BaseModel):
-    """Vault statistics."""
+    """Vault statistics - all values are for current month."""
 
-    total_places: int
-    total_visits: int
-    this_month_spent: float
+    total_places: int  # Unique places visited this month
+    total_visits: int  # Total visits this month
+    this_month_spent: float  # Total spending this month
 
 
 class VaultResponse(BaseModel):
@@ -110,12 +111,13 @@ class UpdateVisitRequest(BaseModel):
 async def get_visits(
     request: Request,
     user_id: str,
+    tz: str = Query(default="UTC", description="User's IANA timezone (e.g., America/New_York)"),
     supabase: Client = Depends(get_supabase_client),
 ) -> VaultResponse:
     """Get all visits for a user, aggregated by place.
 
     Auto-syncs transactions to place_visits and matches venues before returning.
-    Returns places with visit history, plus overall stats.
+    Returns places with visit history, plus monthly stats based on user's timezone.
     """
     # Auto-sync: Create place_visits from transactions and match venues
     plaid_service = PlaidService(supabase)
@@ -135,11 +137,22 @@ async def get_visits(
 
     visits_data = result.data or []
 
+    # Parse user timezone, fallback to UTC if invalid
+    try:
+        user_tz = ZoneInfo(tz)
+    except Exception:
+        user_tz = ZoneInfo("UTC")
+
+    # Get current time in user's timezone for "this month" calculation
+    now = datetime.now(user_tz)
+    current_year = now.year
+    current_month = now.month
+
     # Aggregate by venue/merchant
     places_map: dict[str, dict] = {}
-    total_spent = 0.0
+    this_month_places: set[str] = set()  # Track unique places this month
+    this_month_visits = 0
     this_month_spent = 0.0
-    now = datetime.now(timezone.utc)
 
     for visit in visits_data:
         # Determine the place key (venue_id or merchant_name)
@@ -173,12 +186,16 @@ async def get_visits(
 
         amount = float(visit.get("amount") or 0)
         place["total_spent"] += amount
-        total_spent += amount
 
-        # Check if this month
-        visit_date = datetime.fromisoformat(visit["visited_at"].replace("Z", "+00:00"))
-        if visit_date.year == now.year and visit_date.month == now.month:
+        # Check if this month (convert visit date to user's timezone)
+        visit_date_str = visit["visited_at"]
+        visit_date = datetime.fromisoformat(visit_date_str.replace("Z", "+00:00"))
+        visit_date_local = visit_date.astimezone(user_tz)
+
+        if visit_date_local.year == current_year and visit_date_local.month == current_month:
             this_month_spent += amount
+            this_month_visits += 1
+            this_month_places.add(place_key)
 
         # Update reaction to most recent non-null
         if visit.get("reaction") and not place["reaction"]:
@@ -210,8 +227,8 @@ async def get_visits(
     return VaultResponse(
         places=places,
         stats=VaultStatsResponse(
-            total_places=len(places),
-            total_visits=len(visits_data),
+            total_places=len(this_month_places),
+            total_visits=this_month_visits,
             this_month_spent=this_month_spent,
         ),
     )

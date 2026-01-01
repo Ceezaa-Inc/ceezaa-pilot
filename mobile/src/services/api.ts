@@ -383,10 +383,21 @@ export interface UpdateVisitRequest {
   mood_tags?: string[];
 }
 
+// Get user's timezone for API calls
+export const getUserTimezone = (): string => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return 'UTC';
+  }
+};
+
 // Vault API
 export const vaultApi = {
-  getVisits: (userId: string): Promise<VaultResponse> =>
-    api.get(`/api/vault/visits/${userId}`),
+  getVisits: (userId: string, timezone?: string): Promise<VaultResponse> => {
+    const tz = timezone || getUserTimezone();
+    return api.get(`/api/vault/visits/${userId}?tz=${encodeURIComponent(tz)}`);
+  },
 
   createVisit: (userId: string, data: CreateVisitRequest): Promise<VaultVisit> =>
     api.post(`/api/vault/visits/${userId}`, data),
