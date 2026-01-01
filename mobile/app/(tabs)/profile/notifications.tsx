@@ -1,66 +1,74 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Switch, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Typography, Card } from '@/components/ui';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useProfileStore, LocalNotificationPreferences } from '@/stores/useProfileStore';
 
-interface NotificationSetting {
-  id: string;
+interface NotificationSettingConfig {
+  key: keyof LocalNotificationPreferences;
   title: string;
   description: string;
-  enabled: boolean;
 }
 
-const INITIAL_SETTINGS: NotificationSetting[] = [
+const NOTIFICATION_SETTINGS: NotificationSettingConfig[] = [
   {
-    id: 'daily_insights',
+    key: 'dailyInsights',
     title: 'Daily Insights',
     description: 'Get personalized dining insights each morning',
-    enabled: true,
   },
   {
-    id: 'streak_milestones',
+    key: 'streakMilestones',
     title: 'Streak Milestones',
     description: 'Celebrate when you hit dining streaks',
-    enabled: true,
   },
   {
-    id: 'session_invites',
+    key: 'sessionInvites',
     title: 'Session Invites',
     description: 'When friends invite you to plan together',
-    enabled: true,
   },
   {
-    id: 'voting_reminders',
+    key: 'votingReminders',
     title: 'Voting Reminders',
     description: 'Remind you to vote on active sessions',
-    enabled: false,
   },
   {
-    id: 'new_venues',
-    title: 'New Venue Recommendations',
-    description: 'Weekly picks based on your taste',
-    enabled: true,
+    key: 'planConfirmations',
+    title: 'Plan Confirmations',
+    description: 'When your group picks a spot',
   },
   {
-    id: 'spend_alerts',
-    title: 'Spending Alerts',
-    description: 'When you exceed your dining budget',
-    enabled: false,
+    key: 'marketing',
+    title: 'Product Updates',
+    description: 'New features and special offers',
   },
 ];
 
 export default function NotificationsScreen() {
-  const [settings, setSettings] = useState(INITIAL_SETTINGS);
+  const { user } = useAuthStore();
+  const {
+    notifications,
+    isLoading,
+    isUpdating,
+    fetchNotifications,
+    updateNotification,
+    hasFetchedNotifications,
+  } = useProfileStore();
 
-  const toggleSetting = (id: string) => {
-    setSettings((prev) =>
-      prev.map((setting) =>
-        setting.id === id ? { ...setting, enabled: !setting.enabled } : setting
-      )
-    );
+  // Fetch notifications on mount
+  useEffect(() => {
+    if (user?.id && !hasFetchedNotifications) {
+      fetchNotifications(user.id);
+    }
+  }, [user?.id, hasFetchedNotifications, fetchNotifications]);
+
+  const handleToggle = (key: keyof LocalNotificationPreferences) => {
+    if (!user?.id || !notifications) return;
+    const newValue = !notifications[key];
+    updateNotification(user.id, key, newValue);
   };
 
   return (
@@ -81,29 +89,41 @@ export default function NotificationsScreen() {
           </Typography>
         </View>
 
-        {/* Settings List */}
-        <View style={styles.settingsList}>
-          {settings.map((setting) => (
-            <Card key={setting.id} variant="default" padding="md">
-              <View style={styles.settingRow}>
-                <View style={styles.settingInfo}>
-                  <Typography variant="body" color="primary">
-                    {setting.title}
-                  </Typography>
-                  <Typography variant="caption" color="muted">
-                    {setting.description}
-                  </Typography>
+        {/* Loading State */}
+        {isLoading && !notifications ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary.DEFAULT} />
+          </View>
+        ) : (
+          /* Settings List */
+          <View style={styles.settingsList}>
+            {NOTIFICATION_SETTINGS.map((setting) => (
+              <Card key={setting.key} variant="default" padding="md">
+                <View style={styles.settingRow}>
+                  <View style={styles.settingInfo}>
+                    <Typography variant="body" color="primary">
+                      {setting.title}
+                    </Typography>
+                    <Typography variant="caption" color="muted">
+                      {setting.description}
+                    </Typography>
+                  </View>
+                  <Switch
+                    value={notifications?.[setting.key] ?? false}
+                    onValueChange={() => handleToggle(setting.key)}
+                    disabled={isUpdating}
+                    trackColor={{ false: colors.dark.border, true: colors.primary.muted }}
+                    thumbColor={
+                      notifications?.[setting.key]
+                        ? colors.primary.DEFAULT
+                        : colors.text.muted
+                    }
+                  />
                 </View>
-                <Switch
-                  value={setting.enabled}
-                  onValueChange={() => toggleSetting(setting.id)}
-                  trackColor={{ false: colors.dark.border, true: colors.primary.muted }}
-                  thumbColor={setting.enabled ? colors.primary.DEFAULT : colors.text.muted}
-                />
-              </View>
-            </Card>
-          ))}
-        </View>
+              </Card>
+            ))}
+          </View>
+        )}
 
         {/* Info */}
         <Typography variant="caption" color="muted" align="center">
@@ -129,6 +149,10 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginBottom: layoutSpacing.xs,
+  },
+  loadingContainer: {
+    paddingVertical: layoutSpacing.xl,
+    alignItems: 'center',
   },
   settingsList: {
     gap: layoutSpacing.sm,

@@ -1,11 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Share, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useProfileStore } from '@/stores/useProfileStore';
 
 const DATA_SECTIONS = [
   {
@@ -31,16 +33,40 @@ const DATA_SECTIONS = [
 ];
 
 export default function PrivacyScreen() {
-  const handleExportData = () => {
+  const { user, signOut } = useAuthStore();
+  const { exportData, deleteAccount, reset: resetProfile } = useProfileStore();
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleExportData = async () => {
+    if (!user?.id) return;
+
     Alert.alert(
       'Export Your Data',
-      'We\'ll prepare a download of all your data. This may take a few minutes.',
+      'We\'ll prepare a download of all your data in JSON format.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Export',
-          onPress: () => {
-            Alert.alert('Request Sent', 'You\'ll receive an email when your data is ready.');
+          onPress: async () => {
+            try {
+              setIsExporting(true);
+              const response = await exportData(user.id);
+
+              // Share the data using the native share dialog
+              const dataString = JSON.stringify(response.data, null, 2);
+              await Share.share({
+                message: dataString,
+                title: 'Ceezaa Data Export',
+              });
+
+              Alert.alert('Export Complete', 'Your data has been prepared for sharing.');
+            } catch (error) {
+              Alert.alert('Export Failed', 'Unable to export your data. Please try again.');
+            } finally {
+              setIsExporting(false);
+            }
           },
         },
       ]
@@ -48,6 +74,8 @@ export default function PrivacyScreen() {
   };
 
   const handleDeleteAccount = () => {
+    if (!user?.id) return;
+
     Alert.alert(
       'Delete Account',
       'This will permanently delete your account and all associated data. This action cannot be undone.',
@@ -65,7 +93,27 @@ export default function PrivacyScreen() {
                 {
                   text: 'Yes, Delete Everything',
                   style: 'destructive',
-                  onPress: () => {},
+                  onPress: async () => {
+                    try {
+                      setIsDeleting(true);
+                      const success = await deleteAccount(user.id);
+
+                      if (success) {
+                        // Clear profile store
+                        resetProfile();
+
+                        // Sign out and navigate to welcome
+                        await signOut();
+                        router.replace('/(auth)/welcome');
+                      } else {
+                        Alert.alert('Error', 'Failed to delete account. Please try again.');
+                      }
+                    } catch (error) {
+                      Alert.alert('Error', 'Failed to delete account. Please try again.');
+                    } finally {
+                      setIsDeleting(false);
+                    }
+                  },
                 },
               ]
             );
@@ -132,7 +180,11 @@ export default function PrivacyScreen() {
             <Typography variant="bodySmall" color="secondary" style={styles.controlDescription}>
               Download a copy of all your data in JSON format
             </Typography>
-            <Button label="Request Export" variant="secondary" onPress={handleExportData} />
+            {isExporting ? (
+              <ActivityIndicator size="small" color={colors.primary.DEFAULT} />
+            ) : (
+              <Button label="Request Export" variant="secondary" onPress={handleExportData} />
+            )}
           </Card>
 
           <Card variant="outlined" padding="lg" style={[styles.controlCard, styles.dangerCard]}>
@@ -142,11 +194,15 @@ export default function PrivacyScreen() {
             <Typography variant="bodySmall" color="secondary" style={styles.controlDescription}>
               Permanently delete your account and all associated data
             </Typography>
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
-              <Typography variant="body" color="error">
-                Delete My Account
-              </Typography>
-            </TouchableOpacity>
+            {isDeleting ? (
+              <ActivityIndicator size="small" color={colors.error} />
+            ) : (
+              <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+                <Typography variant="body" color="error">
+                  Delete My Account
+                </Typography>
+              </TouchableOpacity>
+            )}
           </Card>
         </View>
 

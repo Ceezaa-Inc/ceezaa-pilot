@@ -568,4 +568,55 @@ export const usersApi = {
     api.get(`/api/users/search?q=${encodeURIComponent(query)}&type=${type}`),
 };
 
+// Profile types
+export interface ProfileData {
+  id: string;
+  username: string | null;
+  display_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  linked_accounts_count: number;
+}
+
+export interface NotificationPreferences {
+  daily_insights: boolean;
+  streak_milestones: boolean;
+  session_invites: boolean;
+  voting_reminders: boolean;
+  plan_confirmations: boolean;
+  marketing: boolean;
+}
+
+export interface DataExportResponse {
+  exported_at: string;
+  data: Record<string, unknown>;
+}
+
+export interface DeleteAccountResponse {
+  success: boolean;
+  message: string;
+}
+
+// Profile API
+export const profileApi = {
+  getProfile: (userId: string): Promise<ProfileData> =>
+    api.get(`/api/profile/${userId}`),
+
+  getNotifications: (userId: string): Promise<NotificationPreferences> =>
+    api.get(`/api/profile/${userId}/notifications`),
+
+  updateNotifications: (
+    userId: string,
+    data: Partial<NotificationPreferences>
+  ): Promise<NotificationPreferences> =>
+    api.put(`/api/profile/${userId}/notifications`, data),
+
+  exportData: (userId: string): Promise<DataExportResponse> =>
+    api.post(`/api/profile/${userId}/export`),
+
+  deleteAccount: (userId: string): Promise<DeleteAccountResponse> =>
+    api.delete(`/api/profile/${userId}`, { 'X-Confirm-Delete': 'true' }),
+};
+
 export { ApiError };

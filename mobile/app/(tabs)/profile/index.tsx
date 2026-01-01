@@ -1,25 +1,78 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
-
-const MENU_ITEMS = [
-  { icon: '💳', label: 'Linked Cards', subtitle: '1 card connected', route: '/(tabs)/profile/cards' },
-  { icon: '🔔', label: 'Notifications', subtitle: 'Manage alerts', route: '/(tabs)/profile/notifications' },
-  { icon: '🔒', label: 'Privacy', subtitle: 'Control your data', route: '/(tabs)/profile/privacy' },
-  { icon: '❓', label: 'Help & Support', subtitle: 'Get assistance', route: null },
-];
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useProfileStore } from '@/stores/useProfileStore';
+import { useTasteStore } from '@/stores/useTasteStore';
 
 export default function ProfileScreen() {
-  const handleMenuPress = (route: string | null) => {
+  const { user, signOut } = useAuthStore();
+  const { profile, isLoading: isLoadingProfile, fetchProfile, hasFetchedProfile } = useProfileStore();
+  const { traits, fetchDNA, hasFetchedDNA } = useTasteStore();
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    if (user?.id && !hasFetchedProfile) {
+      fetchProfile(user.id);
+    }
+  }, [user?.id, hasFetchedProfile, fetchProfile]);
+
+  // Fetch DNA traits on mount
+  useEffect(() => {
+    if (user?.id && !hasFetchedDNA) {
+      fetchDNA(user.id);
+    }
+  }, [user?.id, hasFetchedDNA, fetchDNA]);
+
+  // Build menu items dynamically
+  const linkedCardsCount = profile?.linkedAccountsCount || 0;
+  const linkedCardsText = linkedCardsCount === 1
+    ? '1 card connected'
+    : linkedCardsCount > 1
+      ? `${linkedCardsCount} cards connected`
+      : 'No cards linked';
+
+  const menuItems = [
+    { icon: '💳', label: 'Linked Cards', subtitle: linkedCardsText, route: '/(tabs)/profile/cards' },
+    { icon: '🔔', label: 'Notifications', subtitle: 'Manage alerts', route: '/(tabs)/profile/notifications' },
+    { icon: '🔒', label: 'Privacy', subtitle: 'Control your data', route: '/(tabs)/profile/privacy' },
+    { icon: '❓', label: 'Help & Support', subtitle: 'Get assistance', route: null, action: 'help' },
+  ];
+
+  const handleMenuPress = (route: string | null, action?: string) => {
+    if (action === 'help') {
+      Linking.openURL('mailto:help@ceezaa.com');
+      return;
+    }
     if (route) {
       router.push(route as any);
     }
   };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/(auth)/welcome');
+  };
+
+  // Format member since date
+  const formatMemberSince = (dateString: string | undefined) => {
+    if (!dateString) return 'Member';
+    const date = new Date(dateString);
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
+    return `Member since ${month} ${year}`;
+  };
+
+  // Get display name
+  const displayName = profile?.displayName || 'User';
+
+  // Get first 3 DNA traits for display
+  const displayTraits = traits.slice(0, 3);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -29,12 +82,18 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Typography variant="h1">👤</Typography>
           </View>
-          <Typography variant="h2" color="primary">
-            Alex Johnson
-          </Typography>
-          <Typography variant="body" color="secondary">
-            Member since Dec 2024
-          </Typography>
+          {isLoadingProfile ? (
+            <ActivityIndicator size="small" color={colors.primary.DEFAULT} />
+          ) : (
+            <>
+              <Typography variant="h2" color="primary">
+                {displayName}
+              </Typography>
+              <Typography variant="body" color="secondary">
+                {formatMemberSince(profile?.createdAt)}
+              </Typography>
+            </>
+          )}
         </View>
 
         {/* Taste Summary */}
@@ -50,16 +109,31 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.tasteTraits}>
-            <TraitBadge label="Adventurous" value={85} />
-            <TraitBadge label="Social" value={72} />
-            <TraitBadge label="Refined" value={91} />
+            {displayTraits.length > 0 ? (
+              displayTraits.map((trait, index) => (
+                <TraitBadge
+                  key={index}
+                  label={trait.name}
+                  emoji={trait.emoji}
+                />
+              ))
+            ) : (
+              <>
+                <TraitBadge label="Discovering..." emoji="✨" />
+                <TraitBadge label="Your taste" emoji="🍽️" />
+                <TraitBadge label="Profile" emoji="📊" />
+              </>
+            )}
           </View>
         </Card>
 
         {/* Menu Items */}
         <View style={styles.menu}>
-          {MENU_ITEMS.map((item, index) => (
-            <TouchableOpacity key={index} onPress={() => handleMenuPress(item.route)}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleMenuPress(item.route, item.action)}
+            >
               <Card variant="default" padding="md" style={styles.menuItem}>
                 <View style={styles.menuRow}>
                   <View style={styles.menuIcon}>
@@ -83,7 +157,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Sign Out */}
-        <Button label="Sign Out" variant="ghost" fullWidth onPress={() => {}} />
+        <Button label="Sign Out" variant="ghost" fullWidth onPress={handleSignOut} />
 
         <Typography variant="caption" color="muted" align="center">
           Version 1.0.0
@@ -93,14 +167,14 @@ export default function ProfileScreen() {
   );
 }
 
-function TraitBadge({ label, value }: { label: string; value: number }) {
+function TraitBadge({ label, emoji }: { label: string; emoji?: string }) {
   return (
     <View style={styles.traitBadge}>
-      <Typography variant="caption" color="secondary">
+      {emoji && (
+        <Typography variant="body">{emoji}</Typography>
+      )}
+      <Typography variant="caption" color="secondary" numberOfLines={1}>
         {label}
-      </Typography>
-      <Typography variant="bodySmall" color="gold">
-        {value}%
       </Typography>
     </View>
   );
