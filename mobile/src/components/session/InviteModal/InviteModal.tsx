@@ -84,17 +84,25 @@ export function InviteModal({
       setIsSearching(true);
       try {
         const results = await searchUsers(query, 'username');
-        console.log('[InviteModal] Raw search results:', results);
+        console.log('[InviteModal] Raw search results:', JSON.stringify(results));
         console.log('[InviteModal] userId to exclude:', userId);
-        console.log('[InviteModal] selectedUsers:', selectedUsers);
+        console.log('[InviteModal] selectedUsers count:', selectedUsers.length);
+
+        // Defensive: ensure results is an array
+        if (!Array.isArray(results)) {
+          console.warn('[InviteModal] Results is not an array:', typeof results);
+          setSearchResults([]);
+          return;
+        }
+
         const filtered = results.filter(
           (r) => !selectedUsers.find((s) => s.id === r.id) && r.id !== userId
         );
-        console.log('[InviteModal] Filtered results:', filtered);
+        console.log('[InviteModal] Filtered results count:', filtered.length);
         setSearchResults(filtered);
       } catch (err) {
-        console.error('Search failed:', err);
-        setError('Failed to search users');
+        console.error('[InviteModal] Search failed:', err);
+        setError(`Search failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
       } finally {
         setIsSearching(false);
       }
@@ -313,7 +321,9 @@ export function InviteModal({
                 ) : searchQuery.length >= 2 ? (
                   <View style={styles.emptyContainer}>
                     <Typography variant="body" color="muted" align="center">
-                      No users found
+                      {selectedUsers.length > 0
+                        ? 'All matching users selected'
+                        : 'No users found'}
                     </Typography>
                   </View>
                 ) : (
@@ -383,7 +393,9 @@ export function InviteModal({
           ) : searchQuery.length >= 2 ? (
             <View style={styles.emptyContainer}>
               <Typography variant="body" color="muted" align="center">
-                No users found
+                {selectedUsers.length > 0
+                  ? 'All matching users selected'
+                  : 'No users found'}
               </Typography>
             </View>
           ) : null}
@@ -431,6 +443,7 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     minHeight: 200,
+    maxHeight: 320,
     gap: layoutSpacing.md,
   },
   subtitle: {
@@ -452,10 +465,12 @@ const styles = StyleSheet.create({
   },
   searchContent: {
     minHeight: 200,
-    maxHeight: 300,
+    maxHeight: 280,
+    flex: 1,
   },
   chipsContainer: {
     marginTop: layoutSpacing.sm,
+    minHeight: 36,
     maxHeight: 40,
   },
   chipsContent: {

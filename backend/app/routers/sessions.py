@@ -50,6 +50,13 @@ class SessionVenueResponse(BaseModel):
     match_percentage: int | None = None  # Group match score (0-100)
 
 
+class PendingInvitationResponse(BaseModel):
+    """A pending invitation for a session."""
+
+    id: str
+    name: str
+
+
 class SessionResponse(BaseModel):
     """Full session details."""
 
@@ -62,6 +69,7 @@ class SessionResponse(BaseModel):
     host_id: str
     participants: list[ParticipantResponse]
     venues: list[SessionVenueResponse]
+    pending_invitations: list[PendingInvitationResponse] = []
     winner_id: str | None
     created_at: str
 
@@ -1029,6 +1037,23 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
     # Sort venues by vote count (descending)
     venues.sort(key=lambda v: v.votes, reverse=True)
 
+    # Get pending invitations for this session
+    pending_invitations_result = (
+        supabase.table("session_invitations")
+        .select("id, invitee_id, profiles!session_invitations_invitee_id_fkey(display_name)")
+        .eq("session_id", session_id)
+        .eq("status", "pending")
+        .execute()
+    )
+
+    pending_invitations = []
+    for inv in pending_invitations_result.data or []:
+        profile = inv.get("profiles") or {}
+        pending_invitations.append(PendingInvitationResponse(
+            id=inv["invitee_id"],
+            name=profile.get("display_name") or "Invited User",
+        ))
+
     return SessionResponse(
         id=session["id"],
         code=session["invite_code"],
@@ -1039,6 +1064,7 @@ async def get_session_details(session_id: str, supabase: Client) -> SessionRespo
         host_id=session["host_id"],
         participants=participants,
         venues=venues,
+        pending_invitations=pending_invitations,
         winner_id=session.get("winning_venue_id"),
         created_at=session["created_at"],
     )

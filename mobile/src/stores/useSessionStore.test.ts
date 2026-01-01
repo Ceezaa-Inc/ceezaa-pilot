@@ -44,6 +44,7 @@ const mockApiSession = {
       voted_by: [],
     },
   ],
+  pending_invitations: [],
   winner_id: null,
 };
 
@@ -100,6 +101,7 @@ describe('useSessionStore', () => {
             hostId: 'user-1',
             participants: [],
             venues: [],
+            pendingInvitations: [],
             createdAt: '2024-01-01T00:00:00Z',
           },
         ],
@@ -124,6 +126,7 @@ describe('useSessionStore', () => {
           hostId: 'user-1',
           participants: [],
           venues: [],
+          pendingInvitations: [],
           createdAt: '2024-01-01T00:00:00Z',
         },
       });
@@ -230,6 +233,7 @@ describe('useSessionStore', () => {
           venues: [
             { venueId: 'venue-1', venueName: 'Test Venue', venueType: 'restaurant', votes: 0, votedBy: [] },
           ],
+          pendingInvitations: [],
           createdAt: '2024-01-01T00:00:00Z',
         },
         sessions: [],
@@ -267,6 +271,7 @@ describe('useSessionStore', () => {
             hostId: 'user-1',
             participants: [],
             venues: [],
+            pendingInvitations: [],
             createdAt: '2024-01-01T00:00:00Z',
           },
         ],

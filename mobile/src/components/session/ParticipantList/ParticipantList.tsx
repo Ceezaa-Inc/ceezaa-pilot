@@ -1,12 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Typography } from '@/components/ui';
 import { Participant } from '@/mocks/sessions';
 
+export interface PendingInvitation {
+  id: string;
+  name: string;
+}
+
 interface ParticipantListProps {
   participants: Participant[];
+  pendingInvitations?: PendingInvitation[];
   maxVisible?: number;
   onInvitePress?: () => void;
   isHost?: boolean;
@@ -24,13 +30,23 @@ const AVATAR_COLORS = [
 
 export function ParticipantList({
   participants,
+  pendingInvitations = [],
   maxVisible = 5,
   onInvitePress,
   isHost = false,
   onRemoveParticipant,
 }: ParticipantListProps) {
   const visibleParticipants = participants.slice(0, maxVisible);
-  const overflow = participants.length - maxVisible;
+  const totalCount = participants.length + pendingInvitations.length;
+  const overflow = totalCount - maxVisible;
+
+  const showParticipantStatus = (name: string, status: 'accepted' | 'invited') => {
+    Alert.alert(
+      name,
+      status === 'accepted' ? 'Joined session' : 'Invitation pending',
+      [{ text: 'OK' }]
+    );
+  };
 
   return (
     <ScrollView
@@ -39,7 +55,12 @@ export function ParticipantList({
       contentContainerStyle={styles.container}
     >
       {visibleParticipants.map((participant, index) => (
-        <View key={participant.id} style={styles.participant}>
+        <TouchableOpacity
+          key={participant.id}
+          style={styles.participant}
+          onPress={() => showParticipantStatus(participant.name, 'accepted')}
+          activeOpacity={0.7}
+        >
           <View
             style={[
               styles.avatar,
@@ -77,7 +98,34 @@ export function ParticipantList({
               </Typography>
             </TouchableOpacity>
           )}
-        </View>
+        </TouchableOpacity>
+      ))}
+      {pendingInvitations.slice(0, Math.max(0, maxVisible - visibleParticipants.length)).map((invite, index) => (
+        <TouchableOpacity
+          key={`invite-${invite.id}`}
+          style={styles.participant}
+          onPress={() => showParticipantStatus(invite.name, 'invited')}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.avatar, styles.invitedAvatar]}>
+            <Typography variant="bodySmall" color="muted">
+              {invite.name.charAt(0).toUpperCase()}
+            </Typography>
+          </View>
+          <Typography
+            variant="caption"
+            color="muted"
+            align="center"
+            numberOfLines={1}
+          >
+            {invite.name}
+          </Typography>
+          <View style={styles.invitedBadge}>
+            <Typography variant="caption" color="muted">
+              -
+            </Typography>
+          </View>
+        </TouchableOpacity>
       ))}
       {overflow > 0 && (
         <View style={styles.participant}>
@@ -164,5 +212,25 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.primary.DEFAULT,
     borderStyle: 'dashed',
+  },
+  invitedAvatar: {
+    backgroundColor: colors.dark.surfaceAlt,
+    opacity: 0.7,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    borderStyle: 'dashed',
+  },
+  invitedBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.dark.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

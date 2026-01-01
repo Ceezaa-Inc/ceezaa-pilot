@@ -415,6 +415,11 @@ export interface SessionVenue {
   match_percentage: number | null;
 }
 
+export interface SessionPendingInvitation {
+  id: string;
+  name: string;
+}
+
 export interface Session {
   id: string;
   code: string;
@@ -425,6 +430,7 @@ export interface Session {
   host_id: string;
   participants: SessionParticipant[];
   venues: SessionVenue[];
+  pending_invitations?: SessionPendingInvitation[];
   winner_id: string | null;
   created_at: string;
 }

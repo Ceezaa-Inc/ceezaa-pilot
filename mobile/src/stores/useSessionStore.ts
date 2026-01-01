@@ -34,6 +34,11 @@ export interface SessionVenue {
   votedBy: string[];
 }
 
+export interface PendingInvitation {
+  id: string;
+  name: string;
+}
+
 export interface Session {
   id: string;
   code: string;
@@ -44,6 +49,7 @@ export interface Session {
   hostId: string;
   participants: Participant[];
   venues: SessionVenue[];
+  pendingInvitations: PendingInvitation[];
   winnerId?: string;
   createdAt: string;
   // Counts for list view (when full data not loaded)
@@ -70,6 +76,10 @@ function mapApiSession(api: ApiSession): Session {
     hostId: api.host_id,
     participants: api.participants.map(mapApiParticipant),
     venues: api.venues.map(mapApiVenue),
+    pendingInvitations: (api.pending_invitations || []).map((inv) => ({
+      id: inv.id,
+      name: inv.name,
+    })),
     winnerId: api.winner_id || undefined,
     createdAt: api.created_at,
   };
@@ -108,6 +118,7 @@ function mapListItem(item: SessionListItem): Session {
     hostId: '',
     participants: [],
     venues: [],
+    pendingInvitations: [],
     createdAt: item.created_at,
     participantCount: item.participant_count,
     venueCount: item.venue_count,
@@ -474,8 +485,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     try {
       console.log('[Sessions] searchUsers called with:', { query, type });
       const response = await usersApi.search(query, type);
-      console.log('[Sessions] searchUsers response:', response);
-      return response.users;
+      console.log('[Sessions] searchUsers raw response:', JSON.stringify(response));
+      // Handle both { users: [...] } and direct array response defensively
+      const users = Array.isArray(response) ? response : response?.users || [];
+      console.log('[Sessions] searchUsers parsed users count:', users.length);
+      return users;
     } catch (error) {
       console.error('[Sessions] Failed to search users:', error);
       return [];

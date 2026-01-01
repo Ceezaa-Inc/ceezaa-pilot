@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     marginHorizontal: layoutSpacing.lg,
     maxWidth: 400,
     width: '90%',
+    maxHeight: '80%',
   },
   closeButton: {
     position: 'absolute',

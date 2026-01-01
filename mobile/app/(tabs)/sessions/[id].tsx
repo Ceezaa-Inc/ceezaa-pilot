@@ -175,10 +175,11 @@ export default function VotingScreen() {
 
       <View style={styles.participantsSection}>
         <Typography variant="label" color="muted" style={styles.sectionLabel}>
-          Participants ({currentSession.participants.length})
+          Participants ({currentSession.participants.length + (currentSession.pendingInvitations?.length || 0)})
         </Typography>
         <ParticipantList
           participants={currentSession.participants}
+          pendingInvitations={currentSession.pendingInvitations}
           onInvitePress={() => setShowInviteModal(true)}
           isHost={isHost}
           onRemoveParticipant={handleRemoveParticipant}
