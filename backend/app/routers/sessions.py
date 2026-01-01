@@ -195,6 +195,7 @@ async def get_user_sessions(
     # Get participant and venue counts
     active = []
     past = []
+    today = datetime.now().strftime("%Y-%m-%d")
 
     for session in sessions:
         # Get counts
@@ -229,7 +230,12 @@ async def get_user_sessions(
             created_at=session["created_at"],
         )
 
-        if session["status"] in ["voting", "pending"]:
+        # Categorize by date, not status
+        # Upcoming: planned_date >= today OR no date set
+        # Past: planned_date < today
+        planned_date = session.get("planned_date")
+
+        if not planned_date or planned_date >= today:
             active.append(item)
         else:
             past.append(item)
