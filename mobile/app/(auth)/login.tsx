@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Keyboard, TouchableWithoutFeedback, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { Button, Input, Typography, Logo } from '@/components/ui';
+import { AppleSignInButton, GoogleSignInButton } from '@/components/auth';
 import { useAuthStore } from '@/stores';
+import { useSocialAuth } from '@/hooks';
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const { sendOtp, devSignIn, isLoading, error, clearError } = useAuthStore();
+  const {
+    signInWithGoogle,
+    signInWithApple,
+    isGoogleLoading,
+    isAppleLoading,
+    isAppleAvailable,
+  } = useSocialAuth();
 
   // DEV MODE: Quick sign-in for development
   const handleDevSignIn = () => {
@@ -63,14 +72,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSocialLogin = (provider: 'google' | 'apple') => {
-    // Social login requires native modules - will be implemented with expo-apple-authentication
-    // and expo-auth-session for Google
-    Alert.alert(
-      'Coming Soon',
-      `${provider === 'google' ? 'Google' : 'Apple'} Sign-in requires a development build. Use phone OTP for now in Expo Go.`
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -132,18 +133,26 @@ export default function LoginScreen() {
                   onPress={handleDevSignIn}
                 />
               )}
-              <Button
-                label="Continue with Google"
-                variant="secondary"
-                fullWidth
-                onPress={() => handleSocialLogin('google')}
+              <GoogleSignInButton
+                onPress={signInWithGoogle}
+                isLoading={isGoogleLoading}
               />
-              <Button
-                label="Continue with Apple"
-                variant="secondary"
-                fullWidth
-                onPress={() => handleSocialLogin('apple')}
-              />
+              {/* Apple Sign-In only shows on iOS dev builds when available */}
+              {isAppleAvailable && (
+                <AppleSignInButton
+                  onPress={signInWithApple}
+                  isLoading={isAppleLoading}
+                />
+              )}
+              {/* Fallback Apple button for Expo Go / Android */}
+              {Platform.OS === 'ios' && !isAppleAvailable && (
+                <Button
+                  label="Continue with Apple"
+                  variant="secondary"
+                  fullWidth
+                  onPress={signInWithApple}
+                />
+              )}
             </View>
           </View>
         </ScrollView>

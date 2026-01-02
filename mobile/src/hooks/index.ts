@@ -3,4 +3,5 @@
  */
 
 export { useDiscoverFeed } from './useDiscoverFeed';
+export { useSocialAuth } from './useSocialAuth';
 export { useTasteRing } from './useTasteRing';
