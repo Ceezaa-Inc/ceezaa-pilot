@@ -129,7 +129,8 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     try {
       console.log('[ProfileStore] Fetching profile for user:', userId);
       const apiProfile = await profileApi.getProfile(userId);
-      console.log('[ProfileStore] Profile fetched:', apiProfile.display_name);
+      console.log('[ProfileStore] Profile fetched:', JSON.stringify(apiProfile));
+      console.log('[ProfileStore] Avatar emoji from API:', apiProfile.avatar_emoji);
 
       set({
         profile: convertApiProfile(apiProfile),

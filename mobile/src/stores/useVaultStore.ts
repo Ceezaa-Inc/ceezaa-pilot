@@ -134,7 +134,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   fetchVisits: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      console.log('[Vault] Fetching visits for user:', userId);
+      const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log('[Vault] Fetching visits for user:', userId, 'timezone:', userTz);
       const response = await vaultApi.getVisits(userId);
 
       console.log('[Vault] API Response stats:', JSON.stringify(response.stats));
