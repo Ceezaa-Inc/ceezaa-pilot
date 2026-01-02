@@ -27,6 +27,7 @@ class ProfileResponse(BaseModel):
     username: str | None
     display_name: str | None
     phone: str | None
+    avatar_emoji: str | None
     avatar_url: str | None
     created_at: str
     linked_accounts_count: int
@@ -68,6 +69,15 @@ class DeleteAccountResponse(BaseModel):
     message: str
 
 
+class UpdateProfileRequest(BaseModel):
+    """Request to update profile."""
+
+    display_name: str | None = None
+    avatar_emoji: str | None = None
+    avatar_url: str | None = None
+    phone: str | None = None
+
+
 # --- Endpoints ---
 
 
@@ -80,7 +90,7 @@ async def get_profile(
     # Get profile
     profile_result = (
         supabase.table("profiles")
-        .select("id, username, display_name, phone, avatar_url, created_at")
+        .select("id, username, display_name, phone, avatar_emoji, avatar_url, created_at")
         .eq("id", user_id)
         .maybe_single()
         .execute()
@@ -105,10 +115,48 @@ async def get_profile(
         username=profile.get("username"),
         display_name=profile.get("display_name"),
         phone=profile.get("phone"),
+        avatar_emoji=profile.get("avatar_emoji"),
         avatar_url=profile.get("avatar_url"),
         created_at=profile["created_at"],
         linked_accounts_count=linked_accounts_count,
     )
+
+
+@router.put("/{user_id}", response_model=ProfileResponse)
+async def update_profile(
+    user_id: str,
+    request: UpdateProfileRequest,
+    supabase: Client = Depends(get_supabase_client),
+) -> ProfileResponse:
+    """Update user profile. Only provided fields are updated."""
+    # Build update dict with only non-None values
+    update_data = {}
+    if request.display_name is not None:
+        update_data["display_name"] = request.display_name
+    if request.avatar_emoji is not None:
+        update_data["avatar_emoji"] = request.avatar_emoji
+    if request.avatar_url is not None:
+        update_data["avatar_url"] = request.avatar_url
+    if request.phone is not None:
+        update_data["phone"] = request.phone
+
+    if not update_data:
+        # No updates, just return current profile
+        return await get_profile(user_id, supabase)
+
+    # Update profile
+    result = (
+        supabase.table("profiles")
+        .update(update_data)
+        .eq("id", user_id)
+        .execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    # Return updated profile
+    return await get_profile(user_id, supabase)
 
 
 @router.get("/{user_id}/notifications", response_model=NotificationPreferencesResponse)
@@ -208,7 +256,7 @@ async def export_user_data(
     # Transactions (sanitized - no raw Plaid data)
     transactions_result = (
         supabase.table("transactions")
-        .select("id, merchant_name, amount, date, category, is_dining")
+        .select("id, merchant_name, amount, date, taste_category, plaid_category_primary")
         .eq("user_id", user_id)
         .execute()
     )

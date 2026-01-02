@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import {
   profileApi,
   ProfileData,
+  ProfileUpdateRequest,
   NotificationPreferences,
   DataExportResponse,
 } from '@/services/api';
@@ -12,9 +13,17 @@ export interface Profile {
   username: string | null;
   displayName: string | null;
   phone: string | null;
+  avatarEmoji: string | null;
   avatarUrl: string | null;
   createdAt: string;
   linkedAccountsCount: number;
+}
+
+export interface ProfileUpdate {
+  displayName?: string;
+  avatarEmoji?: string;
+  avatarUrl?: string;
+  phone?: string;
 }
 
 export interface LocalNotificationPreferences {
@@ -37,6 +46,7 @@ interface ProfileState {
 
   // Actions
   fetchProfile: (userId: string) => Promise<void>;
+  updateProfile: (userId: string, updates: ProfileUpdate) => Promise<boolean>;
   fetchNotifications: (userId: string) => Promise<void>;
   updateNotification: (
     userId: string,
@@ -56,10 +66,21 @@ function convertApiProfile(apiProfile: ProfileData): Profile {
     username: apiProfile.username,
     displayName: apiProfile.display_name,
     phone: apiProfile.phone,
+    avatarEmoji: apiProfile.avatar_emoji,
     avatarUrl: apiProfile.avatar_url,
     createdAt: apiProfile.created_at,
     linkedAccountsCount: apiProfile.linked_accounts_count,
   };
+}
+
+// Convert local profile update to API format
+function toApiProfileUpdate(updates: ProfileUpdate): ProfileUpdateRequest {
+  const apiUpdates: ProfileUpdateRequest = {};
+  if (updates.displayName !== undefined) apiUpdates.display_name = updates.displayName;
+  if (updates.avatarEmoji !== undefined) apiUpdates.avatar_emoji = updates.avatarEmoji;
+  if (updates.avatarUrl !== undefined) apiUpdates.avatar_url = updates.avatarUrl;
+  if (updates.phone !== undefined) apiUpdates.phone = updates.phone;
+  return apiUpdates;
 }
 
 // Convert API notifications to local format
@@ -124,6 +145,47 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         error: message,
         hasFetchedProfile: true,
       });
+    }
+  },
+
+  updateProfile: async (userId: string, updates: ProfileUpdate) => {
+    const currentProfile = get().profile;
+
+    // Optimistic update
+    if (currentProfile) {
+      set({
+        isUpdating: true,
+        profile: {
+          ...currentProfile,
+          ...(updates.displayName !== undefined && { displayName: updates.displayName }),
+          ...(updates.avatarEmoji !== undefined && { avatarEmoji: updates.avatarEmoji }),
+          ...(updates.avatarUrl !== undefined && { avatarUrl: updates.avatarUrl }),
+          ...(updates.phone !== undefined && { phone: updates.phone }),
+        },
+      });
+    }
+
+    try {
+      console.log('[ProfileStore] Updating profile:', updates);
+      const apiUpdates = toApiProfileUpdate(updates);
+      const apiProfile = await profileApi.updateProfile(userId, apiUpdates);
+      console.log('[ProfileStore] Profile updated');
+
+      set({
+        profile: convertApiProfile(apiProfile),
+        isUpdating: false,
+      });
+      return true;
+    } catch (error) {
+      console.error('[ProfileStore] Update profile error:', error);
+
+      // Rollback on error
+      set({
+        profile: currentProfile,
+        isUpdating: false,
+        error: error instanceof Error ? error.message : 'Failed to update profile',
+      });
+      return false;
     }
   },
 

@@ -574,9 +574,17 @@ export interface ProfileData {
   username: string | null;
   display_name: string | null;
   phone: string | null;
+  avatar_emoji: string | null;
   avatar_url: string | null;
   created_at: string;
   linked_accounts_count: number;
+}
+
+export interface ProfileUpdateRequest {
+  display_name?: string;
+  avatar_emoji?: string;
+  avatar_url?: string;
+  phone?: string;
 }
 
 export interface NotificationPreferences {
@@ -602,6 +610,9 @@ export interface DeleteAccountResponse {
 export const profileApi = {
   getProfile: (userId: string): Promise<ProfileData> =>
     api.get(`/api/profile/${userId}`),
+
+  updateProfile: (userId: string, data: ProfileUpdateRequest): Promise<ProfileData> =>
+    api.put(`/api/profile/${userId}`, data),
 
   getNotifications: (userId: string): Promise<NotificationPreferences> =>
     api.get(`/api/profile/${userId}/notifications`),

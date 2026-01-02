@@ -79,8 +79,20 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile Header */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Typography variant="h1">👤</Typography>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <Typography variant="h1">
+                {profile?.avatarEmoji || '👤'}
+              </Typography>
+            </View>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push('/(tabs)/profile/edit')}
+            >
+              <Typography variant="caption" color="gold">
+                Edit
+              </Typography>
+            </TouchableOpacity>
           </View>
           {isLoadingProfile ? (
             <ActivityIndicator size="small" color={colors.primary.DEFAULT} />
@@ -92,6 +104,16 @@ export default function ProfileScreen() {
               <Typography variant="body" color="secondary">
                 {formatMemberSince(profile?.createdAt)}
               </Typography>
+              {/* Auth Provider Badge */}
+              <View style={styles.authBadge}>
+                <Typography variant="caption" color="muted">
+                  {user?.app_metadata?.provider === 'google'
+                    ? 'Signed in with Google'
+                    : user?.app_metadata?.provider === 'apple'
+                    ? 'Signed in with Apple'
+                    : `Phone: ${profile?.phone || ''}`}
+                </Typography>
+              </View>
             </>
           )}
         </View>
@@ -193,6 +215,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: layoutSpacing.sm,
   },
+  avatarContainer: {
+    position: 'relative',
+  },
   avatar: {
     width: 80,
     height: 80,
@@ -202,6 +227,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: colors.primary.DEFAULT,
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: -8,
+    backgroundColor: colors.dark.surfaceAlt,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.primary.DEFAULT,
+  },
+  authBadge: {
+    backgroundColor: colors.dark.surfaceAlt,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: borderRadius.sm,
   },
   tasteCard: {
     gap: layoutSpacing.md,
