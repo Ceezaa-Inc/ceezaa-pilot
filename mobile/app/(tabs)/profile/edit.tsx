@@ -20,6 +20,7 @@ import { borderRadius } from '@/design/tokens/borderRadius';
 import { Typography, Card, Button } from '@/components/ui';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { uploadAvatar } from '@/services/storage';
 
 // Common emoji options for avatars
 const AVATAR_EMOJIS = [
@@ -39,6 +40,7 @@ export default function EditProfileScreen() {
   const [phone, setPhone] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [avatarType, setAvatarType] = useState<'emoji' | 'photo'>('emoji');
+  const [isUploading, setIsUploading] = useState(false);
 
   // Determine auth provider
   const authProvider = user?.app_metadata?.provider || 'phone';
@@ -108,7 +110,24 @@ export default function EditProfileScreen() {
       updates.avatarEmoji = avatarEmoji;
       updates.avatarUrl = ''; // Clear photo when using emoji
     } else if (avatarType === 'photo' && avatarUrl !== profile?.avatarUrl) {
-      updates.avatarUrl = avatarUrl || '';
+      // Check if this is a local file that needs uploading
+      if (avatarUrl?.startsWith('file://')) {
+        setIsUploading(true);
+        try {
+          console.log('[EditProfile] Uploading local image to Supabase Storage...');
+          const publicUrl = await uploadAvatar(user.id, avatarUrl);
+          console.log('[EditProfile] Upload complete, public URL:', publicUrl);
+          updates.avatarUrl = publicUrl;
+        } catch (error) {
+          console.error('[EditProfile] Upload error:', error);
+          Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
+          setIsUploading(false);
+          return;
+        }
+        setIsUploading(false);
+      } else {
+        updates.avatarUrl = avatarUrl || '';
+      }
     }
 
     if (isPhoneAuth && phone !== (profile?.phone || '')) {
@@ -259,8 +278,13 @@ export default function EditProfileScreen() {
 
           {/* Save Button */}
           <View style={styles.saveSection}>
-            {isUpdating ? (
-              <ActivityIndicator size="small" color={colors.primary.DEFAULT} />
+            {isUpdating || isUploading ? (
+              <View style={styles.uploadingContainer}>
+                <ActivityIndicator size="small" color={colors.primary.DEFAULT} />
+                <Typography variant="body" color="secondary" style={styles.uploadingText}>
+                  {isUploading ? 'Uploading photo...' : 'Saving...'}
+                </Typography>
+              </View>
             ) : (
               <Button label="Save Changes" variant="primary" fullWidth onPress={handleSave} />
             )}
@@ -380,5 +404,15 @@ const styles = StyleSheet.create({
   },
   saveSection: {
     paddingTop: layoutSpacing.md,
+  },
+  uploadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: layoutSpacing.sm,
+    paddingVertical: layoutSpacing.md,
+  },
+  uploadingText: {
+    marginLeft: layoutSpacing.xs,
   },
 });
