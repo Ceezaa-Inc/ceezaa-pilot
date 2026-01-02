@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '@/design/tokens/colors';
 import { layoutSpacing } from '@/design/tokens/spacing';
 import { borderRadius } from '@/design/tokens/borderRadius';
@@ -15,12 +16,15 @@ export default function ProfileScreen() {
   const { profile, isLoading: isLoadingProfile, fetchProfile, hasFetchedProfile } = useProfileStore();
   const { traits, fetchDNA, hasFetchedDNA } = useTasteStore();
 
-  // Fetch profile data on mount
-  useEffect(() => {
-    if (user?.id && !hasFetchedProfile) {
-      fetchProfile(user.id);
-    }
-  }, [user?.id, hasFetchedProfile, fetchProfile]);
+  // Fetch profile data on focus (re-fetch when returning from edit)
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id) {
+        console.log('[ProfileScreen] Fetching profile on focus');
+        fetchProfile(user.id);
+      }
+    }, [user?.id, fetchProfile])
+  );
 
   // Fetch DNA traits on mount
   useEffect(() => {

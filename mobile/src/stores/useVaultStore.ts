@@ -134,21 +134,28 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   fetchVisits: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
+      console.log('[Vault] Fetching visits for user:', userId);
       const response = await vaultApi.getVisits(userId);
+
+      console.log('[Vault] API Response stats:', JSON.stringify(response.stats));
+      console.log('[Vault] API Response places count:', response.places?.length);
 
       const places = response.places.map(mapApiPlace);
       const visits = places.flatMap((p) => p.visits);
       const { currentFilter } = get();
 
+      const stats = {
+        totalPlaces: response.stats.total_places,
+        totalVisits: response.stats.total_visits,
+        thisMonthSpent: response.stats.this_month_spent,
+      };
+      console.log('[Vault] Setting stats:', JSON.stringify(stats));
+
       set({
         places,
         visits,
         filteredPlaces: getPlacesByStatus(places, currentFilter),
-        stats: {
-          totalPlaces: response.stats.total_places,
-          totalVisits: response.stats.total_visits,
-          thisMonthSpent: response.stats.this_month_spent,
-        },
+        stats,
         isLoading: false,
         hasFetched: true,
       });
