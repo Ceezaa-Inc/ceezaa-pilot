@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -153,9 +154,7 @@ export default function EditProfileScreen() {
           <View style={styles.avatarSection}>
             <View style={styles.avatarPreview}>
               {avatarType === 'photo' && avatarUrl ? (
-                <View style={styles.photoPlaceholder}>
-                  <Typography variant="caption" color="muted">Photo</Typography>
-                </View>
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
               ) : (
                 <Typography variant="h1">{avatarEmoji}</Typography>
               )}
@@ -304,13 +303,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: colors.primary.DEFAULT,
   },
-  photoPlaceholder: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 50,
-    backgroundColor: colors.dark.surfaceAlt,
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatarImage: {
+    width: 94,
+    height: 94,
+    borderRadius: 47,
   },
   avatarButtons: {
     flexDirection: 'row',
