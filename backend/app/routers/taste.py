@@ -586,20 +586,20 @@ async def get_insights(
     # No insights for today - generate new ones
     print(f"[Insights] Generating new insights for user: {user_id}")
 
-    # Fetch user_analysis for the generator
-    analysis_result = (
+    # Fetch user_analysis for the generator - use execute() to avoid 406 on zero rows
+    analysis_list = (
         supabase.table("user_analysis")
         .select("*")
         .eq("user_id", user_id)
-        .single()
         .execute()
     )
+    analysis_row = analysis_list.data[0] if analysis_list.data else None
 
-    if not analysis_result.data:
+    if not analysis_row:
         print(f"[Insights] No user analysis found, returning empty")
         return InsightsListResponse(insights=[], generated_at=None)
 
-    analysis = analysis_result.data
+    analysis = analysis_row
 
     # Build user data dict for generator
     user_data = {
