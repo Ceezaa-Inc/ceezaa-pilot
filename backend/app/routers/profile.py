@@ -265,7 +265,7 @@ async def export_user_data(
     # Session participations
     sessions_result = (
         supabase.table("session_participants")
-        .select("session_id, name, is_host, has_voted, joined_at")
+        .select("session_id, role, joined_at")
         .eq("user_id", user_id)
         .execute()
     )
