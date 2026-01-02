@@ -95,6 +95,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifyOtp: async (phone: string, token: string) => {
     try {
       set({ isLoading: true, error: null });
+      console.log('[Auth] Verifying OTP for phone:', phone, 'token:', token);
 
       const { data, error } = await supabase.auth.verifyOtp({
         phone,
@@ -102,7 +103,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         type: 'sms',
       });
 
+      console.log('[Auth] verifyOtp response:', { data, error });
+
       if (error) {
+        console.error('[Auth] verifyOtp error:', error.message, error);
         set({ error: error.message, isLoading: false });
         return false;
       }

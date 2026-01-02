@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Platform, Alert } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 import * as Crypto from 'expo-crypto';
 import { useAuthStore } from '@/stores';
 import {
@@ -27,6 +28,9 @@ if (!isExpoGo && Platform.OS === 'ios') {
 
 // Required for web browser auth flow to complete
 WebBrowser.maybeCompleteAuthSession();
+
+// Debug: Log OAuth config on load
+console.log('[SocialAuth] Google Web Client ID:', GOOGLE_WEB_CLIENT_ID || '(empty)');
 
 interface UseSocialAuthReturn {
   signInWithGoogle: () => Promise<void>;
@@ -59,22 +63,40 @@ export function useSocialAuth(): UseSocialAuthReturn {
     checkAppleAvailability();
   }, []);
 
+  // For Expo Go, we must use auth.expo.io proxy since Google requires https:// redirect URIs
+  // The proxy URL format is: https://auth.expo.io/@owner/slug
+  const redirectUri = isExpoGo
+    ? 'https://auth.expo.io/@samz905/ceezaa'
+    : AuthSession.makeRedirectUri({ scheme: 'ceezaa', path: 'auth' });
+
+  console.log('[SocialAuth] Is Expo Go:', isExpoGo);
+  console.log('[SocialAuth] Redirect URI:', redirectUri);
+
   // Google Auth Session setup
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: GOOGLE_WEB_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    redirectUri,
   });
 
   // Handle Google auth response
   useEffect(() => {
+    console.log('[SocialAuth] Google response:', JSON.stringify(response, null, 2));
+
     if (response?.type === 'success') {
       const { id_token } = response.params;
+      console.log('[SocialAuth] Got ID token, length:', id_token?.length);
       handleGoogleSuccess(id_token);
     } else if (response?.type === 'error') {
+      console.error('[SocialAuth] Google auth error:', response.error);
       setIsGoogleLoading(false);
-      Alert.alert('Error', 'Google sign-in failed. Please try again.');
+      Alert.alert('Error', `Google sign-in failed: ${response.error?.message || 'Unknown error'}`);
     } else if (response?.type === 'dismiss') {
+      console.log('[SocialAuth] Google auth dismissed');
+      setIsGoogleLoading(false);
+    } else if (response?.type === 'cancel') {
+      console.log('[SocialAuth] Google auth cancelled');
       setIsGoogleLoading(false);
     }
   }, [response]);
@@ -94,6 +116,8 @@ export function useSocialAuth(): UseSocialAuthReturn {
   };
 
   const handleSignInWithGoogle = async () => {
+    console.log('[SocialAuth] Starting Google sign-in, request:', !!request);
+
     // Check if Google client IDs are configured
     if (!GOOGLE_WEB_CLIENT_ID) {
       Alert.alert(
@@ -113,7 +137,11 @@ export function useSocialAuth(): UseSocialAuthReturn {
 
     setIsGoogleLoading(true);
     try {
-      await promptAsync();
+      // Use showInRecents to keep the browser tab available
+      const result = await promptAsync({
+        showInRecents: true,
+      });
+      console.log('[SocialAuth] Google prompt result:', result?.type);
       // Response handled in useEffect above
     } catch (error) {
       console.error('[SocialAuth] Google prompt error:', error);

@@ -34,13 +34,20 @@ export default function VerifyScreen() {
   }, [otp]);
 
   const handleVerify = async () => {
-    if (otp.length !== 6 || !phone) return;
+    console.log('[Verify] handleVerify called, otp:', otp, 'phone:', phone);
+    if (otp.length !== 6 || !phone) {
+      console.log('[Verify] Invalid otp or phone, returning');
+      return;
+    }
 
     const success = await verifyOtp(phone, otp);
+    console.log('[Verify] verifyOtp returned:', success);
 
     if (success) {
-      // Navigate to onboarding quiz on successful verification
+      console.log('[Verify] Success! Navigating to onboarding quiz');
       router.replace('/(onboarding)/quiz');
+    } else {
+      console.log('[Verify] Failed, staying on verify screen');
     }
   };
 
